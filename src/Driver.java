@@ -1,3 +1,5 @@
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
@@ -15,6 +17,9 @@ public class Driver {
 	public static int main(String[] args) {
 		// TODO Fill in
 		System.out.println(Arrays.toString(args));
+		
+		Path path = Paths.get("..", "project-tests", "text");
+		
 		return 0;
 	}
 
