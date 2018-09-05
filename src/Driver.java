@@ -21,6 +21,8 @@ public class Driver {
 			System.err.println("Command line argument not valid.\nValid arguments: \n-path\n-index");
 		}
 		
+		
+		
 		Path path = Paths.get("..", "project-tests", "text");
 	}
 
