@@ -1,5 +1,8 @@
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +16,37 @@ import org.junit.runners.AllTests;
  * TODO Fill in your own comments!
  */
 public class Driver {
+	/**
+	 * Demonstrates a better way to convert a text file to 1337-speak, making sure
+	 * resources are closed and as little memory as possible is used. Does NOT
+	 * perform its own exception handling!
+	 *
+	 * @param input path to the input file
+	 * @return list list of 
+	 * @throws IOException
+	 */
+	public static ArrayList<String> getWords(Path input) throws IOException {
+		try (
+				BufferedReader reader = Files.newBufferedReader(
+						input, StandardCharsets.UTF_8
+						);
+				) {
+			ArrayList<String> words = new ArrayList<String>();
+			String line = null;
+			String[] list = null;
+
+			while ((line = reader.readLine()) != null) {
+				list = line.split(" ");
+				for (String word: list) {
+					words.add(word);
+				}
+			}
+			return words;
+		}
+
+		// note: we can still throw exceptions (do not need to catch)
+	}
+	
 	/**
 	 * Finds text files by retrieving subdirectories until hitting files.
 	 * If file has .txt or .text meaning that it is a text file, return a
@@ -68,14 +102,30 @@ public class Driver {
 	 */
 	public static void main(String[] args) throws IOException {
 		String[] validArguments = {"-path", "-index"};
+		ArrayList<String> textFiles;
+		ArrayList<String> words;
 		if (args.length == 0 
 				|| !args[0].equals(validArguments[0]) 
 				&& !args[0].equals(validArguments[1])) {
-			System.err.println("Command line argument not valid.\nValid arguments: \n-path\n-index");
+			System.err.println("Command line argument not valid."
+					+ "\nValid arguments: "
+					+ "\n-path path where the flag -path indicates the next argument "
+					+ "is a path to either a single text file or a directory of text "
+					+ "files that must be processed and added to the inverted index"
+					+ "\n-index where the flag -index is an optional flag that indicates "
+					+ "the next argument is the path to use for the inverted index output "
+					+ "file. If the path argument is not provided, use index.json as the "
+					+ "default output path. If the -index flag is not provided, do not "
+					+ "produce an output file.");
 		}
 		
-		Path path = Paths.get("..", "Project 1", "project-tests", "text").toAbsolutePath().normalize();
-		traverse(path);
+//		Path path = Paths.get("..", "Project 1", "project-tests", "text").toAbsolutePath().normalize();
+//		textFiles = traverse(path);
+		Path path = Paths.get("..", "Project 1", "project-tests", "text", "simple", "hello.txt").toAbsolutePath().normalize();
+		words = getWords(path);
+		System.out.println(words.size());
+		System.out.println(words);
+		
 	}
 
 }
