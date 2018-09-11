@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
@@ -8,19 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.junit.runners.AllTests;
 
-/**
- * TODO Fill in your own comments!
- */
 public class Driver {
+	
 	/**
 	 * Gets words from a given text file in the path. 
 	 *
 	 * @param input path to the input file
-	 * @return list list of words in textfile
+	 * @return list list of words in text file
 	 * @throws IOException
 	 */
 	public static ArrayList<String> getWords(Path input) throws IOException {
@@ -32,7 +33,6 @@ public class Driver {
 			ArrayList<String> words = new ArrayList<String>();
 			String line = null;
 			String[] list = null;
-//			if (traverse())
 
 			while ((line = reader.readLine()) != null) {
 				list = line.split(" ");
@@ -64,9 +64,9 @@ public class Driver {
 			ArrayList<String> textlist = new ArrayList<String>();
 			for (Path file : listing) {
 				if (Files.isDirectory(file)) {
-					findText(file);
-				} else if (file.getFileName().toString().toLowerCase().contains("txt") 
-						|| file.getFileName().toString().toLowerCase().contains("text")) {
+					textlist.addAll(findText(file));
+				} else if (file.getFileName().toString().toLowerCase().endsWith(".txt")
+						|| file.getFileName().toString().toLowerCase().endsWith(".text")) {
 					textlist.add(file.getFileName().toString());
 				}
 			}
@@ -96,8 +96,258 @@ public class Driver {
 			}
 		}
 	}
-	
-	
+
+	/**
+	 * Writes several tab <code>\t</code> symbols using the provided
+	 * {@link Writer}.
+	 *
+	 * @param times  the number of times to write the tab symbol
+	 * @param writer the writer to use
+	 * @throws IOException if the writer encounters any issues
+	 */
+	public static void indent(int times, Writer writer) throws IOException {
+		for (int i = 0; i < times; i++) {
+			writer.write('\t');
+		}
+	}
+
+	/**
+	 * Writes the element surrounded by quotes using the provided {@link Writer}.
+	 *
+	 * @param element the element to quote
+	 * @param writer  the writer to use
+	 * @throws IOException if the writer encounters any issues
+	 */
+	public static void quote(String element, Writer writer) throws IOException {
+		writer.write('"');
+		writer.write(element);
+		writer.write('"');
+	}
+
+	/**
+	 * Returns the set of elements formatted as a pretty JSON array of numbers.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @return {@link String} containing the elements in pretty JSON format
+	 *
+	 * @see #asArray(TreeSet, Writer, int)
+	 */
+	public static String asArray(TreeSet<Integer> elements) {
+		try {
+			StringWriter writer = new StringWriter();
+			asArray(elements, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Writes the set of elements formatted as a pretty JSON array of numbers to
+	 * the specified file.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param path     the path to the file write to output
+	 * @throws IOException if the writer encounters any issues
+	 */
+	public static void asArray(TreeSet<Integer> elements, Path path)
+			throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path,
+				StandardCharsets.UTF_8)) {
+			asArray(elements, writer, 0);
+		}
+	}
+
+	/**
+	 * Writes the set of elements formatted as a pretty JSON array of numbers
+	 * using the provided {@link Writer} and indentation level.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param writer   the writer to use
+	 * @param level    the initial indentation level
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see Writer#write(String)
+	 * @see Writer#append(CharSequence)
+	 *
+	 * @see System#lineSeparator()
+	 *
+	 * @see #indent(int, Writer)
+	 */
+	public static void asArray(TreeSet<Integer> elements, Writer writer,
+			int level) throws IOException {
+		if (!elements.isEmpty()) {
+			writer.write('[');
+			writer.write(System.lineSeparator());
+			for (Integer element : elements.headSet(elements.last())) {
+				indent(level + 1, writer);
+				writer.write(element.toString());
+				writer.write(",");
+				writer.write(System.lineSeparator());
+			} 
+			indent(level + 1, writer);
+			writer.write(elements.last().toString());
+			writer.write(System.lineSeparator());
+			indent(level, writer);
+			writer.write(']');
+		} else {
+			writer.write('[');
+			writer.write(System.lineSeparator());
+			indent(level, writer);
+			writer.write(']');
+		}
+	}
+
+	/**
+	 * Returns the map of elements formatted as a pretty JSON object.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @return {@link String} containing the elements in pretty JSON format
+	 *
+	 * @see #asObject(TreeMap, Writer, int)
+	 */
+	public static String asObject(TreeMap<String, Integer> elements) {
+		try {
+			StringWriter writer = new StringWriter();
+			asObject(elements, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Writes the map of elements formatted as a pretty JSON object to
+	 * the specified file.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param path     the path to the file write to output
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see #asObject(TreeMap, Writer, int)
+	 */
+	public static void asObject(TreeMap<String, Integer> elements, Path path)
+			throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path,
+				StandardCharsets.UTF_8)) {
+			asObject(elements, writer, 0);
+		}
+	}
+
+	/**
+	 * Writes the map of elements as a pretty JSON object using the provided
+	 * {@link Writer} and indentation level.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param writer   the writer to use
+	 * @param level    the initial indentation level
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see Writer#write(String)
+	 * @see Writer#append(CharSequence)
+	 *
+	 * @see System#lineSeparator()
+	 *
+	 * @see #indent(int, Writer)
+	 * @see #quote(String, Writer)
+	 */
+	public static void asObject(TreeMap<String, Integer> elements, Writer writer,
+			int level) throws IOException {
+		writer.write('{');
+		writer.write(System.lineSeparator());
+		for (String element : elements.keySet()) {
+			indent(level + 1, writer);
+			quote(element.toString(), writer);
+			writer.write(": ");
+			writer.write(elements.get(element).toString());
+			
+			if (!element.equals(elements.lastKey()))
+				writer.write(",");
+			
+			writer.write(System.lineSeparator());
+		}
+		
+		writer.write('}');
+	}
+
+	/**
+	 * Returns the nested map of elements formatted as a nested pretty JSON object.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @return {@link String} containing the elements in pretty JSON format
+	 *
+	 * @see #asNestedObject(TreeMap, Writer, int)
+	 */
+	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
+		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
+		try {
+			StringWriter writer = new StringWriter();
+			asNestedObject(elements, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
+
+	/**
+	 * Writes the nested map of elements formatted as a nested pretty JSON object
+	 * to the specified file.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param path     the path to the file write to output
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see #asNestedObject(TreeMap, Writer, int)
+	 */
+	public static void asNestedObject(TreeMap<String, TreeSet<Integer>> elements,
+			Path path) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path,
+				StandardCharsets.UTF_8)) {
+			asNestedObject(elements, writer, 0);
+		}
+	}
+
+	/**
+	 * Writes the nested map of elements as a nested pretty JSON object using the
+	 * provided {@link Writer} and indentation level.
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param writer   the writer to use
+	 * @param level    the initial indentation level
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see Writer#write(String)
+	 * @see Writer#append(CharSequence)
+	 *
+	 * @see System#lineSeparator()
+	 *
+	 * @see #indent(int, Writer)
+	 * @see #quote(String, Writer)
+	 *
+	 * @see #asArray(TreeSet, Writer, int)
+	 */
+	public static void asNestedObject(TreeMap<String, TreeSet<Integer>> elements,
+			Writer writer, int level) throws IOException {
+		writer.write('{');
+		writer.write(System.lineSeparator());
+		for (String element : elements.keySet()) {
+			indent(level + 1, writer);
+			quote(element.toString(), writer);
+			writer.write(": ");
+			
+			asArray(elements.get(element), writer, level + 1);
+			
+			if (!element.equals(elements.lastKey()))
+				writer.write(",");
+			writer.write(System.lineSeparator());
+		}
+		
+		writer.write('}');
+
+	}
 
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
@@ -127,13 +377,16 @@ public class Driver {
 		
 //		Path path = Paths.get("..", "Project 1", "project-tests", "text").toAbsolutePath().normalize();
 //		textFiles = traverse(path);
-		Path path = Paths.get("..", "Project 1", "project-tests", "text", "simple", "hello.txt").toAbsolutePath().normalize();
-		if (!(traverse(path.getFileName()) == null)) {
-			words = getWords(path);
-			System.out.println(words.size());
-			System.out.println(words);
-		}
-		System.out.println(traverse(path.getFileName()));
+//		System.out.println(textFiles);
+//		Path path = Paths.get("..", "Project 1", "project-tests", "text", "simple", "hello.txt").toAbsolutePath().normalize();
+//		if (!(traverse(path.getFileName()) == null)) {
+//			words = getWords(path);
+//			System.out.println(words.size());
+//			System.out.println(words);
+//		}
+//		System.out.println(traverse(path.getFileName()));
+		
+		
 		
 	}
 
