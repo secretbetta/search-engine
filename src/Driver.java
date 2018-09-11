@@ -17,12 +17,10 @@ import org.junit.runners.AllTests;
  */
 public class Driver {
 	/**
-	 * Demonstrates a better way to convert a text file to 1337-speak, making sure
-	 * resources are closed and as little memory as possible is used. Does NOT
-	 * perform its own exception handling!
+	 * Gets words from a given text file in the path. 
 	 *
 	 * @param input path to the input file
-	 * @return list list of 
+	 * @return list list of words in textfile
 	 * @throws IOException
 	 */
 	public static ArrayList<String> getWords(Path input) throws IOException {
@@ -34,6 +32,7 @@ public class Driver {
 			ArrayList<String> words = new ArrayList<String>();
 			String line = null;
 			String[] list = null;
+//			if (traverse())
 
 			while ((line = reader.readLine()) != null) {
 				list = line.split(" ");
@@ -76,18 +75,25 @@ public class Driver {
 	}
 
 	/**
-	 * Safely starts the recursive traversal with the proper padding. Users of
-	 * this class can access this method, so some validation is required.
+	 * Safely starts the recursive traversal with the proper padding. 
+	 * Finds all text files in the directory.
 	 *
 	 * @param directory to traverse
 	 * @return findText a list of text names, null if none.
 	 * @throws IOException
 	 */
 	public static ArrayList<String> traverse(Path directory) throws IOException {
+		var single = new ArrayList<String>();
 		if (Files.isDirectory(directory)) {
 			return findText(directory);
 		} else {
-			return null;
+			if (directory.getFileName().toString().toLowerCase().contains("txt") 
+					|| directory.getFileName().toString().toLowerCase().contains("text")) {
+				single.add(directory.getFileName().toString());
+				return single;
+			} else {
+				return null;
+			}
 		}
 	}
 	
@@ -122,9 +128,12 @@ public class Driver {
 //		Path path = Paths.get("..", "Project 1", "project-tests", "text").toAbsolutePath().normalize();
 //		textFiles = traverse(path);
 		Path path = Paths.get("..", "Project 1", "project-tests", "text", "simple", "hello.txt").toAbsolutePath().normalize();
-		words = getWords(path);
-		System.out.println(words.size());
-		System.out.println(words);
+		if (!(traverse(path.getFileName()) == null)) {
+			words = getWords(path);
+			System.out.println(words.size());
+			System.out.println(words);
+		}
+		System.out.println(traverse(path.getFileName()));
 		
 	}
 
