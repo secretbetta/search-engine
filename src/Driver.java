@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
@@ -39,13 +41,15 @@ public class Driver {
 			while ((line = reader.readLine()) != null) {
 				list = line.split(" ");
 				for (String word: list) {
-					if (!words.containsKey(word)) {
-						positions.add(position);
-						words.put(word, (TreeSet<Integer>) positions.clone());
-					} else {
-						positions.addAll(words.get(word));
-						positions.add(position);
-						words.put(word, (TreeSet<Integer>) positions.clone());
+					if (!word.trim().isEmpty()) {
+						if (!words.containsKey(word.toLowerCase())) {
+							positions.add(position);
+							words.put(word.toLowerCase(), (TreeSet<Integer>) positions.clone());
+						} else {
+							positions.addAll(words.get(word.toLowerCase()));
+							positions.add(position);
+							words.put(word.toLowerCase(), (TreeSet<Integer>) positions.clone());
+						}
 					}
 					positions.clear();
 					position++;
@@ -290,9 +294,15 @@ public class Driver {
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
 	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
-		StringWriter writer = new StringWriter();
-		asNestedObject(elements);
-		return writer.toString();
+		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
+		try {
+			StringWriter writer = new StringWriter();
+			asNestedObject(elements, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -309,7 +319,8 @@ public class Driver {
 			Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
-			asNestedObject(elements, path, 0);
+			asNestedObject(elements, writer, 0);
+			writer.close();
 		}
 	}
 
@@ -333,24 +344,23 @@ public class Driver {
 	 * @see #asArray(TreeSet, Writer, int)
 	 */
 	public static void asNestedObject(TreeMap<String, TreeSet<Integer>> elements,
-			Path path, int level) throws IOException {
-		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-			writer.write('{');
-			writer.write(System.lineSeparator());
-			for (String element : elements.keySet()) {
-				indent(level + 1, writer);
-				quote(element.toString(), writer);
-				writer.write(": ");
-				
-				asArray(elements.get(element), writer, level + 1);
-				
-				if (!element.equals(elements.lastKey()))
-					writer.write(",");
-				writer.write(System.lineSeparator());
-			}
+			Writer writer, int level) throws IOException {
+		writer.write('{');
+		writer.write(System.lineSeparator());
+		for (String element : elements.keySet()) {
+			indent(level + 1, writer);
+			quote(element.toString(), writer);
+			writer.write(": ");
 			
-			writer.write('}');
+			asArray(elements.get(element), writer, level + 1);
+			
+			if (!element.equals(elements.lastKey()))
+				writer.write(",");
+			writer.write(System.lineSeparator());
 		}
+		
+		writer.write('}');
+		writer.close();
 
 	}
 
@@ -362,8 +372,8 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Path test = Paths.get("..", "Project 1", "project-secretbetta", "index.json");
-//		var out = Files.newBufferedWriter(test, StandardCharsets.UTF_8);
+		Path test = Paths.get("..", "Project 1", "project-secretbetta", "test.json");
+		BufferedWriter out = Files.newBufferedWriter(test, StandardCharsets.UTF_8);
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		
@@ -386,11 +396,12 @@ public class Driver {
 		System.out.println(path);
 		if (!(traverse(path.getFileName()) == null)) {
 			words = getWords(path);
-			System.out.println(words.size());
-			System.out.println(words);
-			asNestedObject(words, test, 0);
+			System.out.println((asNestedObject(words)));
+//			out.append(asNestedObject(words));
+//			out.close();
+			asNestedObject(words, test);
 		}
-//		System.out.println("Finish");
+		System.out.println("Finish");
 		
 		
 		
