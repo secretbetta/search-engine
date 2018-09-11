@@ -372,14 +372,14 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Path test = Paths.get("..", "project-secretbetta", "index.json");
-		BufferedWriter out = Files.newBufferedWriter(test, StandardCharsets.UTF_8);
+		Path index = Paths.get("..", "project-secretbetta", "index.json");
+		BufferedWriter out = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		
 		if (args.length == 0 
 				|| !args[0].equals(validArguments[0]) 
-				&& !args[0].equals(validArguments[1])) {
+				&& !args[2].equals(validArguments[1])) {
 			System.err.println("Command line argument not valid."
 					+ "\nValid arguments: "
 					+ "\n-path path where the flag -path indicates the next argument "
@@ -390,17 +390,22 @@ public class Driver {
 					+ "file. If the path argument is not provided, use index.json as the "
 					+ "default output path. If the -index flag is not provided, do not "
 					+ "produce an output file.");
+		} else {
+			if (args.length > 3 && args[2].equals(validArguments[1])) {
+				System.out.println(args[3].substring(4));
+				index = Paths.get("..", "project-secretbetta", "index-text", args[3].substring(4));
+			}
 		}
 		
 		Path path = Paths.get(args[1]).toAbsolutePath().normalize();
-		System.out.println(path + "\n" + test);
+//		System.out.println(path + "\n" + test);
 		if (!(traverse(path.getFileName()) == null)) {
 			words = getWords(path);
-			System.out.println((asNestedObject(words)));
+//			System.out.println((asNestedObject(words)));
 			out.write(asNestedObject(words).toString());
 			out.close();
 		}
-		System.out.println("Finish");
+//		System.out.println("Finish");
 		
 		
 		
