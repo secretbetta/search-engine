@@ -24,26 +24,34 @@ public class Driver {
 	 * @return list list of words in text file
 	 * @throws IOException
 	 */
-	public static ArrayList<String> getWords(Path input) throws IOException {
+	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) throws IOException {
 		try (
 				BufferedReader reader = Files.newBufferedReader(
 						input, StandardCharsets.UTF_8
 						);
 				) {
-			ArrayList<String> words = new ArrayList<String>();
+			var words = new TreeMap<String, TreeSet <Integer>>();
+			var positions = new TreeSet<Integer>();
+			int position = 0;
 			String line = null;
 			String[] list = null;
 
 			while ((line = reader.readLine()) != null) {
 				list = line.split(" ");
 				for (String word: list) {
-					words.add(word);
+					if (words.containsKey(word)) {
+						positions = words.get(word);
+						positions.add(position);
+						words.put(word, positions);
+					} else {
+						positions.add(position);
+						words.put(word,  positions);
+					}
+					position++;
 				}
 			}
 			return words;
 		}
-
-		// note: we can still throw exceptions (do not need to catch)
 	}
 	
 	/**
@@ -357,9 +365,10 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		Writer write;
 		String[] validArguments = {"-path", "-index"};
-		ArrayList<String> textFiles;
-		ArrayList<String> words;
+		TreeMap<String, TreeSet<Integer>> words;
+		
 		if (args.length == 0 
 				|| !args[0].equals(validArguments[0]) 
 				&& !args[0].equals(validArguments[1])) {
@@ -375,16 +384,14 @@ public class Driver {
 					+ "produce an output file.");
 		}
 		
-//		Path path = Paths.get("..", "Project 1", "project-tests", "text").toAbsolutePath().normalize();
-//		textFiles = traverse(path);
-//		System.out.println(textFiles);
-//		Path path = Paths.get("..", "Project 1", "project-tests", "text", "simple", "hello.txt").toAbsolutePath().normalize();
-//		if (!(traverse(path.getFileName()) == null)) {
-//			words = getWords(path);
-//			System.out.println(words.size());
-//			System.out.println(words);
-//		}
-//		System.out.println(traverse(path.getFileName()));
+		Path path = Paths.get(args[1]);
+		System.out.println(path);
+		if (!(traverse(path.getFileName()) == null)) {
+			words = getWords(path);
+			System.out.println(words.size());
+			asNestedObject(words);
+		}
+		System.out.println("Finish");
 		
 		
 		
