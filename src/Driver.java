@@ -1,6 +1,8 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
@@ -39,13 +41,17 @@ public class Driver {
 			while ((line = reader.readLine()) != null) {
 				list = line.split(" ");
 				for (String word: list) {
-					if (words.containsKey(word)) {
-						positions = words.get(word);
+					if (!words.containsKey(word)) {
+						positions.clear();
+//						System.out.println("Test" + positions);
 						positions.add(position);
 						words.put(word, positions);
 					} else {
+//						System.out.println("Test2");
+						positions.clear();
+						positions.addAll(words.get(word));
 						positions.add(position);
-						words.put(word,  positions);
+						words.put(word, positions);
 					}
 					position++;
 				}
@@ -365,7 +371,7 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Writer write;
+		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("index.json")));
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		
@@ -389,7 +395,8 @@ public class Driver {
 		if (!(traverse(path.getFileName()) == null)) {
 			words = getWords(path);
 			System.out.println(words.size());
-			asNestedObject(words);
+			System.out.println(words);
+			out.write(asNestedObject(words));
 		}
 		System.out.println("Finish");
 		
