@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
@@ -42,17 +40,14 @@ public class Driver {
 				list = line.split(" ");
 				for (String word: list) {
 					if (!words.containsKey(word)) {
-						positions.clear();
-//						System.out.println("Test" + positions);
 						positions.add(position);
-						words.put(word, positions);
+						words.put(word, (TreeSet<Integer>) positions.clone());
 					} else {
-//						System.out.println("Test2");
-						positions.clear();
 						positions.addAll(words.get(word));
 						positions.add(position);
-						words.put(word, positions);
+						words.put(word, (TreeSet<Integer>) positions.clone());
 					}
+					positions.clear();
 					position++;
 				}
 			}
@@ -295,15 +290,9 @@ public class Driver {
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
 	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
-		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
-		try {
-			StringWriter writer = new StringWriter();
-			asNestedObject(elements, writer, 0);
-			return writer.toString();
-		}
-		catch (IOException e) {
-			return null;
-		}
+		StringWriter writer = new StringWriter();
+		asNestedObject(elements);
+		return writer.toString();
 	}
 
 	/**
@@ -320,7 +309,7 @@ public class Driver {
 			Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
-			asNestedObject(elements, writer, 0);
+			asNestedObject(elements, path, 0);
 		}
 	}
 
@@ -344,22 +333,24 @@ public class Driver {
 	 * @see #asArray(TreeSet, Writer, int)
 	 */
 	public static void asNestedObject(TreeMap<String, TreeSet<Integer>> elements,
-			Writer writer, int level) throws IOException {
-		writer.write('{');
-		writer.write(System.lineSeparator());
-		for (String element : elements.keySet()) {
-			indent(level + 1, writer);
-			quote(element.toString(), writer);
-			writer.write(": ");
-			
-			asArray(elements.get(element), writer, level + 1);
-			
-			if (!element.equals(elements.lastKey()))
-				writer.write(",");
+			Path path, int level) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+			writer.write('{');
 			writer.write(System.lineSeparator());
+			for (String element : elements.keySet()) {
+				indent(level + 1, writer);
+				quote(element.toString(), writer);
+				writer.write(": ");
+				
+				asArray(elements.get(element), writer, level + 1);
+				
+				if (!element.equals(elements.lastKey()))
+					writer.write(",");
+				writer.write(System.lineSeparator());
+			}
+			
+			writer.write('}');
 		}
-		
-		writer.write('}');
 
 	}
 
@@ -371,7 +362,8 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter("index.json")));
+		Path test = Paths.get("..", "Project 1", "project-secretbetta", "index.json");
+//		var out = Files.newBufferedWriter(test, StandardCharsets.UTF_8);
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		
@@ -396,7 +388,7 @@ public class Driver {
 			words = getWords(path);
 			System.out.println(words.size());
 			System.out.println(words);
-			out.write(asNestedObject(words));
+			asNestedObject(words, test, 0);
 		}
 		System.out.println("Finish");
 		
