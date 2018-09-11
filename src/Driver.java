@@ -372,7 +372,7 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Path test = Paths.get("..", "Project 1", "project-secretbetta", "test.json");
+		Path test = Paths.get("..", "project-secretbetta", "index.json");
 		BufferedWriter out = Files.newBufferedWriter(test, StandardCharsets.UTF_8);
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
@@ -392,14 +392,13 @@ public class Driver {
 					+ "produce an output file.");
 		}
 		
-		Path path = Paths.get(args[1]);
-		System.out.println(path);
+		Path path = Paths.get(args[1]).toAbsolutePath().normalize();
+		System.out.println(path + "\n" + test);
 		if (!(traverse(path.getFileName()) == null)) {
 			words = getWords(path);
 			System.out.println((asNestedObject(words)));
-//			out.append(asNestedObject(words));
-//			out.close();
-			asNestedObject(words, test);
+			out.write(asNestedObject(words).toString());
+			out.close();
 		}
 		System.out.println("Finish");
 		
