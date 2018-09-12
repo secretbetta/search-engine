@@ -372,8 +372,8 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		Path index = Paths.get("..", "project-secretbetta", "index.json");
-		BufferedWriter out = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+		Path index;
+//		BufferedWriter out = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		
@@ -392,23 +392,23 @@ public class Driver {
 					+ "produce an output file.");
 		} else {
 			if (args.length > 3 && args[2].equals(validArguments[1])) {
-				System.out.println(args[3].substring(4));
-				index = Paths.get("..", "project-secretbetta", "index-text", args[3].substring(4));
+//				System.out.println(args[3].substring(4)););
+				index = Paths.get("..", "Project 1", "project-secretbetta", "index-text", args[3].substring(4));
+				System.out.println(index.toAbsolutePath());
+			} else {
+				index = Paths.get("index-test", "index.json");
 			}
+			BufferedWriter out = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+			Path path = Paths.get(args[1]);
+			System.out.println(path + "\n" + index);
+			if (!(traverse(path.getFileName()) == null)) {
+				words = getWords(path);
+//				System.out.println((asNestedObject(words)));
+				out.write(asNestedObject(words).toString());
+				out.close();
+			}
+//			System.out.println("Finish");
 		}
-		
-		Path path = Paths.get(args[1]).toAbsolutePath().normalize();
-//		System.out.println(path + "\n" + test);
-		if (!(traverse(path.getFileName()) == null)) {
-			words = getWords(path);
-//			System.out.println((asNestedObject(words)));
-			out.write(asNestedObject(words).toString());
-			out.close();
-		}
-//		System.out.println("Finish");
-		
-		
-		
 	}
 
 }
