@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,6 +12,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -31,15 +33,21 @@ public class Driver {
 	public static String[] stem(String words) {
 		SnowballStemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
 		String[] list;
-		
+		words = Normalizer.normalize(words, Normalizer.Form.NFD);
 		words = words.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+", "").toLowerCase();
-//		words = words.replaceAll(" ", "");
-		list = words.split("(?U)\\p{Space}+");
-		System.out.println("Test " + words);
+//		System.out.println(words.length());
+//		System.out.println("Test " + words);
 		
+		list = words.split("(?U)\\p{Space}+");
+//		System.out.println(list.length);
+//		System.out.println("Test " + words);
 		for (int i = 0; i < list.length; i++) {
-			list[i] = stemmer.stem(list[i]).toString();
+			if (!list[i].trim().isEmpty()) {
+				list[i] = stemmer.stem(list[i]).toString();
+			}
+//			System.out.println("Words " + list[i]);
 		}
+		
 		
 		return list;
 	}
@@ -69,6 +77,7 @@ public class Driver {
 				list = stem(line);
 				for (String word: list) {
 					if (!word.trim().isEmpty()) {
+//						System.out.println(word + position);
 						if (!words.containsKey(word)) {
 							positions.add(position);
 							words.put(word, (TreeSet<Integer>) positions.clone());
@@ -77,9 +86,15 @@ public class Driver {
 							positions.add(position);
 							words.put(word, (TreeSet<Integer>) positions.clone());
 						}
+						position++;
+					} else {
+//						position--;
+//						if (position == 0) { 
+//							position++;
+//						}
 					}
 					positions.clear();
-					position++;
+//					position++;
 				}
 			}
 			return words;
@@ -414,6 +429,7 @@ public class Driver {
 	 */
 	public static void main(String[] args) throws IOException {
 		Path index = Paths.get(".");
+		BufferedWriter writer;
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		
@@ -433,8 +449,12 @@ public class Driver {
 		} else {
 			Path path = Paths.get(args[1]);
 //			System.out.println(path.toAbsolutePath());
+			
+			
 			if (!Files.exists(path)) {
 			    System.err.println("Path does not exist");
+			} else if (Files.isDirectory(path)) {
+				
 			} else {
 				if (args.length > 3 && args[2].equals(validArguments[1])) {
 //					System.out.println(args[3].substring(4));
@@ -443,18 +463,22 @@ public class Driver {
 //					System.out.println(index);
 				} else {
 					
-					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "index-text", "index.json");
+					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
 //					System.out.println(index);
 				}
-
-				BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 				
-//				SnowballStemmer english = new SnowballStemmer(ALGORITHM.ENGLISH, 4);
+				File indexJSON = new File(index.toAbsolutePath().normalize().toString());
+				if (index.endsWith("index.json")) {
+					indexJSON.delete();
+				}
+				
+				writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+				
 //				System.out.println(path.toAbsolutePath() + "\n" + index.toAbsolutePath()););
+				
 				if (!(traverse(path.getFileName()) == null)) {
 					words = getWords(path);
 					writer.write(asNestedObject(words, args[1]).toString());
-					System.out.println(asNestedObject(words, args[1]).toString());
 					writer.close();
 				}
 				
