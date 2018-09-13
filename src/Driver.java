@@ -61,15 +61,14 @@ public class Driver {
 	 * @return list list of words in text file
 	 * @throws IOException
 	 */
-	public static TreeMap<String, TreeMap <String, Integer>> getWords(Path input, String path) throws IOException {
+	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) throws IOException {
 		try (
 				BufferedReader reader = Files.newBufferedReader(
 						input, StandardCharsets.UTF_8
 						);
 				) {
-			var words = new TreeMap<String, TreeMap <String, Integer>>();
-			var positions = new TreeMap<String, Integer>();
-			var temp = new TreeMap<String, Integer>();
+			var words = new TreeMap<String, TreeSet <Integer>>();
+			var positions = new TreeSet<Integer>();
 			int position = 1;
 			String line = null;
 			String[] list = null;
@@ -80,16 +79,12 @@ public class Driver {
 					if (!word.trim().isEmpty()) {
 //						System.out.println(word + position);
 						if (!words.containsKey(word)) {
-//							positions.add(position);
-//							words.put(word, (TreeMap<Integer>) positions.clone());
-							positions.put(path, position);
-							words.put(word, (TreeMap<String, Integer>) positions.clone());
+							positions.add(position);
+							words.put(word, (TreeSet<Integer>) positions.clone());
 						} else {
-//							positions.addAll(words.get(word));
-//							positions.add(position);
-							positions.put(path, position);
-//							words.put(word, (TreeSet<Integer>) positions.clone());
-							words.put(word, (TreeMap<String, Integer>) positions.clone());
+							positions.addAll(words.get(word));
+							positions.add(position);
+							words.put(word, (TreeSet<Integer>) positions.clone());
 						}
 						position++;
 					} else {
@@ -340,16 +335,16 @@ public class Driver {
 	/**
 	 * Returns the nested map of elements formatted as a nested pretty JSON object.
 	 *
-	 * @param words the elements to convert to JSON
+	 * @param elements the elements to convert to JSON
 	 * @return {@link String} containing the elements in pretty JSON format
 	 *
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
-	public static String asNestedObject(TreeMap<String, TreeMap<String, Integer>> words, String file) {
+	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements, String file) {
 		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
 		try {
 			StringWriter writer = new StringWriter();
-			asNestedObject(words, writer, 0, file);
+			asNestedObject(elements, writer, 0, file);
 			return writer.toString();
 		}
 		catch (IOException e) {
@@ -433,13 +428,12 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
-		String directory = "";
 		Path index = Paths.get(".");
 		Path path = Paths.get(".");
 		var textFiles = new ArrayList<String>();
 		BufferedWriter writer;
 		String[] validArguments = {"-path", "-index"};
-		TreeMap<String, TreeMap<String, Integer>> words;
+		TreeMap<String, TreeSet<Integer>> words;
 		
 		if (!(args.length > 2) 
 				|| !args[0].equals(validArguments[0]) && !args[2].equals(validArguments[1]) 
@@ -457,7 +451,6 @@ public class Driver {
 		} else {
 			if (args[0].equals(validArguments[0])) {
 				path = Paths.get(args[1]);
-				directory = args[1];
 //				System.out.println(path.toAbsolutePath());
 				if (args[2] == validArguments[1] && args.length > 3) {
 					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", args[3]);
@@ -466,7 +459,6 @@ public class Driver {
 				}
 			} else if ((args[2].equals(validArguments[0]) && args.length > 3) || args[1].equals(validArguments[0])) {
 				path = Paths.get(args[3]);
-				directory = args[3];
 				if (args[0].equals(validArguments[1])  && !args[1].equals(validArguments[0])) {
 					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", args[1]);
 				} else {
@@ -483,9 +475,9 @@ public class Driver {
 				textFiles = traverse(path);
 				System.out.println(textFiles);
 				for (String file : textFiles) {
-//					words = getWords(path);
-//					writer.append(asNestedObject(words, args[1]).toString());
-//					writer.close();
+					words = getWords(path);
+					writer.append(asNestedObject(words, args[1]).toString());
+					writer.close();
 				}
 			} else {
 				File indexJSON = new File(index.toAbsolutePath().normalize().toString());
@@ -498,7 +490,7 @@ public class Driver {
 //				System.out.println(path.toAbsolutePath() + "\n" + index.toAbsolutePath()););
 				
 //				if (!(traverse(path.getFileName()) == null)) {
-					words = getWords(path, directory);
+					words = getWords(path);
 					writer.write(asNestedObject(words, args[1]).toString());
 					writer.close();
 //				}
