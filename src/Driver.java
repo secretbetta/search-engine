@@ -22,7 +22,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 import org.junit.runners.AllTests;
 
 public class Driver {
-	
+
 	/**
 	 * Removes special characters from text, lower-case text, 
 	 * and stems the words.
@@ -87,14 +87,8 @@ public class Driver {
 							words.put(word, (TreeSet<Integer>) positions.clone());
 						}
 						position++;
-					} else {
-//						position--;
-//						if (position == 0) { 
-//							position++;
-//						}
 					}
 					positions.clear();
-//					position++;
 				}
 			}
 			return words;
@@ -187,10 +181,10 @@ public class Driver {
 	 *
 	 * @see #asArray(TreeSet, Writer, int)
 	 */
-	public static String asArray(TreeSet<Integer> elements, String file) {
+	public static String asArray(TreeSet<Integer> elements) {
 		try {
 			StringWriter writer = new StringWriter();
-			asArray(elements, writer, 0, file);
+			asArray(elements, writer, 0);
 			return writer.toString();
 		}
 		catch (IOException e) {
@@ -206,11 +200,11 @@ public class Driver {
 	 * @param path     the path to the file write to output
 	 * @throws IOException if the writer encounters any issues
 	 */
-	public static void asArray(TreeSet<Integer> elements, Path path, String file)
+	public static void asArray(TreeSet<Integer> elements, Path path)
 			throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
-			asArray(elements, writer, 0, file);
+			asArray(elements, writer, 0);
 		}
 	}
 
@@ -231,7 +225,7 @@ public class Driver {
 	 * @see #indent(int, Writer)
 	 */
 	public static void asArray(TreeSet<Integer> elements, Writer writer,
-			int level, String path) throws IOException {
+			int level) throws IOException {
 		if (!elements.isEmpty()) {
 			writer.write('[');
 			writer.write(System.lineSeparator());
@@ -340,11 +334,11 @@ public class Driver {
 	 *
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
-	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements, String file) {
+	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
 		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
 		try {
 			StringWriter writer = new StringWriter();
-			asNestedObject(elements, writer, 0, file);
+			asNestedObject(elements, writer, 0);
 			return writer.toString();
 		}
 		catch (IOException e) {
@@ -363,10 +357,10 @@ public class Driver {
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
 	public static void asNestedObject(TreeMap<String, TreeSet<Integer>> elements,
-			Path path, String file) throws IOException {
+			Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
-			asNestedObject(elements, writer, 0, file);
+			asNestedObject(elements, writer, 0);
 			writer.close();
 		}
 	}
@@ -391,33 +385,68 @@ public class Driver {
 	 * @see #asArray(TreeSet, Writer, int)
 	 */
 	public static void asNestedObject(TreeMap<String, TreeSet<Integer>> elements,
-			Writer writer, int level, String path) throws IOException {
+			Writer writer, int level) throws IOException {
 		writer.write('{');
 		writer.write(System.lineSeparator());
+//		System.out.println(elements);
 		for (String element : elements.keySet()) {
+//			System.out.println("test");
 			indent(level + 1, writer);
 			quote(element.toString(), writer);
-			writer.write(": {");
-			
-			writer.write(System.lineSeparator());
-			indent(level + 2, writer);
-			quote(path, writer);
+//			writer.write(": {");
+//			
+//			writer.write(System.lineSeparator());
+//			indent(level + 2, writer);
+//			quote(element, writer);
 			writer.write(": ");
 			
-			asArray(elements.get(element), writer, level + 2, path);
+//			System.out.println(elements.get(element));
+			asArray(elements.get(element), writer, level + 1);
 			
-			writer.write(System.lineSeparator());
-			indent(level + 1, writer);
-			writer.write("}");
+//			writer.write(System.lineSeparator());
+//			indent(level, writer);
+//			writer.write("}");
 			
 			if (!element.equals(elements.lastKey()))
 				writer.write(",");
 			writer.write(System.lineSeparator());
 		}
 		
+		indent(level, writer);
 		writer.write('}');
 		writer.close();
 
+	}
+	
+	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements) throws IOException {
+		try {
+			StringWriter writer = new StringWriter();
+			
+			writer.write('{');
+			writer.write(System.lineSeparator());
+			for (String element : elements.keySet()) {
+				indent(1, writer);
+				quote(element.toString(), writer);
+				writer.write(": ");
+				
+//				System.out.println(elements.get(element));
+				asNestedObject(elements.get(element), writer, 1);
+				
+//				writer.write(System.lineSeparator());
+//				indent(1, writer);
+//				writer.write("L");
+				if (!element.equals(elements.lastKey()))
+					writer.write(",");
+				writer.write(System.lineSeparator());
+			}
+			writer.write('}');
+			writer.close();
+//			asNestedObject(elements, writer, 0, file);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
 	}
 
 	/**
@@ -431,9 +460,12 @@ public class Driver {
 		Path index = Paths.get(".");
 		Path path = Paths.get(".");
 		var textFiles = new ArrayList<String>();
+		var getFile = new ArrayList<String>();
 		BufferedWriter writer;
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
+		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
+		var temp = new TreeMap<String, TreeSet<Integer>>();
 		
 		if (!(args.length > 2) 
 				|| !args[0].equals(validArguments[0]) && !args[2].equals(validArguments[1]) 
@@ -471,30 +503,52 @@ public class Driver {
 			if (!Files.exists(path)) {
 			    System.err.println("Path does not exist");
 			} else if (Files.isDirectory(path)) {
-				System.out.println("It's a directory...");
+//				System.out.println("It's a directory...");
 				textFiles = traverse(path);
+//				System.out.println(textFiles);
 				System.out.println(textFiles);
 				for (String file : textFiles) {
-					words = getWords(path);
-					writer.append(asNestedObject(words, args[1]).toString());
-					writer.close();
+//					System.out.println(file + path);
+					if (Files.isDirectory(Paths.get(file))) {
+//						System.out.println(path);
+						getFile = traverse(Paths.get(path + "\\" + file));
+						System.out.println(getFile);
+					}
+					words = getWords(Paths.get(path + "\\" + file));
+//					System.out.println(words);
+					for (String word : words.keySet()) {
+						System.out.println(word);
+						temp.put(path.toString() + "\\" + file, words.get(word));
+						if (allwords.containsKey(word) && !allwords.get(word).containsKey(path.toString() + "\\" + file)) {
+							allwords.get(word).put(path.toString() + "\\" + file, words.get(word));
+						} else if (!allwords.containsKey(word)){
+							allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
+						}
+						temp.clear();
+					}
+					
+					//(words, args[1]).toString());
+//					System.out.println(tripleNested(allwords));
 				}
+				writer.write(tripleNested(allwords));
+				writer.close();
 			} else {
 				File indexJSON = new File(index.toAbsolutePath().normalize().toString());
 				if (index.endsWith("index.json")) {
 					indexJSON.delete();
 				}
 				
-//				writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+				words = getWords(path);
 				
-//				System.out.println(path.toAbsolutePath() + "\n" + index.toAbsolutePath()););
-				
-//				if (!(traverse(path.getFileName()) == null)) {
-					words = getWords(path);
-					writer.write(asNestedObject(words, args[1]).toString());
-					writer.close();
-//				}
-				
+//				System.out.println(words.keySet());
+				for (String word : words.keySet()) {
+					temp.put(path.toString(), words.get(word));
+					allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
+					temp.clear();
+				}
+				writer.write(tripleNested(allwords));
+//				System.out.println(tripleNested(allwords));
+				writer.close();
 //				System.out.println("Finish");
 			}
 		}
