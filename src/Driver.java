@@ -116,7 +116,7 @@ public class Driver {
 					textlist.addAll(findText(file));
 				} else if (file.getFileName().toString().toLowerCase().endsWith(".txt")
 						|| file.getFileName().toString().toLowerCase().endsWith(".text")) {
-					textlist.add(file.getFileName().toString());
+					textlist.add(file.toString());
 				}
 			}
 			return textlist;
@@ -460,7 +460,7 @@ public class Driver {
 		Path index = Paths.get(".");
 		Path path = Paths.get(".");
 		var textFiles = new ArrayList<String>();
-		var getFile = new ArrayList<String>();
+//		var getFile = new ArrayList<String>();
 		BufferedWriter writer;
 		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
@@ -468,8 +468,8 @@ public class Driver {
 		var temp = new TreeMap<String, TreeSet<Integer>>();
 		
 		if (!(args.length > 2) 
-				|| !args[0].equals(validArguments[0]) && !args[2].equals(validArguments[1]) 
-				&& !args[0].equals(validArguments[1]) && !args[2].equals(validArguments[0])) {
+				|| (!args[0].equals(validArguments[0]) && !args[2].equals(validArguments[1])
+				&& !args[0].equals(validArguments[1]) && !args[2].equals(validArguments[0]))) {
 					System.err.println("Command line argument not valid."
 							+ "\nValid arguments: "
 							+ "\n-path path where the flag -path indicates the next argument "
@@ -481,6 +481,7 @@ public class Driver {
 							+ "default output path. If the -index flag is not provided, do not "
 							+ "produce an output file.");
 		} else {
+			System.out.println(args[2]);
 			if (args[0].equals(validArguments[0])) {
 				path = Paths.get(args[1]);
 //				System.out.println(path.toAbsolutePath());
@@ -503,31 +504,22 @@ public class Driver {
 			if (!Files.exists(path)) {
 			    System.err.println("Path does not exist");
 			} else if (Files.isDirectory(path)) {
-//				System.out.println("It's a directory...");
 				textFiles = traverse(path);
-//				System.out.println(textFiles);
-				System.out.println(textFiles);
 				for (String file : textFiles) {
-//					System.out.println(file + path);
-					if (Files.isDirectory(Paths.get(file))) {
-//						System.out.println(path);
-						getFile = traverse(Paths.get(path + "\\" + file));
-						System.out.println(getFile);
-					}
-					words = getWords(Paths.get(path + "\\" + file));
+					
+					words = getWords(Paths.get(file));
 //					System.out.println(words);
 					for (String word : words.keySet()) {
-						System.out.println(word);
-						temp.put(path.toString() + "\\" + file, words.get(word));
+
+						temp.put(file, words.get(word));
 						if (allwords.containsKey(word) && !allwords.get(word).containsKey(path.toString() + "\\" + file)) {
-							allwords.get(word).put(path.toString() + "\\" + file, words.get(word));
+							allwords.get(word).put(file, words.get(word));
 						} else if (!allwords.containsKey(word)){
 							allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
 						}
 						temp.clear();
 					}
 					
-					//(words, args[1]).toString());
 //					System.out.println(tripleNested(allwords));
 				}
 				writer.write(tripleNested(allwords));
