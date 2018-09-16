@@ -536,6 +536,7 @@ public class Driver {
 				for (String word : words.keySet()) {
 					temp.put(path.toString(), words.get(word));
 					allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
+//					allwords.put(word, temp);
 					temp.clear();
 				}
 				writer.write(tripleNested(allwords));
