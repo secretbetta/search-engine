@@ -515,10 +515,9 @@ public class Driver {
 							allwords.get(word).put(file.substring(file.indexOf("text")), words.get(word));
 						} else if (!allwords.containsKey(word)){
 							allwords.put(word, temp);
-							temp = new TreeMap<String, TreeSet<Integer>>();
 						}
-						
-						temp.clear();
+						temp = new TreeMap<String, TreeSet<Integer>>();
+//						temp.clear();
 					}
 					
 				}
