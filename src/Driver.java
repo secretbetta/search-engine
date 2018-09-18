@@ -457,8 +457,10 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) throws IOException {
+		boolean flag = true;
 		Path index = Paths.get(".");
 		Path path = Paths.get(".");
+		Path test;
 		var textFiles = new ArrayList<String>();
 //		var getFile = new ArrayList<String>();
 		BufferedWriter writer;
@@ -467,9 +469,35 @@ public class Driver {
 		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		var temp = new TreeMap<String, TreeSet<Integer>>();
 		
-		if (!(args.length > 2) 
-				|| (!args[0].equals(validArguments[0]) && !args[2].equals(validArguments[1])
-				&& !args[0].equals(validArguments[1]) && !args[2].equals(validArguments[0]))) {
+		ArgumentMap argmap = new ArgumentMap(args);
+//		System.out.println(argmap);
+		
+		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
+			//Get path
+			path = Paths.get(path.toAbsolutePath().normalize().getParent().toString(), "project-tests", argmap.getPath("-path").toString());
+//			System.out.println(path);
+		} else {
+			flag = false;
+		}
+//			if (!argmap.hasFlag("-index") && !argmap.hasFlag("-path")) {
+//			flag = false;
+//		}
+		
+		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
+			//Go to default index
+			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
+//			System.out.println(index);
+		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+			//Get index
+//			index = argmap.getPath("-index");
+			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", argmap.getPath("-index").toString());
+		} else {
+			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
+		}
+		writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+//		System.out.println(index);
+		
+		if (!flag) {
 					System.err.println("Command line argument not valid."
 							+ "\nValid arguments: "
 							+ "\n-path path where the flag -path indicates the next argument "
@@ -480,40 +508,22 @@ public class Driver {
 							+ "file. If the path argument is not provided, use index.json as the "
 							+ "default output path. If the -index flag is not provided, do not "
 							+ "produce an output file.");
+		} else if (!argmap.hasFlag("-path")) {
+//			writer.write("{\n}");
 		} else {
-			System.out.println(args[2]);
-			if (args[0].equals(validArguments[0])) {
-				path = Paths.get(args[1]);
-//				System.out.println(path.toAbsolutePath());
-				if (args[2] == validArguments[1] && args.length > 3) {
-					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", args[3]);
-				} else {
-					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
-				}
-			} else if ((args[2].equals(validArguments[0]) && args.length > 3) || args[1].equals(validArguments[0])) {
-				path = Paths.get(args[3]);
-				if (args[0].equals(validArguments[1])  && !args[1].equals(validArguments[0])) {
-					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", args[1]);
-				} else {
-					index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
-				}
-			}
-			writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-			
-			
 			if (!Files.exists(path)) {
 			    System.err.println("Path does not exist");
-			} else if (Files.isDirectory(path)) {
+			} else
+			if (Files.isDirectory(path)) {
 				textFiles = traverse(path);
 				for (String file : textFiles) {
 					
 					words = getWords(Paths.get(file));
-//					System.out.println(words);
+					test = Paths.get(file);
 					for (String word : words.keySet()) {
-
-						temp.put(file, words.get(word));
+						temp.put(file.substring(file.indexOf("text")), words.get(word));
 						if (allwords.containsKey(word) && !allwords.get(word).containsKey(path.toString() + "\\" + file)) {
-							allwords.get(word).put(file, words.get(word));
+							allwords.get(word).put(file.substring(file.indexOf("text")), words.get(word));
 						} else if (!allwords.containsKey(word)){
 							allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
 						}
@@ -526,15 +536,11 @@ public class Driver {
 				writer.close();
 			} else {
 				File indexJSON = new File(index.toAbsolutePath().normalize().toString());
-				if (index.endsWith("index.json")) {
-					indexJSON.delete();
-				}
 				
 				words = getWords(path);
 				
-//				System.out.println(words.keySet());
 				for (String word : words.keySet()) {
-					temp.put(path.toString(), words.get(word));
+					temp.put(argmap.getPath("-path").toString(), words.get(word));
 					allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
 //					allwords.put(word, temp);
 					temp.clear();
