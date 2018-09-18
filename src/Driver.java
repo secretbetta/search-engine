@@ -418,6 +418,15 @@ public class Driver {
 
 	}
 	
+	/**
+	 * Creates a triple nested reverse index in JSON format
+	 * 
+	 * @param elements The data taken in to format into JSON format
+	 * @return writer.toString() Whatever is written in JSON format
+	 * @throws IOException
+	 * 
+	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
+	 */
 	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements) throws IOException {
 		try {
 			StringWriter writer = new StringWriter();
@@ -429,12 +438,8 @@ public class Driver {
 				quote(element.toString(), writer);
 				writer.write(": ");
 				
-//				System.out.println(elements.get(element));
 				asNestedObject(elements.get(element), writer, 1);
 				
-//				writer.write(System.lineSeparator());
-//				indent(1, writer);
-//				writer.write("L");
 				if (!element.equals(elements.lastKey()))
 					writer.write(",");
 				writer.write(System.lineSeparator());
@@ -460,11 +465,8 @@ public class Driver {
 		boolean flag = true;
 		Path index = Paths.get(".");
 		Path path = Paths.get(".");
-		Path test;
 		var textFiles = new ArrayList<String>();
-//		var getFile = new ArrayList<String>();
 		BufferedWriter writer;
-		String[] validArguments = {"-path", "-index"};
 		TreeMap<String, TreeSet<Integer>> words;
 		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		var temp = new TreeMap<String, TreeSet<Integer>>();
@@ -514,7 +516,6 @@ public class Driver {
 				for (String file : textFiles) {
 					
 					words = getWords(Paths.get(file));
-					test = Paths.get(file);
 					for (String word : words.keySet()) {
 						temp.put(file.substring(file.indexOf("text")), words.get(word));
 						if (allwords.containsKey(word) && !allwords.get(word).containsKey(path.toString() + "\\" + file)) {
@@ -530,13 +531,14 @@ public class Driver {
 				writer.write(tripleNested(allwords));
 				writer.close();
 			} else {
-				File indexJSON = new File(index.toAbsolutePath().normalize().toString());
 				
 				words = getWords(path);
 				
 				for (String word : words.keySet()) {
 					temp.put(argmap.getPath("-path").toString(), words.get(word));
 					allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
+//					allwords.put(word, );
+					
 //					allwords.put(word, temp);
 					temp.clear();
 				}
