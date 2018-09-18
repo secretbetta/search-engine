@@ -479,14 +479,9 @@ public class Driver {
 		} else {
 			flag = false;
 		}
-//			if (!argmap.hasFlag("-index") && !argmap.hasFlag("-path")) {
-//			flag = false;
-//		}
 		
 		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-			//Go to default index
-			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
-//			System.out.println(index);
+			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "index.json");
 		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
 			//Get index
 //			index = argmap.getPath("-index");
@@ -508,7 +503,7 @@ public class Driver {
 							+ "file. If the path argument is not provided, use index.json as the "
 							+ "default output path. If the -index flag is not provided, do not "
 							+ "produce an output file.");
-		} else if (!argmap.hasFlag("-path")) {
+//		} else if (!argmap.hasFlag("-path")) {
 //			writer.write("{\n}");
 		} else {
 			if (!Files.exists(path)) {
