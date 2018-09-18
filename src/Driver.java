@@ -1,6 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
+//import java.io.File;
 //import java.io.FileWriter;
 import java.io.IOException;
 //import java.io.PrintWriter;
@@ -77,18 +77,17 @@ public class Driver {
 				list = stem(line);
 				for (String word: list) {
 					if (!word.trim().isEmpty()) {
-//						System.out.println(word + position);
 						if (!words.containsKey(word)) {
 							positions.add(position);
-							words.put(word, (TreeSet<Integer>) positions.clone());
+							words.put(word, positions);
 						} else {
 							positions.addAll(words.get(word));
 							positions.add(position);
-							words.put(word, (TreeSet<Integer>) positions.clone());
+							words.put(word, positions);
 						}
 						position++;
 					}
-					positions.clear();
+					positions = new TreeSet<Integer>();
 				}
 			}
 			return words;
@@ -470,30 +469,26 @@ public class Driver {
 		TreeMap<String, TreeSet<Integer>> words;
 		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		var temp = new TreeMap<String, TreeSet<Integer>>();
+//		var temp2 = new TreeMap<String, TreeSet<Integer>>();
 		
 		ArgumentMap argmap = new ArgumentMap(args);
-//		System.out.println(argmap);
 		
 		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
-			//Get path
-			path = Paths.get(path.toAbsolutePath().normalize().getParent().toString(), "project-tests", argmap.getPath("-path").toString());
-//			System.out.println(path);
+			path = Paths.get("..", "project-tests", argmap.getPath("-path").toString());
 		} else {
 			flag = false;
 		}
 		
 		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "index.json");
+			index = Paths.get("..", "project-tests", "index.json");
 		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-			//Get index
-//			index = argmap.getPath("-index");
-			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", argmap.getPath("-index").toString());
+			index = Paths.get("..", "project-tests", argmap.getPath("-index").toString());
 		} else {
-			index = Paths.get(index.toAbsolutePath().normalize().getParent().toString(), "project-tests", "out", "index.json");
+			index = Paths.get("..", "project-tests", "out", "index.json");
 		}
-		writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-//		System.out.println(index);
 		
+		writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+
 		if (!flag) {
 					System.err.println("Command line argument not valid."
 							+ "\nValid arguments: "
@@ -505,28 +500,27 @@ public class Driver {
 							+ "file. If the path argument is not provided, use index.json as the "
 							+ "default output path. If the -index flag is not provided, do not "
 							+ "produce an output file.");
-//		} else if (!argmap.hasFlag("-path")) {
-//			writer.write("{\n}");
-		} else {
+		} else { //The actual program
 			if (!Files.exists(path)) {
 			    System.err.println("Path does not exist");
-			} else
-			if (Files.isDirectory(path)) {
+			} else if (Files.isDirectory(path)) {
 				textFiles = traverse(path);
 				for (String file : textFiles) {
 					
 					words = getWords(Paths.get(file));
 					for (String word : words.keySet()) {
 						temp.put(file.substring(file.indexOf("text")), words.get(word));
-						if (allwords.containsKey(word) && !allwords.get(word).containsKey(path.toString() + "\\" + file)) {
+						
+						if (allwords.containsKey(word)) {
 							allwords.get(word).put(file.substring(file.indexOf("text")), words.get(word));
 						} else if (!allwords.containsKey(word)){
-							allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
+							allwords.put(word, temp);
+							temp = new TreeMap<String, TreeSet<Integer>>();
 						}
+						
 						temp.clear();
 					}
 					
-//					System.out.println(tripleNested(allwords));
 				}
 				writer.write(tripleNested(allwords));
 				writer.close();
@@ -536,16 +530,12 @@ public class Driver {
 				
 				for (String word : words.keySet()) {
 					temp.put(argmap.getPath("-path").toString(), words.get(word));
-					allwords.put(word, (TreeMap<String, TreeSet<Integer>>) temp.clone());
-//					allwords.put(word, );
-					
-//					allwords.put(word, temp);
-					temp.clear();
+//					allwords.putAll(arg0);
+					allwords.put(word, temp);
+					temp = new TreeMap<String, TreeSet<Integer>>();
 				}
 				writer.write(tripleNested(allwords));
-//				System.out.println(tripleNested(allwords));
 				writer.close();
-//				System.out.println("Finish");
 			}
 		}
 	}
