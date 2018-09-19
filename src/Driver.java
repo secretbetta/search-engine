@@ -469,7 +469,6 @@ public class Driver {
 		TreeMap<String, TreeSet<Integer>> words;
 		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		var temp = new TreeMap<String, TreeSet<Integer>>();
-//		var temp2 = new TreeMap<String, TreeSet<Integer>>();
 		
 		ArgumentMap argmap = new ArgumentMap(args);
 		
@@ -480,11 +479,14 @@ public class Driver {
 		}
 		
 		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-			index = Paths.get("..", "project-tests", "index.json");
+//			index = Paths.get("..", "project-tests", "index.json");
+			index = Paths.get("..", "out", "index.json");
 		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-			index = Paths.get("..", "project-tests", argmap.getPath("-index").toString());
+//			index = Paths.get("..", "project-tests", argmap.getPath("-index").toString());
+			index = Paths.get("..", "out", argmap.getPath("-index").toString());
 		} else {
-			index = Paths.get("..", "project-tests", "out", "index.json");
+//			index = Paths.get("..", "project-tests", "out", "index.json");
+			index = Paths.get("..", "out", "index.json");
 		}
 		
 		writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
@@ -517,7 +519,6 @@ public class Driver {
 							allwords.put(word, temp);
 						}
 						temp = new TreeMap<String, TreeSet<Integer>>();
-//						temp.clear();
 					}
 					
 				}
