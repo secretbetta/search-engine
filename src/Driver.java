@@ -1,12 +1,8 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-//import java.io.File;
-//import java.io.FileWriter;
 import java.io.IOException;
-//import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
-//import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -360,7 +356,6 @@ public class Driver {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
 			asNestedObject(elements, writer, 0);
-			writer.close();
 		}
 	}
 
@@ -465,7 +460,7 @@ public class Driver {
 		Path index = Paths.get(".");
 		Path path = Paths.get(".");
 		var textFiles = new ArrayList<String>();
-		BufferedWriter writer;
+//		BufferedWriter writer;
 		TreeMap<String, TreeSet<Integer>> words;
 		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		var temp = new TreeMap<String, TreeSet<Integer>>();
@@ -489,55 +484,60 @@ public class Driver {
 			index = Paths.get("out", "index.json");
 		}
 		
-		writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-
-		if (!flag) {
-					System.err.println("Command line argument not valid."
-							+ "\nValid arguments: "
-							+ "\n-path path where the flag -path indicates the next argument "
-							+ "is a path to either a single text file or a directory of text "
-							+ "files that must be processed and added to the inverted index"
-							+ "\n-index where the flag -index is an optional flag that indicates "
-							+ "the next argument is the path to use for the inverted index output "
-							+ "file. If the path argument is not provided, use index.json as the "
-							+ "default output path. If the -index flag is not provided, do not "
-							+ "produce an output file.");
-		} else { //The actual program
-			if (!Files.exists(path)) {
-			    System.err.println("Path does not exist");
-			} else if (Files.isDirectory(path)) {
-				textFiles = traverse(path);
-				for (String file : textFiles) {
-					
-					words = getWords(Paths.get(file));
-					for (String word : words.keySet()) {
-						temp.put(file.substring(file.indexOf("text")), words.get(word));
+		try (BufferedWriter writer = Files.newBufferedWriter(index,
+				StandardCharsets.UTF_8)) {
+			
+			
+//			writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+	
+			if (!flag) {
+						System.err.println("Command line argument not valid."
+								+ "\nValid arguments: "
+								+ "\n-path path where the flag -path indicates the next argument "
+								+ "is a path to either a single text file or a directory of text "
+								+ "files that must be processed and added to the inverted index"
+								+ "\n-index where the flag -index is an optional flag that indicates "
+								+ "the next argument is the path to use for the inverted index output "
+								+ "file. If the path argument is not provided, use index.json as the "
+								+ "default output path. If the -index flag is not provided, do not "
+								+ "produce an output file.");
+			} else { //The actual program
+				if (!Files.exists(path)) {
+				    System.err.println("Path does not exist");
+				} else if (Files.isDirectory(path)) {
+					textFiles = traverse(path);
+					for (String file : textFiles) {
 						
-						if (allwords.containsKey(word)) {
-							allwords.get(word).put(file.substring(file.indexOf("text")), words.get(word));
-						} else if (!allwords.containsKey(word)){
-							allwords.put(word, temp);
+						words = getWords(Paths.get(file));
+						for (String word : words.keySet()) {
+							temp.put(file.substring(file.indexOf("text")), words.get(word));
+							
+							if (allwords.containsKey(word)) {
+								allwords.get(word).put(file.substring(file.indexOf("text")), words.get(word));
+							} else if (!allwords.containsKey(word)){
+								allwords.put(word, temp);
+							}
+							temp = new TreeMap<String, TreeSet<Integer>>();
 						}
+						
+					}
+					writer.write(tripleNested(allwords));
+					writer.close();
+				} else {
+					
+					words = getWords(path);
+					
+					for (String word : words.keySet()) {
+						temp.put(argmap.getPath("-path").toString(), words.get(word));
+	//					allwords.putAll(arg0);
+						allwords.put(word, temp);
 						temp = new TreeMap<String, TreeSet<Integer>>();
 					}
 					
+					writer.write(tripleNested(allwords));
+//					writer.close();
 				}
-				writer.write(tripleNested(allwords));
-				writer.close();
-			} else {
-				
-				words = getWords(path);
-				
-				for (String word : words.keySet()) {
-					temp.put(argmap.getPath("-path").toString(), words.get(word));
-//					allwords.putAll(arg0);
-					allwords.put(word, temp);
-					temp = new TreeMap<String, TreeSet<Integer>>();
-				}
-				writer.write(tripleNested(allwords));
-				writer.close();
 			}
 		}
 	}
-
 }
