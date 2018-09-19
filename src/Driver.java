@@ -477,16 +477,16 @@ public class Driver {
 		} else {
 			flag = false;
 		}
-		
+
 		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-//			index = Paths.get("..", "project-tests", "index.json");
-			index = Paths.get("..", "index.json");
+//			index = Paths.get("..", "project-tests", "index.json"); //Local
+			index = Paths.get("index.json");
 		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-//			index = Paths.get("..", "project-tests", argmap.getPath("-index").toString());
-			index = Paths.get("..", argmap.getPath("-index").toString());
+//			index = Paths.get("..", "project-tests", argmap.getPath("-index").toString()); //Local
+			index = Paths.get("out.", argmap.getPath("-index").toString());
 		} else {
-//			index = Paths.get("..", "project-tests", "out", "index.json");
-			index = Paths.get("..", "index.json");
+//			index = Paths.get("..", "project-tests", "out", "index.json"); //Local
+			index = Paths.get("out.", "index.json");
 		}
 		
 		writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
