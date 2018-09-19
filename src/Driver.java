@@ -468,7 +468,8 @@ public class Driver {
 		ArgumentMap argmap = new ArgumentMap(args);
 		
 		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
-			path = Paths.get("..", "project-tests", argmap.getPath("-path").toString());
+//			path = Paths.get("..", "project-tests", argmap.getPath("-path").toString());
+			path = Paths.get(argmap.getPath("-path").toString());
 		} else {
 			flag = false;
 		}
@@ -484,9 +485,7 @@ public class Driver {
 			index = Paths.get("out", "index.json");
 		}
 		
-		try (BufferedWriter writer = Files.newBufferedWriter(index,
-				StandardCharsets.UTF_8)) {
-			
+		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			
 //			writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 	
@@ -522,7 +521,7 @@ public class Driver {
 						
 					}
 					writer.write(tripleNested(allwords));
-					writer.close();
+//					writer.close();
 				} else {
 					
 					words = getWords(path);
