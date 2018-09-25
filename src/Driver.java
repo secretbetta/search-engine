@@ -15,10 +15,23 @@ import java.util.TreeSet;
 import opennlp.tools.stemmer.snowball.*;
 import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
+// TODO Remove old TODO comments
+// TODO Address any warnings
+
+// TODO Configure Eclipse to remove unused imports on save. (Check Piazza)
+// TODO Remove commented-out debug code from "production-ready" release
+
 //import org.junit.runners.AllTests;
 
 public class Driver {
 
+	// TODO Reuse the TextParser homework (first code reuse is good, also shouldn't have issues with empty words)
+	
+	/*
+	 * TODO Move stem() and getWords() to a different class dedicated to building
+	 * an inverted index from text file.
+	 */
+	
 	/**
 	 * Removes special characters from text, lower-case text, 
 	 * and stems the words.
@@ -48,6 +61,7 @@ public class Driver {
 		return list;
 	}
 	
+	// TODO Update Javadoc, make it clear not stored in JSON format, specify what the key and values are
 	/**
 	 * Gets words from a given text file in the path and nests
 	 * them into JSON format. Calls stem method to stem words 
@@ -58,6 +72,7 @@ public class Driver {
 	 * @throws IOException
 	 */
 	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) throws IOException {
+		// TODO Clean up formatting (Eclipse has a hard time with try-with-resources)
 		try (
 				BufferedReader reader = Files.newBufferedReader(
 						input, StandardCharsets.UTF_8
@@ -90,6 +105,13 @@ public class Driver {
 		}
 	}
 	
+	/*
+	 * TODO 
+	 * Move generally useful code outside of Driver into a different class
+	 * Keep Driver project-specific (i.e. limited to just parsing and responding
+	 * to command-line parameters).
+	 */
+	
 	/**
 	 * Finds text files by retrieving subdirectories until hitting files.
 	 * If file has .txt or .text meaning that it is a text file, return a
@@ -107,6 +129,7 @@ public class Driver {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
 			ArrayList<String> textlist = new ArrayList<String>();
 			for (Path file : listing) {
+				// TODO Convert the filename toString and toLowercase so you only need to do it once
 				if (Files.isDirectory(file)) {
 					textlist.addAll(findText(file));
 				} else if (file.getFileName().toString().toLowerCase().endsWith(".txt")
@@ -140,6 +163,14 @@ public class Driver {
 			}
 		}
 	}
+	
+	/*
+	 * TODO
+	 * Driver.main() is the only class that shouldn't throw an exception.
+	 * Catch those exceptions here, output user-friendly error messages
+	 * (Try to provide context.)
+	 * "Unable to build index from path: " + path
+	 */
 
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
@@ -156,12 +187,28 @@ public class Driver {
 		
 		var textFiles = new ArrayList<String>();
 
+		// TODO Try to move this nested data structure into its own class
+		// TODO This could be a data-structure like class that just stores stuff
+		// TODO and doesn't parse stuff.
 		TreeMap<String, TreeSet<Integer>> words;
 		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		
 		var wordIndex = new TreeMap<String, TreeSet<Integer>>();
 		
 		ArgumentMap argmap = new ArgumentMap(args);
+		
+		/*
+		 * TODO
+		 * Modify the logic slightly...
+		 * 
+		 * if (-path flag) {
+		 * 		trigger building the index in this block of code
+		 * }
+		 * 
+		 * if (-index flag) {
+		 * 		trigger the writing of the index in this block of code
+		 * }
+		 */
 		
 		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
 			path = Paths.get(argmap.getPath("-path").toString());
@@ -177,8 +224,10 @@ public class Driver {
 			index = Paths.get("out", "index.json");
 		}
 		
+		// TODO Never convert the path to absolute, then you won't have to worry about making it relative later. 
+		
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
-	
+			// TODO This is great for this project, but is goign to quickly become unmanageable. Simplify and remove this check.
 			if (!flag) {
 						System.err.println("Command line argument not valid."
 								+ "\nValid arguments: "
@@ -199,6 +248,7 @@ public class Driver {
 						
 						words = getWords(Paths.get(file));
 						for (String word : words.keySet()) {
+							// TODO Shouldn't actually need to convert paths to relative here...
 							wordIndex.put(file.substring(file.indexOf("text")), words.get(word));
 							
 							if (allwords.containsKey(word)) {

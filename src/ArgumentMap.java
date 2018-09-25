@@ -185,6 +185,7 @@ public class ArgumentMap {
 	 * @see Paths#get(String, String...)
 	 */
 	public Path getPath(String flag) {
+		// TODO Efficiency issue
 		for (String key: map.keySet()) {
 			if (flag.equals(map.get(key))) {
 				return Paths.get(key);
