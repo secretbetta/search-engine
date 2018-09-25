@@ -5,7 +5,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class Traverse {
-	
 	/**
 	 * Finds text files by retrieving subdirectories until hitting files.
 	 * If file has .txt or .text meaning that it is a text file, return a
