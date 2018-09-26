@@ -69,7 +69,7 @@ public class ArgumentMap {
 	 * @see String#isEmpty()
 	 * @see String#length()
 	 */
-	public static boolean isFlag(String arg) {
+	public boolean isFlag(String arg) {
 		if (arg == null) {
 			return false;
 		}
@@ -99,7 +99,7 @@ public class ArgumentMap {
 	 * @see String#isEmpty()
 	 * @see String#length()
 	 */
-	public static boolean isValue(String arg) {
+	public boolean isValue(String arg) {
 		if (arg == null) {
 			return false;
 		}

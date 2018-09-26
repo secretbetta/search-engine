@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,11 +11,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Driver {
-	
-	/*
-	 * TODO Move stem() and getWords() to a different class dedicated to building
-	 * an inverted index from text file.
-	 */
 	
 	/**
 	 * Gets words from a given text file. Adds word and position into TreeMap.
@@ -67,61 +61,6 @@ public class Driver {
 	 * to command-line parameters).
 	 */
 	
-	/**
-	 * Finds text files by retrieving sub-directories until hitting files.
-	 * If file has .txt or .text extensions, return a list of the files.
-	 *
-	 * <p>The recursive version of this method is private. Users of this class will
-	 * have to use the public version (see below).</p>
-	 *
-	 * @param path   to retrieve the listing, assumes a directory and not a file
-	 *               is passed
-	 * @return textlist a list of text file names
-	 * @throws IOException
-	 */
-	private static ArrayList<String> findText(Path path) throws IOException {
-		try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
-			var  textlist = new ArrayList<String>();
-			String filename;
-			
-			for (Path file : listing) {
-				filename = file.getFileName().toString().toLowerCase();
-				if (Files.isDirectory(file)) {
-					textlist.addAll(findText(file));
-				} else if (filename.endsWith(".txt") || filename.endsWith(".text")) {
-					textlist.add(file.toString());
-				}
-			}
-			return textlist;
-		}
-	}
-
-	/**
-	 * Safely starts the recursive traversal with the proper padding. 
-	 * Finds all text files in the directory.
-	 *
-	 * @param directory to traverse
-	 * @return findText a list of text names, null if none.
-	 * @throws IOException
-	 */
-	public static ArrayList<String> traverse(Path directory) throws IOException {
-		var single = new ArrayList<String>();
-		String filename;
-		
-		if (Files.isDirectory(directory)) {
-			return findText(directory);
-		} else {
-			filename = directory.getFileName().toString().toLowerCase();
-			
-			if (filename.endsWith("txt") || filename.endsWith("text")) {
-				single.add(directory.getFileName().toString());
-				return single;
-			} else {
-				return null;
-			}
-		}
-	}
-	
 	/*
 	 * TODO No throwing exceptions, catch them here
 	 * Driver.main() is the only class that shouldn't throw an exception.
@@ -153,7 +92,8 @@ public class Driver {
 		
 		var wordIndex = new TreeMap<String, TreeSet<Integer>>();
 		
-		ArgumentMap argmap = new ArgumentMap(args);
+		var argmap = new ArgumentMap(args);
+		var finder = new TextFileFinder();
 		
 		/*
 		 * TODO Modify the logic slightly... (Not sure if I did this correctly)
@@ -215,7 +155,7 @@ public class Driver {
 				if (!Files.exists(path)) {
 				    System.err.println("Path does not exist");
 				} else if (Files.isDirectory(path)) {
-					textFiles = traverse(path);
+					textFiles = finder.traverse(path);
 					for (String file : textFiles) {
 						
 						words = getWords(Paths.get(file));
