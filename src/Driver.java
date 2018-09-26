@@ -1,8 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -10,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import opennlp.tools.stemmer.snowball.*;
@@ -24,8 +23,6 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 //import org.junit.runners.AllTests;
 
 public class Driver {
-
-	// TODO Reuse the TextParser homework (first code reuse is good, also shouldn't have issues with empty words)
 	
 	/*
 	 * TODO Move stem() and getWords() to a different class dedicated to building
@@ -44,60 +41,49 @@ public class Driver {
 		String[] list;
 		words = Normalizer.normalize(words, Normalizer.Form.NFD);
 		words = words.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+", "").toLowerCase();
-//		System.out.println(words.length());
-//		System.out.println("Test " + words);
 		
 		list = words.split("(?U)\\p{Space}+");
-//		System.out.println(list.length);
-//		System.out.println("Test " + words);
+
 		for (int i = 0; i < list.length; i++) {
 			if (!list[i].trim().isEmpty()) {
 				list[i] = stemmer.stem(list[i]).toString();
 			}
-//			System.out.println("Words " + list[i]);
 		}
 		
 		
 		return list;
 	}
 	
-	// TODO Update Javadoc, make it clear not stored in JSON format, specify what the key and values are
 	/**
-	 * Gets words from a given text file in the path and nests
-	 * them into JSON format. Calls stem method to stem words 
-	 * before transforming index to nested JSON.
-	 *
+	 * Gets words from a given text file. Adds word and position into TreeMap.
+	 * Words may have more than one position in a text file.
+	 * <p>key = word(s) from text files</p>
+	 * <p>value = position(s) of word from text files</p>
 	 * @param input path to the input file
 	 * @return list list of words in text file
 	 * @throws IOException
 	 */
 	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) throws IOException {
-		// TODO Clean up formatting (Eclipse has a hard time with try-with-resources)
-		try (
-				BufferedReader reader = Files.newBufferedReader(
-						input, StandardCharsets.UTF_8
-						);
-				) {
+		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
+			TextFileStemmer stem = new TextFileStemmer();
 			var words = new TreeMap<String, TreeSet <Integer>>();
 			var positions = new TreeSet<Integer>();
 			int position = 1;
 			String line = null;
-			String[] list = null;
+			List<String> list = null;
 
 			while ((line = reader.readLine()) != null) {
-				list = stem(line);
+				list = stem.stemLine(line);
 				for (String word: list) {
-					if (!word.trim().isEmpty()) {
-						if (!words.containsKey(word)) {
-							positions.add(position);
-							words.put(word, positions);
-						} else {
-							positions.addAll(words.get(word));
-							positions.add(position);
-							words.put(word, positions);
-						}
-						position++;
+					positions.add(position);
+					if (!words.containsKey(word)) {
+						words.put(word, positions);
+					} else {
+						positions.addAll(words.get(word));
+						words.put(word, positions);
 					}
+					position++;
+					
 					positions = new TreeSet<Integer>();
 				}
 			}

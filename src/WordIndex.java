@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -69,10 +68,6 @@ public class WordIndex {
 	 *         or more words or positions were added to the index)
 	 */
 	public boolean addAll(String[] words, int start) {
-		/*
-		 * TODO: Add each word using the start position. (You can call your other
-		 * methods here.)
-		 */
 		boolean flag = false;
 		for (int i = 0; i < words.length; i++) {
 			if (!index.containsKey(words[i]) || !index.get(words[i]).contains(start)) {
@@ -100,9 +95,6 @@ public class WordIndex {
 	 * @return number of words
 	 */
 	public int words() {
-		/*
-		 * TODO: Return number of words. No counting is necessary!
-		 */
 		return index.size();
 	}
 
@@ -113,9 +105,6 @@ public class WordIndex {
 	 * @return true if the word is stored in the index
 	 */
 	public boolean contains(String word) {
-		/*
-		 * TODO: Return whether the word is in the index.
-		 */
 		return index.containsKey(word);
 	}
 
@@ -128,9 +117,6 @@ public class WordIndex {
 	 * @return true if the word is stored in the index at the specified position
 	 */
 	public boolean contains(String word, int position) {
-		/*
-		 * TODO: Return whether the word is located at the specified position.
-		 */
 		return index.containsKey(word) && index.get(word).contains(position);
 	}
 
@@ -143,10 +129,6 @@ public class WordIndex {
 	 * @see Collections#sort(List)
 	 */
 	public ArrayList<String> copyWords() {
-		/*
-		 * TODO: Create a copy of the words in the index as a list, and sort before
-		 * returning.
-		 */
 		ArrayList<String> list = new ArrayList<String>(index.keySet());
 		Collections.sort(list);
 		return list;
@@ -162,10 +144,6 @@ public class WordIndex {
 	 * @see Collections#sort(List)
 	 */
 	public ArrayList<Integer> copyPositions(String word) {
-		/*
-		 * TODO: Create a copy of the positions for the word, and sort before
-		 * returning.
-		 */
 		ArrayList<Integer> list = new ArrayList<Integer>(index.get(word));
 		Collections.sort(list);
 		return list;
