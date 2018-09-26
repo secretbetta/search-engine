@@ -6,18 +6,14 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import opennlp.tools.stemmer.snowball.*;
-import opennlp.tools.stemmer.snowball.SnowballStemmer.ALGORITHM;
 
 // TODO Remove old TODO comments
 // TODO Address any warnings
 
-// TODO Configure Eclipse to remove unused imports on save. (Check Piazza)
 // TODO Remove commented-out debug code from "production-ready" release
 
 //import org.junit.runners.AllTests;
@@ -28,31 +24,6 @@ public class Driver {
 	 * TODO Move stem() and getWords() to a different class dedicated to building
 	 * an inverted index from text file.
 	 */
-	
-	/**
-	 * Removes special characters from text, lower-case text, 
-	 * and stems the words.
-	 * 
-	 * @param words String of words to stem
-	 * @return list List of stemmed words
-	 */
-	public static String[] stem(String words) {
-		SnowballStemmer stemmer = new SnowballStemmer(ALGORITHM.ENGLISH);
-		String[] list;
-		words = Normalizer.normalize(words, Normalizer.Form.NFD);
-		words = words.replaceAll("(?U)[^\\p{Alpha}\\p{Space}]+", "").toLowerCase();
-		
-		list = words.split("(?U)\\p{Space}+");
-
-		for (int i = 0; i < list.length; i++) {
-			if (!list[i].trim().isEmpty()) {
-				list[i] = stemmer.stem(list[i]).toString();
-			}
-		}
-		
-		
-		return list;
-	}
 	
 	/**
 	 * Gets words from a given text file. Adds word and position into TreeMap.
@@ -99,12 +70,11 @@ public class Driver {
 	 */
 	
 	/**
-	 * Finds text files by retrieving subdirectories until hitting files.
-	 * If file has .txt or .text meaning that it is a text file, return a
-	 * list of the files.
+	 * Finds text files by retrieving sub-directories until hitting files.
+	 * If file has .txt or .text extensions, return a list of the files.
 	 *
-	 * The recursive version of this method is private. Users of this class will
-	 * have to use the public version (see below).
+	 * <p>The recursive version of this method is private. Users of this class will
+	 * have to use the public version (see below).</p>
 	 *
 	 * @param path   to retrieve the listing, assumes a directory and not a file
 	 *               is passed
@@ -225,7 +195,7 @@ public class Driver {
 								+ "file. If the path argument is not provided, use index.json as the "
 								+ "default output path. If the -index flag is not provided, do not "
 								+ "produce an output file.");
-			} else { //The actual program
+			} else {
 				if (!Files.exists(path)) {
 				    System.err.println("Path does not exist");
 				} else if (Files.isDirectory(path)) {
