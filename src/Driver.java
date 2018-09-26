@@ -11,13 +11,6 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-// TODO Remove old TODO comments
-// TODO Address any warnings
-
-// TODO Remove commented-out debug code from "production-ready" release
-
-//import org.junit.runners.AllTests;
-
 public class Driver {
 	
 	/*
@@ -34,12 +27,17 @@ public class Driver {
 	 * @return list list of words in text file
 	 * @throws IOException
 	 */
-	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) throws IOException {
-		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
-			TextFileStemmer stem = new TextFileStemmer();
+	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) 
+			throws IOException {
+		try (BufferedReader reader = 
+				Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
+			
+			int position = 1;
+			
+			var stem = new TextFileStemmer();
 			var words = new TreeMap<String, TreeSet <Integer>>();
 			var positions = new TreeSet<Integer>();
-			int position = 1;
+			
 			String line = null;
 			List<String> list = null;
 
@@ -83,13 +81,14 @@ public class Driver {
 	 */
 	private static ArrayList<String> findText(Path path) throws IOException {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
-			ArrayList<String> textlist = new ArrayList<String>();
+			var  textlist = new ArrayList<String>();
+			String filename;
+			
 			for (Path file : listing) {
-				// TODO Convert the filename toString and toLowercase so you only need to do it once
+				filename = file.getFileName().toString().toLowerCase();
 				if (Files.isDirectory(file)) {
 					textlist.addAll(findText(file));
-				} else if (file.getFileName().toString().toLowerCase().endsWith(".txt")
-						|| file.getFileName().toString().toLowerCase().endsWith(".text")) {
+				} else if (filename.endsWith(".txt") || filename.endsWith(".text")) {
 					textlist.add(file.toString());
 				}
 			}
@@ -107,11 +106,14 @@ public class Driver {
 	 */
 	public static ArrayList<String> traverse(Path directory) throws IOException {
 		var single = new ArrayList<String>();
+		String filename;
+		
 		if (Files.isDirectory(directory)) {
 			return findText(directory);
 		} else {
-			if (directory.getFileName().toString().toLowerCase().contains("txt") 
-					|| directory.getFileName().toString().toLowerCase().contains("text")) {
+			filename = directory.getFileName().toString().toLowerCase();
+			
+			if (filename.endsWith("txt") || filename.endsWith("text")) {
 				single.add(directory.getFileName().toString());
 				return single;
 			} else {
@@ -135,10 +137,10 @@ public class Driver {
 	 * @param args the command-line arguments to parse
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws IOException {
-		boolean flag = true;
+	public static void main(String[] args) {
+		boolean flag = false;
 		
-		Path index = Paths.get(".");
+		Path index = Paths.get("index.json");
 		Path path = Paths.get(".");
 		
 		var textFiles = new ArrayList<String>();
@@ -147,15 +149,14 @@ public class Driver {
 		// TODO This could be a data-structure like class that just stores stuff
 		// TODO and doesn't parse stuff.
 		TreeMap<String, TreeSet<Integer>> words;
-		TreeMap<String, TreeMap<String, TreeSet<Integer>>> allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
+		var allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		
 		var wordIndex = new TreeMap<String, TreeSet<Integer>>();
 		
 		ArgumentMap argmap = new ArgumentMap(args);
 		
 		/*
-		 * TODO
-		 * Modify the logic slightly...
+		 * TODO Modify the logic slightly... (Not sure if I did this correctly)
 		 * 
 		 * if (-path flag) {
 		 * 		trigger building the index in this block of code
@@ -164,26 +165,41 @@ public class Driver {
 		 * if (-index flag) {
 		 * 		trigger the writing of the index in this block of code
 		 * }
+		 * 
 		 */
 		
-		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
-			path = Paths.get(argmap.getPath("-path").toString());
-		} else {
-			flag = false;
-		}
-
-		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-			index = Paths.get("index.json");
-		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-			index = Paths.get(argmap.getPath("-index").toString());
-		} else {
-			index = Paths.get("out", "index.json");
+		if (argmap.hasFlag("-path")) {
+			if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+				index = Paths.get(argmap.getPath("-index").toString());
+			} else if (argmap.hasFlag("-index")) {
+				index = Paths.get("index.json");
+			} else {
+				index = Paths.get("out", "index.json");
+			}
+			
+			if (!(argmap.getPath("-path") == null)) {
+				path = Paths.get(argmap.getPath("-path").toString());
+				flag = true;
+			}
 		}
 		
-		// TODO Never convert the path to absolute, then you won't have to worry about making it relative later. 
+//		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
+//			path = Paths.get(argmap.getPath("-path").toString());
+//		} else {
+//			flag = false;
+//		}
+//
+//		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
+//			index = Paths.get("index.json");
+//		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+//			index = Paths.get(argmap.getPath("-index").toString());
+//		} else {
+//			index = Paths.get("out", "index.json");
+//		}
 		
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
-			// TODO This is great for this project, but is goign to quickly become unmanageable. Simplify and remove this check.
+			// TODO This is great for this project, but is going to quickly become unmanageable. 
+			// Simplify and remove this check.
 			if (!flag) {
 						System.err.println("Command line argument not valid."
 								+ "\nValid arguments: "
@@ -203,12 +219,12 @@ public class Driver {
 					for (String file : textFiles) {
 						
 						words = getWords(Paths.get(file));
+						
 						for (String word : words.keySet()) {
-							// TODO Shouldn't actually need to convert paths to relative here...
-							wordIndex.put(file.substring(file.indexOf("text")), words.get(word));
+							wordIndex.put(file, words.get(word));
 							
 							if (allwords.containsKey(word)) {
-								allwords.get(word).put(file.substring(file.indexOf("text")), words.get(word));
+								allwords.get(word).put(file, words.get(word));
 							} else if (!allwords.containsKey(word)){
 								allwords.put(word, wordIndex);
 							}
@@ -230,6 +246,9 @@ public class Driver {
 					writer.write(NestedJSON.tripleNested(allwords));
 				}
 			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
