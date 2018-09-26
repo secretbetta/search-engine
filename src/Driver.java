@@ -61,7 +61,7 @@ public class Driver {
 	}
 	
 	/*
-	 * TODO 
+	 * TODO Move code to other classes 
 	 * Move generally useful code outside of Driver into a different class
 	 * Keep Driver project-specific (i.e. limited to just parsing and responding
 	 * to command-line parameters).
@@ -123,7 +123,7 @@ public class Driver {
 	}
 	
 	/*
-	 * TODO
+	 * TODO No throwing exceptions, catch them here
 	 * Driver.main() is the only class that shouldn't throw an exception.
 	 * Catch those exceptions here, output user-friendly error messages
 	 * (Try to provide context.)
@@ -145,9 +145,9 @@ public class Driver {
 		
 		var textFiles = new ArrayList<String>();
 
-		// TODO Try to move this nested data structure into its own class
-		// TODO This could be a data-structure like class that just stores stuff
-		// TODO and doesn't parse stuff.
+		// TODO Try to move this nested data structure into its own class. 
+		// This could be a data-structure like class that just stores stuff 
+		// and doesn't parse stuff.
 		TreeMap<String, TreeSet<Integer>> words;
 		var allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
 		
