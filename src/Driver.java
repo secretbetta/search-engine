@@ -3,6 +3,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -23,8 +24,7 @@ public class Driver {
 	 */
 	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) 
 			throws IOException {
-		try (BufferedReader reader = 
-				Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
+		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
 			
 			int position = 0;
 			
@@ -46,14 +46,6 @@ public class Driver {
 		}
 	}
 
-	/*
-	 * TODO No throwing exceptions, catch them here
-	 * Driver.main() is the only class that shouldn't throw an exception.
-	 * Catch those exceptions here, output user-friendly error messages
-	 * (Try to provide context.)
-	 * "Unable to build index from path: " + path
-	 */
-
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
 	 * engine from files or the web.
@@ -62,10 +54,10 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) {
-		boolean flag = false;
-		
-		Path index = Paths.get("index.json");
-		Path path = Paths.get(".");
+		Path path = null;
+		Path index = null;
+//		Path path = Paths.get(".");
+//		Path index = Paths.get("out", "index.json");
 		
 		var textFiles = new ArrayList<String>();
 
@@ -88,90 +80,68 @@ public class Driver {
 		 * if (-index flag) {
 		 * 		trigger the writing of the index in this block of code
 		 * }
-		 * 
 		 */
-		
-		if (argmap.hasFlag("-path")) {
+
+		try {
+			if (argmap.hasFlag("-path")) {
+				if (!(argmap.getPath("-path") == null)) {
+					path = Paths.get(argmap.getPath("-path").toString());
+				}
+			}
+			
 			if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
 				index = Paths.get(argmap.getPath("-index").toString());
-			} else if (argmap.hasFlag("-index")) {
+			} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
 				index = Paths.get("index.json");
 			} else {
 				index = Paths.get("out", "index.json");
 			}
 			
-			if (!(argmap.getPath("-path") == null)) {
-				path = Paths.get(argmap.getPath("-path").toString());
-				flag = true;
-			}
-		}
-		
-//		if (argmap.hasFlag("-path") && !(argmap.getPath("-path") == null)) {
-//			path = Paths.get(argmap.getPath("-path").toString());
-//		} else {
-//			flag = false;
-//		}
-//
-//		if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-//			index = Paths.get("index.json");
-//		} else if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-//			index = Paths.get(argmap.getPath("-index").toString());
-//		} else {
-//			index = Paths.get("out", "index.json");
-//		}
-		
-		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
+//			System.out.println(path.toAbsolutePath().normalize().toString());
+//			System.out.println(index);
 			
-			// TODO This is great for this project, but is going to quickly become unmanageable. 
-			// Simplify and remove this check.
-			if (!flag) {
-						System.err.println("Command line argument not valid."
-								+ "\nValid arguments: "
-								+ "\n-path path where the flag -path indicates the next argument "
-								+ "is a path to either a single text file or a directory of text "
-								+ "files that must be processed and added to the inverted index"
-								+ "\n-index where the flag -index is an optional flag that indicates "
-								+ "the next argument is the path to use for the inverted index output "
-								+ "file. If the path argument is not provided, use index.json as the "
-								+ "default output path. If the -index flag is not provided, do not "
-								+ "produce an output file.");
-			} else {
-				if (!Files.exists(path)) {
-				    System.err.println("Path does not exist");
-				} else if (Files.isDirectory(path)) {
-					textFiles = finder.traverse(path);
-					for (String file : textFiles) {
-						
-						words = getWords(Paths.get(file));
-						
-						for (String word : words.keySet()) {
-							wordIndex.put(file, words.get(word));
-							
-							if (allwords.containsKey(word)) {
-								allwords.get(word).put(file, words.get(word));
-							} else if (!allwords.containsKey(word)){
-								allwords.put(word, wordIndex);
-							}
-							wordIndex = new TreeMap<String, TreeSet<Integer>>();
-						}
-						
-					}
-					writer.write(NestedJSON.tripleNested(allwords));
-				} else {
-					
-					words = getWords(path);
+			BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+			
+			if (!Files.isRegularFile(path)) {
+				textFiles = finder.traverse(path);
+				
+				for (String file : textFiles) {
+					words = getWords(Paths.get(file));
 					
 					for (String word : words.keySet()) {
-						wordIndex.put(argmap.getPath("-path").toString(), words.get(word));
-						allwords.put(word, wordIndex);
+						wordIndex.put(file, words.get(word));
+						
+						if (allwords.containsKey(word)) {
+							allwords.get(word).put(file, words.get(word));
+						} else if (!allwords.containsKey(word)){
+							allwords.put(word, wordIndex);
+						}
+						
 						wordIndex = new TreeMap<String, TreeSet<Integer>>();
 					}
 					
-					writer.write(NestedJSON.tripleNested(allwords));
 				}
+				
+			} else {
+				words = getWords(path);
+				
+				for (String word : words.keySet()) {
+					wordIndex.put(argmap.getPath("-path").toString(), words.get(word));
+					allwords.put(word, wordIndex);
+					wordIndex = new TreeMap<String, TreeSet<Integer>>();
+				}
+				
 			}
+			writer.write(NestedJSON.tripleNested(allwords));
+			writer.close();
+			
+		} catch (NoSuchFileException e) {
+			System.err.println("Cannot find path " + path);
+		} catch (NullPointerException e) {
+			System.err.println("Cannot build path from " + path);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			System.err.println("Command arguments are invalid");
+			System.err.println("Valid arguments:\n-path\n-index");
 			e.printStackTrace();
 		}
 	}

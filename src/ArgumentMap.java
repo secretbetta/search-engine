@@ -137,7 +137,8 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
-		return hasFlag(flag) && map.get(flag) != null;
+//		return hasFlag(flag) && map.get(flag) != null;
+		return map.containsValue(flag);
 	}
 
 	/**
@@ -185,15 +186,22 @@ public class ArgumentMap {
 	 * @see Paths#get(String, String...)
 	 */
 	public Path getPath(String flag) {
-		// TODO Efficiency issue
-		for (String key: map.keySet()) {
-			if (flag.equals(map.get(key))) {
-				return Paths.get(key);
-			} else if (flag.equals(key) && map.get(flag) != null) {
-				return Paths.get(map.get(flag));
-			}
+//		System.out.println(flag + " " + map.values());
+//		System.out.println(map.values().contains(flag));
+//		System.out.println(map.get(flag));
+//		for (String key: map.keySet()) {
+//			if (flag.equals(map.get(key))) {
+//				return Paths.get(key);
+//			} else if (flag.equals(key) && map.get(flag) != null) {
+//				return Paths.get(map.get(flag));
+//			}
+//		}
+//		return null;
+		if (map.containsKey(flag)) {
+			return Paths.get(map.get(flag));
+		} else {
+			return null;
 		}
-		return null;
 	}
 
 	/**

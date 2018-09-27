@@ -78,14 +78,4 @@ public class TextFileStemmer {
 			writer.close();
 		}
 	}
-
-	/**
-	 * Uses {@link #stemFile(Path, Path)} to stem a single hard-coded file. Useful
-	 * for development.
-	 *
-	 * @param args unused
-	 * @throws IOException
-	 */
-//	public static void main(String[] args) throws IOException {
-//	}
 }

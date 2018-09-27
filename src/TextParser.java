@@ -6,8 +6,8 @@ import java.util.regex.Pattern;
  */
 public class TextParser {
 
-	public static final Pattern SPLIT_REGEX = Pattern.compile("(?U)\\p{Space}+");
-	public static final Pattern CLEAN_REGEX = Pattern.compile("(?U)[^\\p{Alpha}\\p{Space}]+");
+	public final static Pattern SPLIT_REGEX = Pattern.compile("(?U)\\p{Space}+");
+	public final static Pattern CLEAN_REGEX = Pattern.compile("(?U)[^\\p{Alpha}\\p{Space}]+");
 
 	/**
 	 * Cleans the text by removing any non-alphabetic characters (e.g. non-letters
