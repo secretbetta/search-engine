@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 /**
  * Data structure to store strings and their positions.
@@ -12,13 +12,13 @@ public class WordIndex {
 	/**
 	 * Stores a mapping of words to the positions the words were found.
 	 */
-	private HashMap<String, HashSet<Integer>> index;
+	private TreeMap<String, TreeSet<Integer>> index;
 
 	/**
 	 * Initializes the index.
 	 */
 	public WordIndex() {
-		this.index = new HashMap<>();
+		this.index = new TreeMap<>();
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class WordIndex {
 	 * @return true if this index did not already contain this word and position
 	 */
 	public boolean add(String word, int i) {
-		HashSet<Integer> temp = new HashSet<Integer>();
+		var temp = new TreeSet<Integer>();
 		temp.add(i);
 		
 		if (!index.containsKey(word)) {
@@ -151,9 +151,20 @@ public class WordIndex {
 
 	/**
 	 * Returns a string representation of this index.
+	 * 
+	 * @return index.toString string representation of index
 	 */
 	@Override
 	public String toString() {
 		return this.index.toString();
+	}
+	
+	/**
+	 * Returns WordIndex
+	 * 
+	 * @return index the data: index
+	 */
+	public TreeMap<String, TreeSet<Integer>> getAll() {
+		return this.index;
 	}
 }

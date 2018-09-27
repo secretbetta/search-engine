@@ -26,11 +26,11 @@ public class Driver {
 		try (BufferedReader reader = 
 				Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
 			
-			int position = 1;
+			int position = 0;
 			
 			var stem = new TextFileStemmer();
-			var words = new TreeMap<String, TreeSet <Integer>>();
-			var positions = new TreeSet<Integer>();
+			var wordindex = new WordIndex();
+		
 			
 			String line = null;
 			List<String> list = null;
@@ -38,29 +38,14 @@ public class Driver {
 			while ((line = reader.readLine()) != null) {
 				list = stem.stemLine(line);
 				for (String word: list) {
-					positions.add(position);
-					if (!words.containsKey(word)) {
-						words.put(word, positions);
-					} else {
-						positions.addAll(words.get(word));
-						words.put(word, positions);
-					}
 					position++;
-					
-					positions = new TreeSet<Integer>();
+					wordindex.add(word, position);
 				}
 			}
-			return words;
+			return wordindex.getAll();
 		}
 	}
-	
-	/*
-	 * TODO Move code to other classes 
-	 * Move generally useful code outside of Driver into a different class
-	 * Keep Driver project-specific (i.e. limited to just parsing and responding
-	 * to command-line parameters).
-	 */
-	
+
 	/*
 	 * TODO No throwing exceptions, catch them here
 	 * Driver.main() is the only class that shouldn't throw an exception.
@@ -89,14 +74,12 @@ public class Driver {
 		// and doesn't parse stuff.
 		TreeMap<String, TreeSet<Integer>> words;
 		var allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
-		
 		var wordIndex = new TreeMap<String, TreeSet<Integer>>();
-		
 		var argmap = new ArgumentMap(args);
 		var finder = new TextFileFinder();
 		
 		/*
-		 * TODO Modify the logic slightly... (Not sure if I did this correctly)
+		 * @TODO Modify the logic slightly... (Not sure if I did this correctly)
 		 * 
 		 * if (-path flag) {
 		 * 		trigger building the index in this block of code
@@ -138,6 +121,7 @@ public class Driver {
 //		}
 		
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
+			
 			// TODO This is great for this project, but is going to quickly become unmanageable. 
 			// Simplify and remove this check.
 			if (!flag) {
