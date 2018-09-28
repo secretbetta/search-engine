@@ -56,8 +56,6 @@ public class Driver {
 	public static void main(String[] args) {
 		Path path = null;
 		Path index = null;
-//		Path path = Paths.get(".");
-//		Path index = Paths.get("out", "index.json");
 		
 		var textFiles = new ArrayList<String>();
 
@@ -120,6 +118,8 @@ public class Driver {
 				}
 				writer.write(NestedJSON.tripleNested(allwords));
 				writer.close();
+			} else {
+				System.err.println("Did not input a path");
 			}
 		} catch (NoSuchFileException e) {
 			System.err.println("Cannot find path " + path);
