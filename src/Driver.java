@@ -69,18 +69,6 @@ public class Driver {
 		var wordIndex = new TreeMap<String, TreeSet<Integer>>();
 		var argmap = new ArgumentMap(args);
 		var finder = new TextFileFinder();
-		
-		/*
-		 * @TODO Modify the logic slightly... (Not sure if I did this correctly)
-		 * 
-		 * if (-path flag) {
-		 * 		trigger building the index in this block of code
-		 * }
-		 * 
-		 * if (-index flag) {
-		 * 		trigger the writing of the index in this block of code
-		 * }
-		 */
 
 		try {
 			if (argmap.hasFlag("-path")) {
@@ -96,49 +84,45 @@ public class Driver {
 			} else {
 				index = Paths.get("out", "index.json");
 			}
-			
-//			System.out.println(path.toAbsolutePath().normalize().toString());
-//			System.out.println(index);
-			
+
 			BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 			
-			if (!Files.isRegularFile(path)) {
-				textFiles = finder.traverse(path);
-				
-				for (String file : textFiles) {
-					words = getWords(Paths.get(file));
+			if (path != null) {
+				if (Files.isDirectory(path)) {
+					textFiles = finder.traverse(path);
 					
-					for (String word : words.keySet()) {
-						wordIndex.put(file, words.get(word));
+					for (String file : textFiles) {
+						words = getWords(Paths.get(file));
 						
-						if (allwords.containsKey(word)) {
-							allwords.get(word).put(file, words.get(word));
-						} else if (!allwords.containsKey(word)){
-							allwords.put(word, wordIndex);
+						for (String word : words.keySet()) {
+							wordIndex.put(file, words.get(word));
+							
+							if (allwords.containsKey(word)) {
+								allwords.get(word).put(file, words.get(word));
+							} else if (!allwords.containsKey(word)){
+								allwords.put(word, wordIndex);
+							}
+							
+							wordIndex = new TreeMap<String, TreeSet<Integer>>();
 						}
 						
+					}
+					
+				} else {
+					words = getWords(path);
+					
+					for (String word : words.keySet()) {
+						wordIndex.put(argmap.getPath("-path").toString(), words.get(word));
+						allwords.put(word, wordIndex);
 						wordIndex = new TreeMap<String, TreeSet<Integer>>();
 					}
 					
 				}
-				
-			} else {
-				words = getWords(path);
-				
-				for (String word : words.keySet()) {
-					wordIndex.put(argmap.getPath("-path").toString(), words.get(word));
-					allwords.put(word, wordIndex);
-					wordIndex = new TreeMap<String, TreeSet<Integer>>();
-				}
-				
+				writer.write(NestedJSON.tripleNested(allwords));
+				writer.close();
 			}
-			writer.write(NestedJSON.tripleNested(allwords));
-			writer.close();
-			
 		} catch (NoSuchFileException e) {
 			System.err.println("Cannot find path " + path);
-		} catch (NullPointerException e) {
-			System.err.println("Cannot build path from " + path);
 		} catch (IOException e) {
 			System.err.println("Command arguments are invalid");
 			System.err.println("Valid arguments:\n-path\n-index");

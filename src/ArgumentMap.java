@@ -189,19 +189,20 @@ public class ArgumentMap {
 //		System.out.println(flag + " " + map.values());
 //		System.out.println(map.values().contains(flag));
 //		System.out.println(map.get(flag));
-//		for (String key: map.keySet()) {
-//			if (flag.equals(map.get(key))) {
-//				return Paths.get(key);
-//			} else if (flag.equals(key) && map.get(flag) != null) {
-//				return Paths.get(map.get(flag));
-//			}
+		for (String key: map.keySet()) {
+			if (flag.equals(map.get(key))) {
+				return Paths.get(key);
+			} else if (flag.equals(key) && map.get(flag) != null) {
+				return Paths.get(map.get(flag));
+			}
+		}
+		return null;
+//		if (map.containsKey(flag) && map.get(flag) != null) {
+//			return Paths.get(map.get(flag));
+//		} else if (map.containsKey(flag)){
+//			return Paths.get(flag);
 //		}
 //		return null;
-		if (map.containsKey(flag)) {
-			return Paths.get(map.get(flag));
-		} else {
-			return null;
-		}
 	}
 
 	/**
