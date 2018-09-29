@@ -25,7 +25,8 @@ public class InvertedIndex {
 	}
 	
 	/**
-	 * Adds word if does not exist and file->position automatically
+	 * Adds word if does not exist
+	 * Adds file to word if does not exist
 	 * 
 	 * @param word the inputted word
 	 * @param filepos Treemap of file names and positions
