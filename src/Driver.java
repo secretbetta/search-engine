@@ -22,14 +22,15 @@ public class Driver {
 	 * @return list list of words in text file
 	 * @throws IOException
 	 */
-	public static TreeMap<String, TreeSet <Integer>> getWords(Path input) 
+	public static TreeMap<String, TreeSet<Integer>> getWords(Path input) 
 			throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
 			
 			int position = 0;
 			
 			var stem = new TextFileStemmer();
-			var wordindex = new WordIndex();
+			var wordIndex = new WordIndex();
+//			var invertedIndex = new InvertedIndex();
 		
 			
 			String line = null;
@@ -39,10 +40,12 @@ public class Driver {
 				list = stem.stemLine(line);
 				for (String word: list) {
 					position++;
-					wordindex.add(word, position);
+					wordIndex.add(word, position);
 				}
 			}
-			return wordindex.getAll();
+			
+			
+			return wordIndex.getAll();
 		}
 	}
 
@@ -58,15 +61,10 @@ public class Driver {
 		Path index = null;
 		
 		var textFiles = new ArrayList<String>();
-
-		// TODO Try to move this nested data structure into its own class. 
-		// This could be a data-structure like class that just stores stuff 
-		// and doesn't parse stuff.
 		TreeMap<String, TreeSet<Integer>> words;
-		var allwords = new TreeMap<String, TreeMap<String, TreeSet<Integer>>>();;
-		var wordIndex = new TreeMap<String, TreeSet<Integer>>();
 		var argmap = new ArgumentMap(args);
 		var finder = new TextFileFinder();
+		var invertedIndex = new InvertedIndex();
 
 		try {
 			if (argmap.hasFlag("-path")) {
@@ -93,15 +91,7 @@ public class Driver {
 						words = getWords(Paths.get(file));
 						
 						for (String word : words.keySet()) {
-							wordIndex.put(file, words.get(word));
-							
-							if (allwords.containsKey(word)) {
-								allwords.get(word).put(file, words.get(word));
-							} else if (!allwords.containsKey(word)){
-								allwords.put(word, wordIndex);
-							}
-							
-							wordIndex = new TreeMap<String, TreeSet<Integer>>();
+							invertedIndex.addAllWordFile(word, file, words.get(word));
 						}
 						
 					}
@@ -110,13 +100,11 @@ public class Driver {
 					words = getWords(path);
 					
 					for (String word : words.keySet()) {
-						wordIndex.put(argmap.getPath("-path").toString(), words.get(word));
-						allwords.put(word, wordIndex);
-						wordIndex = new TreeMap<String, TreeSet<Integer>>();
+						invertedIndex.addAllWordFile(word, argmap.getPath("-path").toString(), words.get(word));
 					}
 					
 				}
-				writer.write(NestedJSON.tripleNested(allwords));
+				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
 				writer.close();
 			} else {
 				System.err.println("Did not input a path");
