@@ -11,6 +11,9 @@ import java.util.List;
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
+/**
+ * Stems and cleans whole textfiles
+ */
 public class TextFileStemmer {
 
 	/**

@@ -1,6 +1,9 @@
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/**
+ * Data structure to store word to file(s) to position(s) in an inverted index format
+ */
 public class InvertedIndex {
 	
 	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
@@ -34,7 +37,9 @@ public class InvertedIndex {
 	 */
 	public boolean addAllWordFile(String word, String file, TreeSet<Integer> pos) {
 		var temp = new TreeMap<String, TreeSet<Integer>>();
+		
 		temp.put(file, pos);
+		
 		if (!index.containsKey(word)) {
 			index.put(word, temp);
 			return true;

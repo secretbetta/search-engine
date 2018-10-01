@@ -33,7 +33,7 @@ public class Driver {
 			
 			String line = null;
 			List<String> list = null;
-
+			
 			while ((line = reader.readLine()) != null) {
 				list = stem.stemLine(line);
 				for (String word: list) {
@@ -42,9 +42,32 @@ public class Driver {
 				}
 			}
 			
-			
 			return wordIndex.getAll();
 		}
+	}
+	
+	public static Path[] args(String[] args) {
+		Path path = null;
+		Path index = null;
+		
+		var argmap = new ArgumentMap(args);
+		if (argmap.hasFlag("-path")) {
+			if (!(argmap.getPath("-path") == null)) {
+				path = Paths.get(argmap.getPath("-path").toString());
+			}
+		}
+		
+		if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+			index = Paths.get(argmap.getPath("-index").toString());
+		} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
+			index = Paths.get("index.json");
+		} else {
+			index = Paths.get("out", "index.json");
+		}
+		
+		Path[] paths = {path, index};
+		
+		return paths;
 	}
 
 	/**
@@ -78,6 +101,10 @@ public class Driver {
 			} else {
 				index = Paths.get("out", "index.json");
 			}
+			
+			if (argmap.hasFlag("-search")) {
+				
+			}
 
 			BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 			
@@ -85,8 +112,15 @@ public class Driver {
 				if (Files.isDirectory(path)) {
 					textFiles = finder.traverse(path);
 					
+					//Test
+					System.out.println("Found all text files");
+					int i = 0;
+					//Test
+					
 					for (String file : textFiles) {
 						words = getWords(Paths.get(file));
+						
+						System.out.println("Got words " + i++);
 						
 						for (String word : words.keySet()) {
 							invertedIndex.addAllWordFile(word, file, words.get(word));

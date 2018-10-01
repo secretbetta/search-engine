@@ -8,6 +8,9 @@ import java.nio.file.Path;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/**
+ * Writes a triple nested JSON format
+ */
 public class NestedJSON {
 
 	/**

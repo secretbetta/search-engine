@@ -4,6 +4,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 
+/**
+ * Finds all textfiles
+ */
 public class TextFileFinder {
 	
 	/**

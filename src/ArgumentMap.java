@@ -3,6 +3,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Creates a map of arguments
+ */
 public class ArgumentMap {
 
 	private final Map<String, String> map;
