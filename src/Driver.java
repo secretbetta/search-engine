@@ -30,8 +30,6 @@ public class Driver {
 			
 			var stem = new TextFileStemmer();
 			var wordIndex = new WordIndex();
-//			var invertedIndex = new InvertedIndex();
-		
 			
 			String line = null;
 			List<String> list = null;
