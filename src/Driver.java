@@ -7,17 +7,8 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
-
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
-
-/*
- * TODO 
- * For production code, do not output any stack traces. Instead, output the user
- * friendly error messages.
- */
 
 public class Driver {
 	
@@ -36,11 +27,9 @@ public class Driver {
 			
 			int position = 0;
 			
-			var stem = new TextFileStemmer(); // TODO Access methods staticly 
-			var wordIndex = new WordIndex(); // TODO Try not to use
-			
+			var index = new TreeMap<String, TreeSet<Integer>>();
+			var temp = new TreeSet<Integer>();
 			String line = null;
-			List<String> list = null;
 			
 			// TODO Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH)
 			// TODO Use one of these per file
@@ -53,14 +42,20 @@ public class Driver {
 				 * 
 				 * Where stemLine was adding to a list, instead add to an index.
 				 */
-				list = stem.stemLine(line);
-				for (String word: list) {
+				for (String word: TextFileStemmer.stemLine(line)) {
+					temp = new TreeSet<Integer>();
 					position++;
-					wordIndex.add(word, position);
+					if (!index.containsKey(word)) {
+						temp.add(position);
+						index.put(word, temp);
+					} else {
+						temp.addAll(index.get(word));
+						temp.add(position);
+						index.put(word, temp);
+					}
 				}
 			}
-			
-			return wordIndex.getAll();
+			return index;
 		}
 	}
 	
@@ -164,15 +159,8 @@ public class Driver {
 				if (Files.isDirectory(path)) {
 					textFiles = finder.traverse(path);
 					
-					//Test
-					System.out.println("Found all text files");
-					int i = 0;
-					//Test
-					
 					for (String file : textFiles) {
 						words = getWords(Paths.get(file));
-						
-						System.out.println("Got words " + i++);
 						
 						for (String word : words.keySet()) {
 							invertedIndex.addAllWordFile(word, file, words.get(word));
@@ -190,15 +178,12 @@ public class Driver {
 				}
 				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
 				writer.close();
-			} else {
-				System.err.println("Did not input a path");
 			}
 		} catch (NoSuchFileException e) {
 			System.err.println("Cannot find path " + path);
 		} catch (IOException e) {
 			System.err.println("Command arguments are invalid");
 			System.err.println("Valid arguments:\n-path\n-index");
-			e.printStackTrace(); // TODO No stack traces!
 		}
 	}
 }

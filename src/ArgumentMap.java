@@ -46,13 +46,7 @@ public class ArgumentMap {
 		}
 		for (int i = 1; i < args.length; i++) {
 			if (isFlag(args[i - 1]) && isValue(args[i])) {
-//				if (args.length == 2) {
-//					System.out.println(args[0] + args[1]);
-//				}
 				map.put(args[i - 1], args[i]);
-//				if (args.length == 2) {
-//					System.out.println(map.keySet());
-//				}
 			}
 			else if (isFlag(args[i])) {
 				map.put(args[i], null);
@@ -140,7 +134,6 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
-//		return hasFlag(flag) && map.get(flag) != null;
 		return map.containsValue(flag);
 	}
 
