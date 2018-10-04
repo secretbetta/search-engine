@@ -64,4 +64,35 @@ public class TextFileFinder {
 			}
 		}
 	}
+	
+	
+	/*
+	TODO Try this to simplify your code
+	public static ArrayList<Path> traverse(Path path) throws IOException {
+		var files = new ArrayList<String>();
+		
+		String filename;
+		
+		if (Files.isDirectory(path)) {
+			try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
+				for (Path file : listing) {
+					files.addAll(traverse(file));
+				}
+			}
+		}
+		} else {
+			filename = path.getFileName().toString().toLowerCase();
+			
+			if (filename.endsWith(".txt") || filename.endsWith(".text")) {
+				files.add(path);
+			}
+		}
+	
+		return files;
+	}
+
+
+
+
+	 */
 }

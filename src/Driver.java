@@ -11,6 +11,14 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
+/*
+ * TODO 
+ * For production code, do not output any stack traces. Instead, output the user
+ * friendly error messages.
+ */
+
 public class Driver {
 	
 	/**
@@ -22,19 +30,29 @@ public class Driver {
 	 * @return list list of words in text file
 	 * @throws IOException
 	 */
-	public static TreeMap<String, TreeSet<Integer>> getWords(Path input) 
+	public static TreeMap<String, TreeSet<Integer>> getWords(Path input) // TODO Put this not in driver. (Put it in a "buidler" class.)
 			throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
 			
 			int position = 0;
 			
-			var stem = new TextFileStemmer();
-			var wordIndex = new WordIndex();
+			var stem = new TextFileStemmer(); // TODO Access methods staticly 
+			var wordIndex = new WordIndex(); // TODO Try not to use
 			
 			String line = null;
 			List<String> list = null;
 			
+			// TODO Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH)
+			// TODO Use one of these per file
+			
 			while ((line = reader.readLine()) != null) {
+				/*
+				 * TODO
+				 * Using temporary storage, want to avoid... efficiency is a case
+				 * where you can copy/paste!
+				 * 
+				 * Where stemLine was adding to a list, instead add to an index.
+				 */
 				list = stem.stemLine(line);
 				for (String word: list) {
 					position++;
@@ -86,6 +104,39 @@ public class Driver {
 		var argmap = new ArgumentMap(args);
 		var finder = new TextFileFinder();
 		var invertedIndex = new InvertedIndex();
+		
+		/*
+		TODO
+		var index = new InvertedIndex();
+		var argmap = new ArgumentMap(args);
+
+		if (argmap.hasFlag("-path")) {
+			Path path = argumap.getPath("-path");
+			
+			try {
+				List<Path> files = finder.traverse(path);
+				for (each file) {
+					getWords(file, index);
+				}
+			}
+			catch ( ) {
+			
+			}
+		}
+
+		if (argmap.hasFlag(-index)) {
+			try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
+				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
+			}
+			catch () {
+			
+			}
+		
+		}
+		
+		For next code review, can try to add -locations flag to your project 1 code.
+
+		*/
 
 		try {
 			if (argmap.hasFlag("-path")) {
@@ -106,6 +157,7 @@ public class Driver {
 				
 			}
 
+			// TODO try-with-resources
 			BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 			
 			if (path != null) {
@@ -146,7 +198,7 @@ public class Driver {
 		} catch (IOException e) {
 			System.err.println("Command arguments are invalid");
 			System.err.println("Valid arguments:\n-path\n-index");
-			e.printStackTrace();
+			e.printStackTrace(); // TODO No stack traces!
 		}
 	}
 }
