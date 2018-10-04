@@ -15,6 +15,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  * Stems and cleans whole textfiles
  */
 public class TextFileStemmer {
+	// TODO Make the methods static again
 
 	/**
 	 * Returns a list of cleaned and stemmed words parsed from the provided line.

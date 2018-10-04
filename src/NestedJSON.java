@@ -274,6 +274,9 @@ public class NestedJSON {
 
 	}
 	
+	// TODO Take the same approach as other methods, take in a writer.
+	// TODO To output your index, you have to loop through the entire index and make a copy in memory. 
+	// TODO Not space or time efficient.
 	/**
 	 * Creates a triple nested reverse index in JSON format
 	 * 
@@ -289,7 +292,7 @@ public class NestedJSON {
 			
 			writer.write('{');
 			writer.write(System.lineSeparator());
-			for (String element : elements.keySet()) {
+			for (String element : elements.keySet()) { // TODO elements.headMap(elements.lastKey).keySet()
 				indent(1, writer);
 				quote(element.toString(), writer);
 				writer.write(": ");
@@ -304,7 +307,7 @@ public class NestedJSON {
 			writer.close();
 			return writer.toString();
 		}
-		catch (IOException e) {
+		catch (IOException e) { 
 			return null;
 		}
 	}
