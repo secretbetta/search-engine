@@ -292,17 +292,23 @@ public class NestedJSON {
 			
 			writer.write('{');
 			writer.write(System.lineSeparator());
-			for (String element : elements.keySet()) { // TODO elements.headMap(elements.lastKey).keySet()
+			for (String element : elements.headMap(elements.lastKey()).keySet()) {
 				indent(1, writer);
 				quote(element.toString(), writer);
 				writer.write(": ");
 				
 				asNestedObject(elements.get(element), writer, 1);
 				
-				if (!element.equals(elements.lastKey()))
-					writer.write(",");
+				writer.write(",");
 				writer.write(System.lineSeparator());
 			}
+			
+			indent(1, writer);
+			quote(elements.lastKey().toString(), writer);
+			writer.write(": ");
+			asNestedObject(elements.get(elements.lastKey()), writer, 1);
+			writer.write(System.lineSeparator());
+			
 			writer.write('}');
 			writer.close();
 			return writer.toString();
