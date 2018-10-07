@@ -86,6 +86,8 @@ public class Driver {
 		Path index = null;
 		Path search = null;
 		
+		TreeMap<String, Integer> locations = null; 
+		
 		var textFiles = new ArrayList<String>();
 		TreeMap<String, TreeSet<Integer>> words;
 		var argmap = new ArgumentMap(args);
@@ -106,26 +108,42 @@ public class Driver {
 			index = Paths.get("out", "index.json");
 		}
 		
-		if (argmap.hasFlag("-search") && !(argmap.getPath("-search") == null)) {
+		if (argmap.hasFlag("-search") && (argmap.getPath("-search") != null)) {
 			search = Paths.get(argmap.getPath("-search").toString());
+			
+			if (argmap.hasFlag("-results") && !(argmap.getPath("-results") == null)) {
+				index = Paths.get(argmap.getPath("-results").toString());
+			} else if (argmap.hasFlag("-results")) {
+				index = Paths.get("results.json");
+			}
 		}
 		
-		if (argmap.hasFlag("-results") && !(argmap.getPath("-results") == null)) {
+		if (argmap.hasFlag("-results") && (argmap.getPath("-results") != null)) {
 			index = Paths.get(argmap.getPath("-results").toString());
 		} else if (argmap.hasFlag("-results")) {
 			index = Paths.get("results.json");
 		}
 		
+		if (argmap.hasFlag("-locations") && (argmap.getPath("-locations") != null)) {
+			index = Paths.get(argmap.getPath("-locations").toString());
+			locations = new TreeMap<String, Integer>();
+		}
+		
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
-
+			int wordCount;
 			if (path != null) {
 				if (Files.isDirectory(path)) {
 					textFiles = finder.traverse(path);
 					for (String file : textFiles) {
+						wordCount = 0;
 						words = getWords(Paths.get(file));
 						
 						for (String word : words.keySet()) {
 							invertedIndex.addAllWordFile(word, file, words.get(word));
+							wordCount += words.get(word).size();
+						}
+						if (wordCount != 0) {
+							locations.put(file, wordCount);
 						}
 					}
 				} else {
@@ -136,9 +154,10 @@ public class Driver {
 					}
 					
 				}
-				
+				if (locations != null) {
+					NestedJSON.asObject(locations, writer, 0);
+				}
 				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
-				writer.close();
 			}
 		} catch (NoSuchFileException e) {
 			System.err.println("Cannot find path " + path);
