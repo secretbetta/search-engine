@@ -95,12 +95,12 @@ public class Driver {
 		var invertedIndex = new InvertedIndex();
 		
 		if (argmap.hasFlag("-path")) {
-			if (!(argmap.getPath("-path") == null)) {
+			if (argmap.getPath("-path") != null) {
 				path = Paths.get(argmap.getPath("-path").toString());
 			}
 		}
 		
-		if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+		if (argmap.hasFlag("-index") && argmap.getPath("-index") != null) {
 			index = Paths.get(argmap.getPath("-index").toString());
 		} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
 			index = Paths.get("index.json");
@@ -108,10 +108,10 @@ public class Driver {
 			index = Paths.get("out", "index.json");
 		}
 		
-		if (argmap.hasFlag("-search") && (argmap.getPath("-search") != null)) {
+		if (argmap.hasFlag("-search") && argmap.getPath("-search") != null) {
 			search = Paths.get(argmap.getPath("-search").toString());
 			
-			if (argmap.hasFlag("-results") && !(argmap.getPath("-results") == null)) {
+			if (argmap.hasFlag("-results") && argmap.getPath("-results") != null) {
 				index = Paths.get(argmap.getPath("-results").toString());
 			} else if (argmap.hasFlag("-results")) {
 				index = Paths.get("results.json");
@@ -142,7 +142,8 @@ public class Driver {
 							invertedIndex.addAllWordFile(word, file, words.get(word));
 							wordCount += words.get(word).size();
 						}
-						if (wordCount != 0) {
+						
+						if (locations != null && wordCount != 0) {
 							locations.put(file, wordCount);
 						}
 					}
