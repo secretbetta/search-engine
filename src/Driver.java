@@ -25,24 +25,28 @@ public class Driver {
 	public static TreeMap<String, TreeSet<Integer>> getWords(Path input) 
 			throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
-			
 			int position = 0;
 			
 			var stem = new TextFileStemmer();
-			var wordIndex = new WordIndex();
+			var index = new TreeMap<String, TreeSet<Integer>>();
 			
-			String line = null;
-			List<String> list = null;
+			String line;
+			List<String> list;
 			
 			while ((line = reader.readLine()) != null) {
 				list = stem.stemLine(line);
 				for (String word: list) {
 					position++;
-					wordIndex.add(word, position);
+					if (index.containsKey(word)) {
+						index.get(word).add(position);
+					} else {
+						index.put(word, new TreeSet<Integer>());
+						index.get(word).add(position);
+					}
 				}
 			}
 			
-			return wordIndex.getAll();
+			return index;
 		}
 	}
 	
@@ -80,54 +84,50 @@ public class Driver {
 	public static void main(String[] args) {
 		Path path = null;
 		Path index = null;
+		Path search = null;
 		
 		var textFiles = new ArrayList<String>();
 		TreeMap<String, TreeSet<Integer>> words;
 		var argmap = new ArgumentMap(args);
 		var finder = new TextFileFinder();
 		var invertedIndex = new InvertedIndex();
+		
+		if (argmap.hasFlag("-path")) {
+			if (!(argmap.getPath("-path") == null)) {
+				path = Paths.get(argmap.getPath("-path").toString());
+			}
+		}
+		
+		if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+			index = Paths.get(argmap.getPath("-index").toString());
+		} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
+			index = Paths.get("index.json");
+		} else {
+			index = Paths.get("out", "index.json");
+		}
+		
+		if (argmap.hasFlag("-search") && !(argmap.getPath("-search") == null)) {
+			search = Paths.get(argmap.getPath("-search").toString());
+		}
+		
+		if (argmap.hasFlag("-results") && !(argmap.getPath("-results") == null)) {
+			index = Paths.get(argmap.getPath("-results").toString());
+		} else if (argmap.hasFlag("-results")) {
+			index = Paths.get("results.json");
+		}
+		
+		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
 
-		try {
-			if (argmap.hasFlag("-path")) {
-				if (!(argmap.getPath("-path") == null)) {
-					path = Paths.get(argmap.getPath("-path").toString());
-				}
-			}
-			
-			if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-				index = Paths.get(argmap.getPath("-index").toString());
-			} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-				index = Paths.get("index.json");
-			} else {
-				index = Paths.get("out", "index.json");
-			}
-			
-			if (argmap.hasFlag("-search")) {
-				
-			}
-
-			BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-			
 			if (path != null) {
 				if (Files.isDirectory(path)) {
 					textFiles = finder.traverse(path);
-					
-					//Test
-					System.out.println("Found all text files");
-					int i = 0;
-					//Test
-					
 					for (String file : textFiles) {
 						words = getWords(Paths.get(file));
-						
-						System.out.println("Got words " + i++);
 						
 						for (String word : words.keySet()) {
 							invertedIndex.addAllWordFile(word, file, words.get(word));
 						}
-						
 					}
-					
 				} else {
 					words = getWords(path);
 					
@@ -136,17 +136,15 @@ public class Driver {
 					}
 					
 				}
+				
 				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
 				writer.close();
-			} else {
-				System.err.println("Did not input a path");
 			}
 		} catch (NoSuchFileException e) {
 			System.err.println("Cannot find path " + path);
 		} catch (IOException e) {
 			System.err.println("Command arguments are invalid");
 			System.err.println("Valid arguments:\n-path\n-index");
-			e.printStackTrace();
 		}
 	}
 }

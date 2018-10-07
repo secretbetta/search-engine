@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.DecimalFormat;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -171,8 +172,6 @@ public class NestedJSON {
 	 */
 	public static void asObject(TreeMap<String, Integer> elements, Writer writer,
 			int level) throws IOException {
-		writer.write("[");
-		writer.write(System.lineSeparator());
 		indent(level, writer);
 		writer.write('{');
 		writer.write(System.lineSeparator());
@@ -189,8 +188,7 @@ public class NestedJSON {
 		}
 		indent(level, writer);
 		writer.write('}');
-		writer.write(System.lineSeparator());
-		writer.write("]");
+		writer.close();
 	}
 
 	/**
@@ -202,7 +200,6 @@ public class NestedJSON {
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
 	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
-		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
 		try {
 			StringWriter writer = new StringWriter();
 			asNestedObject(elements, writer, 0);
@@ -307,5 +304,134 @@ public class NestedJSON {
 		catch (IOException e) {
 			return null;
 		}
+	}
+	
+	/**
+	 * Creates a Nested JSON query index that stores Word -> File -> word count and score
+	 * 
+	 * @param query Contains word -> 
+	 * 		all files the word appears in ->
+	 * 		word count in each file and score in each file
+	 * @param writer Where to write the index
+	 * @param level Level of indentation
+	 * @throws IOException For Buffered Writer
+	 * 
+	 * @see #result(TreeMap, Writer, int)
+	 */
+	public static void queryObject(TreeMap<String, TreeMap<String, TreeMap<String, Number>>> query, Writer writer, int level) throws IOException {
+		indent(level, writer);
+		writer.write('[');
+		
+		for (String word : query.headMap(query.lastKey()).keySet()) {
+			writer.write(System.lineSeparator());
+			indent(level + 1, writer);
+			writer.write('{');
+			
+			writer.write(System.lineSeparator());
+			indent(level + 1, writer);
+			writer.write("\"queries\": \"" + word + "\",");
+			
+			writer.write(System.lineSeparator());
+			indent(level + 2, writer);
+			writer.write("\"results\": [");
+			
+			writer.write(System.lineSeparator());
+			
+			result(query.get(word), writer, level + 3);
+			
+			writer.write(System.lineSeparator());
+			
+			indent(level + 2, writer);
+			writer.write(']');
+			writer.write(System.lineSeparator());
+			
+			indent(level + 1, writer);
+			writer.write("},");
+			
+		}
+		
+
+		writer.write(System.lineSeparator());
+		indent(level + 1, writer);
+		writer.write('{');
+		
+		writer.write(System.lineSeparator());
+		indent(level + 1, writer);
+		writer.write("\"queries\": \"" + query.lastKey() + "\",");
+		
+		writer.write(System.lineSeparator());
+		indent(level + 2, writer);
+		writer.write("\"results\": [");
+		
+		writer.write(System.lineSeparator());
+		result(query.get(query.lastKey()), writer, level + 3);
+		writer.write(System.lineSeparator());
+		
+		indent(level + 2, writer);
+		writer.write(']');
+		writer.write(System.lineSeparator());
+		
+		indent(level + 1, writer);
+		writer.write("}");
+		
+		writer.write(System.lineSeparator());
+		indent(level, writer);
+		writer.write(']');
+		
+		writer.close();
+	}
+	
+	/**
+	 * Creates JSON format of "result" of searches
+	 * 
+	 * @param query The file(s) to count:int and score:double
+	 * @param writer Where to write the files to
+	 * @param level Indentation level
+	 * @throws IOException For BufferedWriter
+	 */
+	public static void result(TreeMap<String, TreeMap<String, Number>> query, Writer writer, int level) throws IOException {
+		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
+		DecimalFormat INT = new DecimalFormat("0");
+		
+		for (String file : query.headMap(query.lastKey()).keySet()) {
+			indent(level, writer);
+			writer.write('{');
+			writer.write(System.lineSeparator());
+			
+			indent(level, writer);
+			writer.write("\"where\": \"" + file + "\",");
+			
+			writer.write(System.lineSeparator());
+			indent(level + 1, writer);
+			writer.write("\"count\": " + INT.format(query.get(file).get("count")) + ",");
+			
+			writer.write(System.lineSeparator());
+			indent(level + 1, writer);
+			writer.write("\"score\": " + FORMATTER.format(query.get(file).get("score")));
+			writer.write(System.lineSeparator());
+			
+			indent(level, writer);
+			writer.write("},");
+			writer.write(System.lineSeparator());
+		}
+		
+		indent(level, writer);
+		writer.write('{');
+		writer.write(System.lineSeparator());
+		
+		indent(level, writer);
+		writer.write("\"where\": \"" + query.lastKey() + "\",");
+		writer.write(System.lineSeparator());
+		
+		indent(level + 1, writer);
+		writer.write("\"count\": " + INT.format(query.get(query.lastKey()).get("count")) + ",");
+		writer.write(System.lineSeparator());
+		
+		indent(level + 1, writer);
+		writer.write("\"score\": " + FORMATTER.format(query.get(query.lastKey()).get("score")));
+		writer.write(System.lineSeparator());
+		
+		indent(level, writer);
+		writer.write('}');
 	}
 }
