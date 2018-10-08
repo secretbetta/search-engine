@@ -13,6 +13,23 @@ import java.util.TreeSet;
 
 public class Driver {
 	
+	public static void search(Path text, Path query, Path writer, Boolean exact) throws IOException {
+		var queries = new TreeSet<String>();
+		String line;
+		try (BufferedReader reader = Files.newBufferedReader(query, StandardCharsets.UTF_8);) {
+			while ((line = reader.readLine()) != null) {
+				queries.addAll(QueryParsing.cleaner(line));
+			}
+		}
+		
+		try (BufferedReader reader = Files.newBufferedReader(text, StandardCharsets.UTF_8);) {
+			System.out.println(queries);
+			while ((line = reader.readLine()) != null) {
+				
+			}
+		}
+	}
+	
 	/**
 	 * Gets words from a given text file. Adds word and position into TreeMap.
 	 * Words may have more than one position in a text file.
@@ -27,14 +44,13 @@ public class Driver {
 		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
 			int position = 0;
 			
-			var stem = new TextFileStemmer();
 			var index = new TreeMap<String, TreeSet<Integer>>();
 			
 			String line;
 			List<String> list;
 			
 			while ((line = reader.readLine()) != null) {
-				list = stem.stemLine(line);
+				list = TextFileStemmer.stemLine(line);
 				for (String word: list) {
 					position++;
 					if (index.containsKey(word)) {
@@ -86,6 +102,8 @@ public class Driver {
 		Path index = null;
 		Path search = null;
 		
+		TreeMap<String, Integer> locations = null; 
+		
 		var textFiles = new ArrayList<String>();
 		TreeMap<String, TreeSet<Integer>> words;
 		var argmap = new ArgumentMap(args);
@@ -93,12 +111,12 @@ public class Driver {
 		var invertedIndex = new InvertedIndex();
 		
 		if (argmap.hasFlag("-path")) {
-			if (!(argmap.getPath("-path") == null)) {
+			if (argmap.getPath("-path") != null) {
 				path = Paths.get(argmap.getPath("-path").toString());
 			}
 		}
 		
-		if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
+		if (argmap.hasFlag("-index") && argmap.getPath("-index") != null) {
 			index = Paths.get(argmap.getPath("-index").toString());
 		} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
 			index = Paths.get("index.json");
@@ -106,26 +124,49 @@ public class Driver {
 			index = Paths.get("out", "index.json");
 		}
 		
-		if (argmap.hasFlag("-search") && !(argmap.getPath("-search") == null)) {
+		if (argmap.hasFlag("-search") && argmap.getPath("-search") != null) {
 			search = Paths.get(argmap.getPath("-search").toString());
+			
+			if (argmap.hasFlag("-results") && argmap.getPath("-results") != null) {
+				index = Paths.get(argmap.getPath("-results").toString());
+			} else if (argmap.hasFlag("-results")) {
+				index = Paths.get("results.json");
+			}
+			
+			if (argmap.hasFlag("-exact")) {
+				Boolean exact = true;
+			}	
+			
+			
 		}
 		
-		if (argmap.hasFlag("-results") && !(argmap.getPath("-results") == null)) {
+		if (argmap.hasFlag("-results") && (argmap.getPath("-results") != null)) {
 			index = Paths.get(argmap.getPath("-results").toString());
 		} else if (argmap.hasFlag("-results")) {
 			index = Paths.get("results.json");
 		}
 		
+		if (argmap.hasFlag("-locations") && (argmap.getPath("-locations") != null)) {
+			index = Paths.get(argmap.getPath("-locations").toString());
+			locations = new TreeMap<String, Integer>();
+		}
+		
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
-
+			int wordCount;
 			if (path != null) {
 				if (Files.isDirectory(path)) {
 					textFiles = finder.traverse(path);
 					for (String file : textFiles) {
+						wordCount = 0;
 						words = getWords(Paths.get(file));
 						
 						for (String word : words.keySet()) {
 							invertedIndex.addAllWordFile(word, file, words.get(word));
+							wordCount += words.get(word).size();
+						}
+						
+						if (locations != null && wordCount != 0) {
+							locations.put(file, wordCount);
 						}
 					}
 				} else {
@@ -136,9 +177,10 @@ public class Driver {
 					}
 					
 				}
-				
+				if (locations != null) {
+					NestedJSON.asObject(locations, writer, 0);
+				}
 				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
-				writer.close();
 			}
 		} catch (NoSuchFileException e) {
 			System.err.println("Cannot find path " + path);
