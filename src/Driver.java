@@ -24,6 +24,9 @@ public class Driver {
 		
 		try (BufferedReader reader = Files.newBufferedReader(text, StandardCharsets.UTF_8);) {
 			System.out.println(queries);
+			while ((line = reader.readLine()) != null) {
+				
+			}
 		}
 	}
 	
@@ -41,14 +44,13 @@ public class Driver {
 		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
 			int position = 0;
 			
-			var stem = new TextFileStemmer();
 			var index = new TreeMap<String, TreeSet<Integer>>();
 			
 			String line;
 			List<String> list;
 			
 			while ((line = reader.readLine()) != null) {
-				list = stem.stemLine(line);
+				list = TextFileStemmer.stemLine(line);
 				for (String word: list) {
 					position++;
 					if (index.containsKey(word)) {
@@ -133,7 +135,7 @@ public class Driver {
 			
 			if (argmap.hasFlag("-exact")) {
 				Boolean exact = true;
-			}
+			}	
 			
 			
 		}
