@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.TreeSet;
 
 
@@ -30,6 +31,9 @@ public class QueryParsing {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		
+		Path text = Paths.get("..", "project-tests", "text", "simple", "words.text");
+		Path query = Paths.get("..", "project-tests", "query", "words.txt");
+		Path index = Paths.get("..", "project-tests", "out", "results-text-words-words.json");
+		Driver.search(text, query, index, true);
 	}
 }

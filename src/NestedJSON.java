@@ -328,7 +328,7 @@ public class NestedJSON {
 			writer.write('{');
 			
 			writer.write(System.lineSeparator());
-			indent(level + 1, writer);
+			indent(level + 2, writer);
 			writer.write("\"queries\": \"" + word + "\",");
 			
 			writer.write(System.lineSeparator());
@@ -356,7 +356,7 @@ public class NestedJSON {
 		writer.write('{');
 		
 		writer.write(System.lineSeparator());
-		indent(level + 1, writer);
+		indent(level + 2, writer);
 		writer.write("\"queries\": \"" + query.lastKey() + "\",");
 		
 		writer.write(System.lineSeparator());
@@ -398,7 +398,7 @@ public class NestedJSON {
 			writer.write('{');
 			writer.write(System.lineSeparator());
 			
-			indent(level, writer);
+			indent(level + 1, writer);
 			writer.write("\"where\": \"" + file + "\",");
 			
 			writer.write(System.lineSeparator());
@@ -419,7 +419,7 @@ public class NestedJSON {
 		writer.write('{');
 		writer.write(System.lineSeparator());
 		
-		indent(level, writer);
+		indent(level + 1, writer);
 		writer.write("\"where\": \"" + query.lastKey() + "\",");
 		writer.write(System.lineSeparator());
 		

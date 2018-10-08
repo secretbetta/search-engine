@@ -13,20 +13,55 @@ import java.util.TreeSet;
 
 public class Driver {
 	
-	public static void search(Path text, Path query, Path writer, Boolean exact) throws IOException {
+	/**
+	 * Searches for words by query. Can look for exact or partial searches. 
+	 * @param text Textfile to look at
+	 * @param query What words to look for
+	 * @param index2 Place to write the results
+	 * @param exact Search for exact keywords or not
+	 * @throws IOException
+	 */
+	public static void search(Path text, Path query, Path indexfile, Boolean exact) {
 		var queries = new TreeSet<String>();
+		var index = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
+		String filename = text.normalize().toString();
+		
+		int wordcount = 0;
+		
 		String line;
 		try (BufferedReader reader = Files.newBufferedReader(query, StandardCharsets.UTF_8);) {
 			while ((line = reader.readLine()) != null) {
 				queries.addAll(QueryParsing.cleaner(line));
 			}
+		} catch (IOException e) {
+			System.err.println("Cannot read file");
 		}
 		
 		try (BufferedReader reader = Files.newBufferedReader(text, StandardCharsets.UTF_8);) {
-			System.out.println(queries);
 			while ((line = reader.readLine()) != null) {
-				
+				for (String textword : QueryParsing.cleaner(line)) {
+					if (queries.contains(textword)) {
+						index.putIfAbsent(textword, new TreeMap<String, TreeMap<String, Number>>());
+						index.get(textword).putIfAbsent(filename, new TreeMap<String, Number>());
+						index.get(textword).get(filename).putIfAbsent("count", 0);
+						index.get(textword).get(filename).put("count", (int)(index.get(textword).get(filename).get("count")) + 1);
+					}
+					wordcount++;
+				}
 			}
+			double score;
+			for (String word : index.keySet()) {
+				score = (int)(index.get(word).get(filename).get("count"))/(double)(wordcount);
+				index.get(word).get(filename).put("score", score);
+			}
+		} catch (IOException e) {
+			System.err.println("Cannot find text file");
+		}
+		
+		try (BufferedWriter writer = Files.newBufferedWriter(indexfile, StandardCharsets.UTF_8);) {
+			NestedJSON.queryObject(index, writer, 0);
+		} catch (IOException e) {
+			System.err.println("Cannot find index file");
 		}
 	}
 	
@@ -101,6 +136,10 @@ public class Driver {
 		Path path = null;
 		Path index = null;
 		Path search = null;
+
+		boolean exact = false;
+		
+		String driver = "index";
 		
 		TreeMap<String, Integer> locations = null; 
 		
@@ -134,13 +173,14 @@ public class Driver {
 			}
 			
 			if (argmap.hasFlag("-exact")) {
-				Boolean exact = true;
-			}	
-			
-			
+				exact = true;
+			} else {
+				exact = false;
+			}
+			driver = "search";
 		}
 		
-		if (argmap.hasFlag("-results") && (argmap.getPath("-results") != null)) {
+		if (argmap.hasFlag("-results") && argmap.getPath("-results") != null) {
 			index = Paths.get(argmap.getPath("-results").toString());
 		} else if (argmap.hasFlag("-results")) {
 			index = Paths.get("results.json");
@@ -151,42 +191,47 @@ public class Driver {
 			locations = new TreeMap<String, Integer>();
 		}
 		
-		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
-			int wordCount;
-			if (path != null) {
-				if (Files.isDirectory(path)) {
-					textFiles = finder.traverse(path);
-					for (String file : textFiles) {
-						wordCount = 0;
-						words = getWords(Paths.get(file));
+		if (driver.equals("search")) {
+			search(path, search, index, exact);
+		}
+		if (driver.equals("index")) {
+			try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
+				int wordCount;
+				if (path != null) {
+					if (Files.isDirectory(path)) {
+						textFiles = finder.traverse(path);
+						for (String file : textFiles) {
+							wordCount = 0;
+							words = getWords(Paths.get(file));
+							
+							for (String word : words.keySet()) {
+								invertedIndex.addAllWordFile(word, file, words.get(word));
+								wordCount += words.get(word).size();
+							}
+							
+							if (locations != null && wordCount != 0) {
+								locations.put(file, wordCount);
+							}
+						}
+					} else {
+						words = getWords(path);
 						
 						for (String word : words.keySet()) {
-							invertedIndex.addAllWordFile(word, file, words.get(word));
-							wordCount += words.get(word).size();
+							invertedIndex.addAllWordFile(word, argmap.getPath("-path").toString(), words.get(word));
 						}
 						
-						if (locations != null && wordCount != 0) {
-							locations.put(file, wordCount);
-						}
 					}
-				} else {
-					words = getWords(path);
-					
-					for (String word : words.keySet()) {
-						invertedIndex.addAllWordFile(word, argmap.getPath("-path").toString(), words.get(word));
+					if (locations != null) {
+						NestedJSON.asObject(locations, writer, 0);
 					}
-					
+					writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
 				}
-				if (locations != null) {
-					NestedJSON.asObject(locations, writer, 0);
-				}
-				writer.write(NestedJSON.tripleNested(invertedIndex.getIndex()));
+			} catch (NoSuchFileException e) {
+	//			System.err.println("Cannot find path " + path);
+			} catch (IOException e) {
+	//			System.err.println("Command arguments are invalid");
+	//			System.err.println("Valid arguments:\n-path\n-index");
 			}
-		} catch (NoSuchFileException e) {
-			System.err.println("Cannot find path " + path);
-		} catch (IOException e) {
-			System.err.println("Command arguments are invalid");
-			System.err.println("Valid arguments:\n-path\n-index");
 		}
 	}
 }
