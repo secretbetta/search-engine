@@ -27,7 +27,7 @@ public class TextFileStemmer {
 	 * @see SnowballStemmer.ALGORITHM#ENGLISH
 	 * @see #stemLine(String, Stemmer)
 	 */
-	public List<String> stemLine(String line) {
+	public static List<String> stemLine(String line) {
 		// This is provided for you.
 		return stemLine(line, new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH));
 	}
@@ -42,7 +42,7 @@ public class TextFileStemmer {
 	 * @see Stemmer#stem(CharSequence)
 	 * @see TextParser#parse(String)
 	 */
-	public List<String> stemLine(String line, Stemmer stemmer) {
+	public static List<String> stemLine(String line, Stemmer stemmer) {
 		String[] list;
 		var words = new ArrayList<String>();
 		
@@ -65,7 +65,7 @@ public class TextFileStemmer {
 	 * @see #stemLine(String)
 	 * @see TextParser#parse(String)
 	 */
-	public void stemFile(Path inputFile, Path outputFile) throws IOException {
+	public static void stemFile(Path inputFile, Path outputFile) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8); ) {
 			BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
 			List<String> words = new ArrayList<String>();

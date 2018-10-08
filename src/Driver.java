@@ -13,6 +13,20 @@ import java.util.TreeSet;
 
 public class Driver {
 	
+	public static void search(Path text, Path query, Path writer, Boolean exact) throws IOException {
+		var queries = new TreeSet<String>();
+		String line;
+		try (BufferedReader reader = Files.newBufferedReader(query, StandardCharsets.UTF_8);) {
+			while ((line = reader.readLine()) != null) {
+				queries.addAll(QueryParsing.cleaner(line));
+			}
+		}
+		
+		try (BufferedReader reader = Files.newBufferedReader(text, StandardCharsets.UTF_8);) {
+			System.out.println(queries);
+		}
+	}
+	
 	/**
 	 * Gets words from a given text file. Adds word and position into TreeMap.
 	 * Words may have more than one position in a text file.
@@ -116,6 +130,12 @@ public class Driver {
 			} else if (argmap.hasFlag("-results")) {
 				index = Paths.get("results.json");
 			}
+			
+			if (argmap.hasFlag("-exact")) {
+				Boolean exact = true;
+			}
+			
+			
 		}
 		
 		if (argmap.hasFlag("-results") && (argmap.getPath("-results") != null)) {
