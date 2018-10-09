@@ -188,7 +188,6 @@ public class NestedJSON {
 		}
 		indent(level, writer);
 		writer.write('}');
-		writer.close();
 	}
 
 	/**
@@ -267,7 +266,6 @@ public class NestedJSON {
 		
 		indent(level, writer);
 		writer.write('}');
-		writer.close();
 
 	}
 	
@@ -280,9 +278,8 @@ public class NestedJSON {
 	 * 
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
-	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements) throws IOException {
-		try {
-			StringWriter writer = new StringWriter();
+	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index, int level) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			
 			writer.write('{');
 			writer.write(System.lineSeparator());
@@ -298,7 +295,6 @@ public class NestedJSON {
 				writer.write(System.lineSeparator());
 			}
 			writer.write('}');
-			writer.close();
 			return writer.toString();
 		}
 		catch (IOException e) {

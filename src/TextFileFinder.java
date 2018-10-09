@@ -21,7 +21,7 @@ public class TextFileFinder {
 	 * @return textlist a list of text file names
 	 * @throws IOException
 	 */
-	private ArrayList<String> findText(Path path) throws IOException {
+	private static ArrayList<String> findText(Path path) throws IOException {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
 			var  textlist = new ArrayList<String>();
 			String filename;
@@ -47,7 +47,7 @@ public class TextFileFinder {
 	 * @return findText a list of text names, null if none.
 	 * @throws IOException
 	 */
-	public ArrayList<String> traverse(Path directory) throws IOException {
+	public static ArrayList<String> traverse(Path directory) throws IOException {
 		var single = new ArrayList<String>();
 		String filename;
 		
