@@ -182,25 +182,43 @@ public class Driver {
 				if (locations != null) {
 					NestedJSON.asObject(locations, writer, 0);
 				}
+				
 				if (argmap.hasFlag("-index")) {
 					NestedJSON.tripleNested(invertedIndex.getIndex(), index, 0);
 				}
+				
 				if (argmap.hasFlag("-search")) {
-					//TODO get query file, go through query lines
 					var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
 					var query = new TreeSet<String>();
 					String line;
+					
+					//TODO Traverse directories if given a directory
+					
+					// Reads query file
 					try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-						while ((line = reader.readLine()) != null) {
-							query.addAll(QueryParsing.cleaner(line));
-							searchIndex.putAll(JSONReader.searchNested(path, Paths.get("out", "index.json"), TextParser.clean(line)));
+						if (!Files.isDirectory(path)) {
+							while ((line = reader.readLine()) != null) {
+								query.addAll(QueryParsing.cleaner(line));
+								if (!TextParser.clean(line).trim().isEmpty()) {
+									searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), TextParser.clean(line)));
+								}
+							}
+						} else {
+							textFiles = TextFileFinder.traverse(path);
+							for (String file : textFiles) {
+								while ((line = reader.readLine()) != null) {
+									query.addAll(QueryParsing.cleaner(line));
+									if (!TextParser.clean(line).trim().isEmpty()) {
+										searchIndex.putAll(JSONReader.searchNested(Paths.get(file), invertedIndex.getIndex(), TextParser.clean(line)));
+									}
+								}
+							}
 						}
 						
 						NestedJSON.queryObject(searchIndex, writer, 0);
 					} catch (IOException e) {
 						System.err.println("Cannot read file");
 					}
-//					JSONReader.searchNested(path, );
 				}
 			}
 		} catch (NoSuchFileException e) {

@@ -1,4 +1,3 @@
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -9,41 +8,56 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class JSONReader {
-//	public static TreeMap<String, TreeMap<String, TreeMap<String, Number>>> invertedindex = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
 	
-	public static TreeMap<String, TreeMap<String, TreeMap<String, Number>>> searchNested(Path path, Path index, String query) throws IOException {
+	/**
+	 * Does the searches for queries
+	 * @param path
+	 * @param index
+	 * @param query
+	 * @return
+	 * @throws IOException
+	 */
+	public static TreeMap<String, TreeMap<String, TreeMap<String, Number>>> searchNested(Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query) throws IOException {
 		var invertedindex = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
-		try (BufferedReader reader = Files.newBufferedReader(index, StandardCharsets.UTF_8);) {
-			String filename = path.normalize().toString();
-			String line;
-			double wordcount = 0;
-			
-			TreeSet<String> querywords = QueryParsing.cleaner(query);
-			System.out.println(querywords);
-			
-			invertedindex.put(querywords.first(), new TreeMap<String, TreeMap<String, Number>>());
-			invertedindex.get(querywords.first()).put(filename, new TreeMap<String, Number>());
-			invertedindex.get(querywords.first()).get(filename).put("count", 0.0);
-			String regex = "[0-9, /,]+";
-			while ((line = reader.readLine()) != null) {
-				if (line.trim().matches(regex)) {
-					wordcount++;
-				}
-				
-				for (String word : querywords) {
-					for (String textwords : QueryParsing.cleaner(line)) {
-						if (textwords.equals(word)) {
-							line = reader.readLine();
-							while (!((line = reader.readLine()).contains("]"))) {
-								invertedindex.get(querywords.first()).get(filename).put("count", (double)(invertedindex.get(querywords.first()).get(filename).get("count")) + 1);
-								wordcount++;
-							}
-						}
-					}
-				}
-			}
-			invertedindex.get(querywords.first()).get(filename).put("score", (double)invertedindex.get(querywords.first()).get(filename).get("count")/wordcount);
+		String temp = "";
+		String filename = path.normalize().toString();
+		
+		double totalwords = 0;
+		double score = 0;
+		
+		TreeSet<String> querywords = QueryParsing.cleaner(query);
+
+		//TODO Now make the partial (replace .contains to .starts with)
+		
+		for (String x : querywords.headSet(querywords.last())) {
+			temp += x + " ";
 		}
+		temp += querywords.last();
+		invertedindex.put(temp, new TreeMap<String, TreeMap<String, Number>>());
+		invertedindex.get(temp).put(filename, new TreeMap<String, Number>());
+		invertedindex.get(temp).get(filename).put("count", 0.0);
+		
+		for (String word: querywords) {
+			if (index.containsKey(word)) {
+				System.out.println(index.get(word));
+				System.out.println(filename);
+				invertedindex.get(temp).get(filename).put("count", (double)(invertedindex.get(temp).get(filename).get("count")) + (double)index.get(word).get(filename).size());
+			}
+		}
+		
+		for (String word: index.keySet()) {
+			for (String file : index.get(word).keySet()) {
+				totalwords += index.get(word).get(file).size();
+			}
+		}
+		score = (double)invertedindex.get(temp).get(filename).get("count")/(double)totalwords;
+		
+		if (score != 0) {
+			invertedindex.get(temp).get(filename).put("score", score);
+		} else {
+			invertedindex.get(temp).remove(filename);
+		}
+		
 		return invertedindex;
 	}
 

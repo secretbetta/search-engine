@@ -334,9 +334,10 @@ public class NestedJSON {
 				
 				writer.write(System.lineSeparator());
 				
-				result(query.get(word), writer, level + 3);
-				
-				writer.write(System.lineSeparator());
+				if (!query.get(word).keySet().isEmpty()) {
+					result(query.get(word), writer, level + 3);
+					writer.write(System.lineSeparator());
+				}
 				
 				indent(level + 2, writer);
 				writer.write(']');
@@ -361,8 +362,11 @@ public class NestedJSON {
 			writer.write("\"results\": [");
 			
 			writer.write(System.lineSeparator());
-			result(query.get(query.lastKey()), writer, level + 3);
-			writer.write(System.lineSeparator());
+			
+			if (!query.get(query.lastKey()).keySet().isEmpty()) {
+				result(query.get(query.lastKey()), writer, level + 3);
+				writer.write(System.lineSeparator());
+			}
 			
 			indent(level + 2, writer);
 			writer.write(']');
