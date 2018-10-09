@@ -315,26 +315,53 @@ public class NestedJSON {
 	 * @see #result(TreeMap, Writer, int)
 	 */
 	public static void queryObject(TreeMap<String, TreeMap<String, TreeMap<String, Number>>> query, Writer writer, int level) throws IOException {
-		indent(level, writer);
-		writer.write('[');
-		
-		for (String word : query.headMap(query.lastKey()).keySet()) {
+		try {
+			indent(level, writer);
+			writer.write('[');
+			
+			for (String word : query.headMap(query.lastKey()).keySet()) {
+				writer.write(System.lineSeparator());
+				indent(level + 1, writer);
+				writer.write('{');
+				
+				writer.write(System.lineSeparator());
+				indent(level + 2, writer);
+				writer.write("\"queries\": \"" + word + "\",");
+				
+				writer.write(System.lineSeparator());
+				indent(level + 2, writer);
+				writer.write("\"results\": [");
+				
+				writer.write(System.lineSeparator());
+				
+				result(query.get(word), writer, level + 3);
+				
+				writer.write(System.lineSeparator());
+				
+				indent(level + 2, writer);
+				writer.write(']');
+				writer.write(System.lineSeparator());
+				
+				indent(level + 1, writer);
+				writer.write("},");
+				
+			}
+			
+	
 			writer.write(System.lineSeparator());
 			indent(level + 1, writer);
 			writer.write('{');
 			
 			writer.write(System.lineSeparator());
 			indent(level + 2, writer);
-			writer.write("\"queries\": \"" + word + "\",");
+			writer.write("\"queries\": \"" + query.lastKey() + "\",");
 			
 			writer.write(System.lineSeparator());
 			indent(level + 2, writer);
 			writer.write("\"results\": [");
 			
 			writer.write(System.lineSeparator());
-			
-			result(query.get(word), writer, level + 3);
-			
+			result(query.get(query.lastKey()), writer, level + 3);
 			writer.write(System.lineSeparator());
 			
 			indent(level + 2, writer);
@@ -342,39 +369,16 @@ public class NestedJSON {
 			writer.write(System.lineSeparator());
 			
 			indent(level + 1, writer);
-			writer.write("},");
+			writer.write("}");
+			
+			writer.write(System.lineSeparator());
+			indent(level, writer);
+			writer.write(']');
+			
+			writer.close();
+		} catch (IOException e) {
 			
 		}
-		
-
-		writer.write(System.lineSeparator());
-		indent(level + 1, writer);
-		writer.write('{');
-		
-		writer.write(System.lineSeparator());
-		indent(level + 2, writer);
-		writer.write("\"queries\": \"" + query.lastKey() + "\",");
-		
-		writer.write(System.lineSeparator());
-		indent(level + 2, writer);
-		writer.write("\"results\": [");
-		
-		writer.write(System.lineSeparator());
-		result(query.get(query.lastKey()), writer, level + 3);
-		writer.write(System.lineSeparator());
-		
-		indent(level + 2, writer);
-		writer.write(']');
-		writer.write(System.lineSeparator());
-		
-		indent(level + 1, writer);
-		writer.write("}");
-		
-		writer.write(System.lineSeparator());
-		indent(level, writer);
-		writer.write(']');
-		
-		writer.close();
 	}
 	
 	/**

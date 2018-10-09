@@ -63,9 +63,25 @@ public class QueryParsing {
 		
 		if (Files.isDirectory(text)) {
 			try {
+				var invertedIndex = new InvertedIndex();
 				textFiles = TextFileFinder.traverse(text);
+				
 				for (String file : textFiles) {
-					
+					wordcount = 0;
+					try (BufferedReader reader = Files.newBufferedReader(text, StandardCharsets.UTF_8);) {
+						//TODO Traverse through textfiles and put all of the index into stuff and stuff for results
+//						while ((line = reader.readLine()) != null) {
+//							for (String textword : QueryParsing.cleaner(line)) {
+//								if (queries.contains(textword)) {
+//									index.putIfAbsent(textword, new TreeMap<String, TreeMap<String, Number>>());
+//									index.get(textword).putIfAbsent(filename, new TreeMap<String, Number>());
+//									index.get(textword).get(filename).putIfAbsent("count", 0);
+//									index.get(textword).get(filename).put("count", (int)(index.get(textword).get(filename).get("count")) + 1);
+//								}
+//								wordcount++;
+//							}
+//						}
+					}
 				}
 			} catch (IOException e1) {
 				System.err.println("Cannot traverse path");
@@ -111,6 +127,6 @@ public class QueryParsing {
 		Path index = Paths.get("..", "project-tests", "out", "index-text-words.json");
 		search(text, query, index, true);
 		
-		TreeMap<String, TreeMap<String, TreeSet<Integer>>> map = new JSONReader().read(index);
+//		TreeMap<String, TreeMap<String, TreeSet<Integer>>> map = new JSONReader().read(index);
 	}
 }
