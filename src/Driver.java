@@ -160,7 +160,7 @@ public class Driver {
 					textFiles = finder.traverse(path);
 					
 					for (String file : textFiles) {
-						words = getWords(Paths.get(file));
+						words = GetWords.getWords(Paths.get(file));
 						
 						for (String word : words.keySet()) {
 							invertedIndex.addAllWordFile(word, file, words.get(word));
@@ -169,7 +169,7 @@ public class Driver {
 					}
 					
 				} else {
-					words = getWords(path);
+					words = GetWords.getWords(path);
 					
 					for (String word : words.keySet()) {
 						invertedIndex.addAllWordFile(word, argmap.getPath("-path").toString(), words.get(word));
