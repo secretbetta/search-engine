@@ -27,27 +27,8 @@ public class QueryParsing {
 			querymap.put(word, new HashMap<String, HashMap<String, Number>>());
 			for (String file : index.get(word).keySet()) {
 				querymap.get(word).put(file, new HashMap<String, Number>());
-				for (String file2 : index.get(word).keySet()) {
-					if ((double)index.get(word).get(file).get("score") > (double)index.get(word).get(file2).get("score")) {
-						querymap.get(word).get(file).putIfAbsent("count", (double)index.get(word).get(file).get("count"));
-						querymap.get(word).get(file).putIfAbsent("score", (double)index.get(word).get(file).get("score"));
-					} else if ((double)index.get(word).get(file).get("score") < (double)index.get(word).get(file2).get("score")) {
-						querymap.get(word).get(file2).putIfAbsent("count", (double)index.get(word).get(file).get("count"));
-						querymap.get(word).get(file2).putIfAbsent("score", (double)index.get(word).get(file).get("score"));
-					} else {
-						if ((double)index.get(word).get(file).get("count") > (double)index.get(word).get(file2).get("count")) {
-							querymap.get(word).get(file).putIfAbsent("count", (double)index.get(word).get(file).get("count"));
-							querymap.get(word).get(file).putIfAbsent("score", (double)index.get(word).get(file).get("score"));
-						} else if ((double)index.get(word).get(file).get("count") < (double)index.get(word).get(file2).get("count")) {
-							querymap.get(word).get(file2).putIfAbsent("count", (double)index.get(word).get(file).get("count"));
-							querymap.get(word).get(file2).putIfAbsent("score", (double)index.get(word).get(file).get("score"));
-						} else {
-							querymap.get(word).get(file2).putIfAbsent("count", (double)index.get(word).get(file).get("count"));
-							querymap.get(word).get(file2).putIfAbsent("score", (double)index.get(word).get(file).get("score"));
-						}
-					}
-						
-				}
+				querymap.get(word).get(file).putIfAbsent("count", (double)index.get(word).get(file).get("count"));
+				querymap.get(word).get(file).putIfAbsent("score", (double)index.get(word).get(file).get("score"));
 			}
 		}
 		

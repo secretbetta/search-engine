@@ -58,6 +58,7 @@ public class JSONReader {
 		}
 		
 		score = (double)invertedindex.get(temp).get(filename).get("count")/(double)totalwords;
+		
 		if (score != 0) {
 			invertedindex.get(temp).get(filename).put("score", score);
 		} else {

@@ -192,6 +192,7 @@ public class Driver {
 							}
 						}
 						var querymap = QueryParsing.copy(searchIndex);
+						System.out.println(querymap);
 //						System.out.println(querymap);
 //						querymap = QueryParsing.sortMap(querymap);
 //						System.out.println("2" + querymap);
