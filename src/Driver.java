@@ -170,7 +170,7 @@ public class Driver {
 									searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), TextParser.clean(line), exact));
 								}
 							}
-						} else {
+						} else { //Basically where I need to sort
 							String queryword;
 							var temp = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
 							textFiles = TextFileFinder.traverse(path);
@@ -192,10 +192,7 @@ public class Driver {
 							}
 						}
 						var querymap = QueryParsing.copy(searchIndex);
-						System.out.println(querymap);
-//						System.out.println(querymap);
-//						querymap = QueryParsing.sortMap(querymap);
-//						System.out.println("2" + querymap);
+						
 						NestedJSON.queryObject(querymap, writer, 0);
 					} catch (IOException e) {
 					}
