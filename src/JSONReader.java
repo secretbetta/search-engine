@@ -52,14 +52,14 @@ public class JSONReader {
 		}
 		
 		for (String word: index.keySet()) {
-			for (String file : index.get(word).keySet()) {
-				totalwords += index.get(word).get(file).size();
+			if (index.get(word).containsKey(filename)) {
+				totalwords += index.get(word).get(filename).size();
 			}
 		}
 		
 		score = (double)invertedindex.get(temp).get(filename).get("count")/(double)totalwords;
 		
-		if (score != 0) {
+		if (score != 0 && totalwords != 0) {
 			invertedindex.get(temp).get(filename).put("score", score);
 		} else {
 			invertedindex.get(temp).remove(filename);
