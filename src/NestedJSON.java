@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -314,7 +315,7 @@ public class NestedJSON {
 	 * 
 	 * @see #result(TreeMap, Writer, int)
 	 */
-	public static void queryObject(TreeMap<String, TreeMap<String, TreeMap<String, Number>>> query, Writer writer, int level) throws IOException {
+	public static void queryObject(TreeMap<String, HashMap<String, HashMap<String, Number>>> query, Writer writer, int level) throws IOException {
 		try {
 			indent(level, writer);
 			writer.write('[');
@@ -393,11 +394,13 @@ public class NestedJSON {
 	 * @param level Indentation level
 	 * @throws IOException For BufferedWriter
 	 */
-	public static void result(TreeMap<String, TreeMap<String, Number>> query, Writer writer, int level) throws IOException {
+	public static void result(HashMap<String, HashMap<String, Number>> query, Writer writer, int level) throws IOException {
 		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
 		DecimalFormat INT = new DecimalFormat("0");
+		int count = query.size();
 		
-		for (String file : query.headMap(query.lastKey()).keySet()) {
+//		for (String file : query.headMap(query.lastKey()).keySet()) {
+		for (String file: query.keySet()) {
 			indent(level, writer);
 			writer.write('{');
 			writer.write(System.lineSeparator());
@@ -407,35 +410,40 @@ public class NestedJSON {
 			
 			writer.write(System.lineSeparator());
 			indent(level + 1, writer);
-			writer.write("\"count\": " + INT.format(query.get(file).get("count")) + ",");
+			writer.write("\"count\": " + INT.format((double)query.get(file).get("count")) + ",");
 			
 			writer.write(System.lineSeparator());
 			indent(level + 1, writer);
-			writer.write("\"score\": " + FORMATTER.format(query.get(file).get("score")));
+			writer.write("\"score\": " + FORMATTER.format((double)query.get(file).get("score")));
 			writer.write(System.lineSeparator());
 			
-			indent(level, writer);
-			writer.write("},");
-			writer.write(System.lineSeparator());
+			if (count > 1) {
+				indent(level, writer);
+				writer.write("},");
+				writer.write(System.lineSeparator());
+			} else {
+				writer.write("}");
+			}
+			count--;
 		}
 		
-		indent(level, writer);
-		writer.write('{');
-		writer.write(System.lineSeparator());
-		
-		indent(level + 1, writer);
-		writer.write("\"where\": \"" + query.lastKey() + "\",");
-		writer.write(System.lineSeparator());
-		
-		indent(level + 1, writer);
-		writer.write("\"count\": " + INT.format(query.get(query.lastKey()).get("count")) + ",");
-		writer.write(System.lineSeparator());
-		
-		indent(level + 1, writer);
-		writer.write("\"score\": " + FORMATTER.format(query.get(query.lastKey()).get("score")));
-		writer.write(System.lineSeparator());
-		
-		indent(level, writer);
-		writer.write('}');
+//		indent(level, writer);
+//		writer.write('{');
+//		writer.write(System.lineSeparator());
+//		
+//		indent(level + 1, writer);
+//		writer.write("\"where\": \"" + query.lastKey() + "\",");
+//		writer.write(System.lineSeparator());
+//		
+//		indent(level + 1, writer);
+//		writer.write("\"count\": " + INT.format((double)query.get(query.lastKey()).get("count")) + ",");
+//		writer.write(System.lineSeparator());
+//		
+//		indent(level + 1, writer);
+//		writer.write("\"score\": " + FORMATTER.format((double)query.get(query.lastKey()).get("score")));
+//		writer.write(System.lineSeparator());
+//		
+//		indent(level, writer);
+//		writer.write('}');
 	}
 }

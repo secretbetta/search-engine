@@ -1,23 +1,20 @@
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class JSONReader {
-	
 	/**
-	 * Does the searches for queries
-	 * @param path
-	 * @param index
-	 * @param query
-	 * @return
+	 * Does the searches for queries in the inverted index
+	 * @param path Filename to put into index
+	 * @param index The inverted index data
+	 * @param query The words to search for
+	 * @param exact Whether to be exact or just do a partial search
+	 * @return The TreeMap of results
+	 * 
 	 * @throws IOException
 	 */
-	public static TreeMap<String, TreeMap<String, TreeMap<String, Number>>> searchNested(Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query) throws IOException {
+	public static TreeMap<String, TreeMap<String, TreeMap<String, Number>>> searchNested(Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
 		var invertedindex = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
 		String temp = "";
 		String filename = path.normalize().toString();
@@ -26,22 +23,31 @@ public class JSONReader {
 		double score = 0;
 		
 		TreeSet<String> querywords = QueryParsing.cleaner(query);
-
-		//TODO Now make the partial (replace .contains to .starts with)
 		
 		for (String x : querywords.headSet(querywords.last())) {
 			temp += x + " ";
 		}
+		
 		temp += querywords.last();
 		invertedindex.put(temp, new TreeMap<String, TreeMap<String, Number>>());
 		invertedindex.get(temp).put(filename, new TreeMap<String, Number>());
 		invertedindex.get(temp).get(filename).put("count", 0.0);
 		
 		for (String word: querywords) {
-			if (index.containsKey(word)) {
-				System.out.println(index.get(word));
-				System.out.println(filename);
-				invertedindex.get(temp).get(filename).put("count", (double)(invertedindex.get(temp).get(filename).get("count")) + (double)index.get(word).get(filename).size());
+			if (exact) {
+				if (index.containsKey(word)) {
+					if (index.get(word).containsKey(filename)) {
+						invertedindex.get(temp).get(filename).put("count", (double)(invertedindex.get(temp).get(filename).get("count")) + (double)index.get(word).get(filename).size());
+					}
+				}
+			} else if (!exact) {
+				for (String key : index.keySet()) {
+					if (key.startsWith(word)) {
+						if (index.get(key).containsKey(filename)) {
+							invertedindex.get(temp).get(filename).put("count", (double)(invertedindex.get(temp).get(filename).get("count")) + (double)index.get(key).get(filename).size());
+						}
+					}
+				}
 			}
 		}
 		
@@ -50,8 +56,8 @@ public class JSONReader {
 				totalwords += index.get(word).get(file).size();
 			}
 		}
-		score = (double)invertedindex.get(temp).get(filename).get("count")/(double)totalwords;
 		
+		score = (double)invertedindex.get(temp).get(filename).get("count")/(double)totalwords;
 		if (score != 0) {
 			invertedindex.get(temp).get(filename).put("score", score);
 		} else {
@@ -60,13 +66,4 @@ public class JSONReader {
 		
 		return invertedindex;
 	}
-
-	public static void main(String[] args) throws IOException {
-		Path index = Paths.get("..", "project-tests", "expected", "index-text", "index-text-simple-animals.json");
-		Path path = Paths.get("..", "test.json");
-		
-		BufferedWriter writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8);
-		
-	}
-
 }

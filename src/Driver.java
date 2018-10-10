@@ -47,30 +47,6 @@ public class Driver {
 			return index;
 		}
 	}
-	
-	public static Path[] args(String[] args) {
-		Path path = null;
-		Path index = null;
-		
-		var argmap = new ArgumentMap(args);
-		if (argmap.hasFlag("-path")) {
-			if (!(argmap.getPath("-path") == null)) {
-				path = Paths.get(argmap.getPath("-path").toString());
-			}
-		}
-		
-		if (argmap.hasFlag("-index") && !(argmap.getPath("-index") == null)) {
-			index = Paths.get(argmap.getPath("-index").toString());
-		} else if (argmap.hasFlag("-index") && argmap.getPath("-index") == null) {
-			index = Paths.get("index.json");
-		} else {
-			index = Paths.get("out", "index.json");
-		}
-		
-		Path[] paths = {path, index};
-		
-		return paths;
-	}
 
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
@@ -85,8 +61,6 @@ public class Driver {
 		Path search = null;
 
 		boolean exact = false;
-		
-		String driver = "index";
 		
 		TreeMap<String, Integer> locations = null; 
 		
@@ -103,9 +77,7 @@ public class Driver {
 			if (argmap.getPath("-index") != null) {
 				index = Paths.get(argmap.getPath("-index").toString());
 			} else if (argmap.getPath("-index") == null) {
-				index = Paths.get("out", "index.json");
-			} else {
-				index = Paths.get("out", "index.json");
+				index = Paths.get("index.json");
 			}
 			
 			if (argmap.hasFlag("-locations") && (argmap.getPath("-locations") != null)) {
@@ -127,7 +99,6 @@ public class Driver {
 						}
 					}
 				} catch (IOException e) {
-					System.err.println("Cannot get locations");
 				}
 			}
 			
@@ -155,8 +126,6 @@ public class Driver {
 			} catch (IOException e1) {
 				System.err.println("Cannot get path");
 			}
-		} else {
-			index = Paths.get("out", "index.json");
 		}
 		
 		if (argmap.hasFlag("-search") || argmap.hasFlag("-results")) {
@@ -192,40 +161,48 @@ public class Driver {
 					var query = new TreeSet<String>();
 					String line;
 					
-					//TODO Traverse directories if given a directory
-					
 					// Reads query file
 					try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 						if (!Files.isDirectory(path)) {
 							while ((line = reader.readLine()) != null) {
 								query.addAll(QueryParsing.cleaner(line));
 								if (!TextParser.clean(line).trim().isEmpty()) {
-									searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), TextParser.clean(line)));
+									searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), TextParser.clean(line), exact));
 								}
 							}
 						} else {
+							String queryword;
+							var temp = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
 							textFiles = TextFileFinder.traverse(path);
-							for (String file : textFiles) {
-								while ((line = reader.readLine()) != null) {
-									query.addAll(QueryParsing.cleaner(line));
-									if (!TextParser.clean(line).trim().isEmpty()) {
-										searchIndex.putAll(JSONReader.searchNested(Paths.get(file), invertedIndex.getIndex(), TextParser.clean(line)));
+							while ((line = reader.readLine()) != null) {
+								queryword = TextParser.clean(line).trim();
+								query.addAll(QueryParsing.cleaner(line));
+								for (String file : textFiles) {
+									temp = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
+									if (!queryword.isEmpty()) {
+										temp.putAll(JSONReader.searchNested(Paths.get(file), invertedIndex.getIndex(), queryword, exact));
+										for (String word : temp.keySet()) {
+											searchIndex.putIfAbsent(word, temp.get(word));
+											if (temp.get(word).get(file) != null) {
+												searchIndex.get(word).putIfAbsent(file, temp.get(word).get(file));
+											}
+										}
 									}
 								}
 							}
 						}
-						
-						NestedJSON.queryObject(searchIndex, writer, 0);
+						var querymap = QueryParsing.copy(searchIndex);
+//						System.out.println(querymap);
+//						querymap = QueryParsing.sortMap(querymap);
+//						System.out.println("2" + querymap);
+						NestedJSON.queryObject(querymap, writer, 0);
 					} catch (IOException e) {
-						System.err.println("Cannot read file");
 					}
 				}
 			}
 		} catch (NoSuchFileException e) {
-//			System.err.println("Cannot find path " + path);
+		} catch (NullPointerException e) {
 		} catch (IOException e) {
-//			System.err.println("Command arguments are invalid");
-//			System.err.println("Valid arguments:\n-path\n-index");
 		}
 	}
 }
