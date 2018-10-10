@@ -4,10 +4,10 @@ import java.io.StringWriter;
 /**
  * Stores basic movie information.
  */
-public class Query implements Comparable<Result> {
+public class Query {
 
 	private final String word;
-	private final Result[] results;
+	private final Result result;
 	
 	/**
 	 * 
@@ -16,17 +16,17 @@ public class Query implements Comparable<Result> {
 	 * @param score
 	 * @param count
 	 */
-	public Query(String word, Result[] results) {
+	public Query(String word, Result result) {
 		this.word = word;
-		this.results = results;
+		this.result = result;
 	}
 
 	public String word() {
 		return this.word;
 	}
 
-	public Result[] results() {
-		return this.results;
+	public Result results() {
+		return this.result;
 	}
 
 	public String toString(int level) throws IOException {
@@ -51,17 +51,17 @@ public class Query implements Comparable<Result> {
 		writer.write(System.lineSeparator());
 		NestedJSON.indent(level + 3, writer);
 		
-		for (int i = 0; i < results.length; i++) {
-			writer.write(results[i].toString(0));
-			if (i != results.length - 1) {
-				writer.write(",");
-				writer.write(System.lineSeparator());
-				NestedJSON.indent(level + 3, writer);
-			} else {
-				writer.write(System.lineSeparator());
-				NestedJSON.indent(level + 2, writer);
-			}
-		}
+//		for (int i = 0; i < results.length; i++) {
+//			writer.write(results[i].toString(0));
+//			if (i != results.length - 1) {
+//				writer.write(",");
+//				writer.write(System.lineSeparator());
+//				NestedJSON.indent(level + 3, writer);
+//			} else {
+//				writer.write(System.lineSeparator());
+//				NestedJSON.indent(level + 2, writer);
+//			}
+//		}
 		
 		writer.write("]");
 		writer.write(System.lineSeparator());
@@ -71,18 +71,12 @@ public class Query implements Comparable<Result> {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		Result[] result = new Result[1];
-		result[0] = new Result("file.txt", 11, 0.27272727);
+//		Result[] result = new Result[1];
+		Result result = new Result("file.txt", 11, 0.27272727);
 		Query querymap = new Query("word", result);
 //		Path index = Paths.get("..", "testing.json");
 		
 		System.out.println(querymap.toString(0));
 		
-	}
-
-	@Override
-	public int compareTo(Result arg0) {
-		// TODO Auto-generated method stub
-		return 0;
 	}
 }

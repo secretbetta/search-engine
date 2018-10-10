@@ -2,7 +2,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 
-public class Result {
+public class Result implements Comparable<Result> {
 	public final String file;
 	public final double count;
 	public final double score;
@@ -54,5 +54,19 @@ public class Result {
 		writer.write("}");
 		
 		return writer.toString();
+	}
+
+	@Override
+	public int compareTo(Result result) {
+		if (this.score() < result.score()) {
+			return 1;
+		} else if (this.score() == result.score()) {
+			if (this.count() < result.count()) {
+				return 1;
+			} else if (this.count() == result.count()) {
+				return this.file().compareTo(result.file());
+			}
+		}
+		return 0;
 	}
 }
