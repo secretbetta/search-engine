@@ -192,6 +192,24 @@ public class Driver {
 							}
 						}
 						var querymap = QueryParsing.copy(searchIndex);
+//						Query[] listQuery = new Query[searchIndex.size()];
+//						Result[] results;
+//						int wordcount = 0;
+//						int filecount;
+//						for (String word : searchIndex.keySet()) {
+//							filecount = 0;
+//							for (String file : searchIndex.get(word).keySet()) {
+//								results = new Result[searchIndex.get(word).get(file).size()];
+//								listQuery[wordcount] = new Query(word, results);
+//								results[filecount] = new Result(file, (double)searchIndex.get(word).get(file).get("count"), (double)searchIndex.get(word).get(file).get("score"));
+//								filecount++;
+//							}
+//						}
+//						
+//						System.out.println(listQuery[0].toString(0));
+						
+//						Query[] listQuery = new Query[querymap.size()];
+						
 						
 						NestedJSON.queryObject(querymap, writer, 0);
 					} catch (IOException e) {
