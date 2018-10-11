@@ -6,6 +6,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.TreeSet;
 
+/**
+ * Creates an InvertedIndex in words -> file -> positions format
+ * @author Andrew
+ *
+ */
 public class WordBuilder {
 	
 	/**

@@ -145,8 +145,7 @@ public class NestedJSON {
 	 *
 	 * @see #asObject(TreeMap, Writer, int)
 	 */
-	public static void asObject(TreeMap<String, Integer> elements, Path path)
-			throws IOException {
+	public static void asObject(TreeMap<String, Integer> elements, Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
 			asObject(elements, writer, 0);
@@ -172,9 +171,6 @@ public class NestedJSON {
 	 */
 	public static void asObject(TreeMap<String, Integer> elements, Writer writer,
 			int level) throws IOException {
-		writer.write("[");
-		writer.write(System.lineSeparator());
-		indent(level, writer);
 		writer.write('{');
 		writer.write(System.lineSeparator());
 		for (String element : elements.keySet()) {
@@ -190,8 +186,6 @@ public class NestedJSON {
 		}
 		indent(level, writer);
 		writer.write('}');
-		writer.write(System.lineSeparator());
-		writer.write("]");
 	}
 
 	/**
