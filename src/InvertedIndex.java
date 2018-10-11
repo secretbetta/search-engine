@@ -16,46 +16,6 @@ public class InvertedIndex {
 	}
 	
 	/**
-	 * Sees if word exists
-	 * @param word in index
-	 * @return true if word does exists
-	 */
-	public boolean containsWord(String word) {
-		if (index.containsKey(word)) {
-			return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Sees if file in word exists
-	 * @param file in index
-	 * @return true if word does exists
-	 */
-	public boolean containsFile(String word, String file) {
-		if (index.containsKey(word)) {
-			if (index.get(word).containsKey(file)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	/**
-	 * Sees if word exists
-	 * @param word in index
-	 * @return true if word does exists
-	 */
-	public TreeSet<Integer> getPos(String word, String file) {
-		if (index.containsKey(word)) { 
-			if (index.get(word).containsKey(file)) {
-				return index.get(word).get(file);
-			}
-		}
-		return new TreeSet<Integer>();
-	}
-	
-	/**
 	 * Adds word if does not exist
 	 * Adds file to word if does not exist
 	 * 
@@ -63,19 +23,17 @@ public class InvertedIndex {
 	 * @param filepos Treemap of file names and positions
 	 * @return true if word did not exist before
 	 */
-	public boolean addAllWordFile(String word, String file, TreeSet<Integer> pos) {
+	public void addAllWordFile(String word, String file, TreeSet<Integer> pos) {
 		var temp = new TreeMap<String, TreeSet<Integer>>();
 		
-		temp.put(file, pos);
-		
 		if (!index.containsKey(word)) {
+			temp.put(file, pos);
 			index.put(word, temp);
-			return true;
+		} else if (index.get(word).containsKey(file)) {
+			index.get(word).get(file).addAll(pos);
 		} else if (!index.get(word).containsKey(file)) {
 			index.get(word).put(file, pos);
-			return true;
 		}
-		return false;
 	}
 	
 	/**

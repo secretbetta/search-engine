@@ -4,7 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class WordBuilder {
@@ -24,8 +23,6 @@ public class WordBuilder {
 		try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
 			
 			int position = 0;
-			
-			var index = new TreeMap<String, TreeSet<Integer>>();
 			var temp = new TreeSet<Integer>();
 			String line = null;
 			
@@ -35,33 +32,11 @@ public class WordBuilder {
 						temp = new TreeSet<Integer>();
 						position++;
 						
-//						if (invertedIndex.containsFile(word, file.toString())) {
-//							temp.addAll(invertedIndex.getPos(word, file.toString()));
-//							temp.add(position);
-//							invertedIndex.addAllWordFile(word, file.toString(), temp);
-//						} else {
-//							temp.add(position);
-//							invertedIndex.addAllWordFile(word, file.toString(), temp);
-//						} 
-						
-						if (!index.containsKey(word)) {
-							temp.add(position);
-							index.put(word, temp);
-							invertedIndex.addAllWordFile(word, file.toString(), temp);
-						} else {
-//							temp.addAll(index.get(word));
-							temp.addAll(invertedIndex.getPos(word, file.toString()));
-							temp.add(position);
-							index.put(word, temp);
-							invertedIndex.addAllWordFile(word, file.toString(), temp);
-						}
+						temp.add(position);
+						invertedIndex.addAllWordFile(word, file.toString(), temp);
 					}
 				}
 			}
-			
-//			for (String word : index.keySet()) {
-//				invertedIndex.addAllWordFile(word, file.toString(), index.get(word));
-//			}
 		}
 	}
 	
