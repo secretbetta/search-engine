@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -270,13 +271,8 @@ public class NestedJSON {
 		
 		indent(level, writer);
 		writer.write('}');
-		writer.close();
-
 	}
 	
-	// TODO Take the same approach as other methods, take in a writer.
-	// TODO To output your index, you have to loop through the entire index and make a copy in memory. 
-	// TODO Not space or time efficient.
 	/**
 	 * Creates a triple nested reverse index in JSON format
 	 * 
@@ -286,7 +282,7 @@ public class NestedJSON {
 	 * 
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
-	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) throws IOException {
+	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) {
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			
 			writer.write('{');
@@ -309,8 +305,9 @@ public class NestedJSON {
 			writer.write(System.lineSeparator());
 			
 			writer.write('}');
-		}
-		catch (IOException e) { 
+		} catch (NoSuchElementException e) {
+			System.err.println("No such element");
+		} catch (IOException e) { 
 		}
 	}
 }

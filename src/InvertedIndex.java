@@ -28,6 +28,34 @@ public class InvertedIndex {
 	}
 	
 	/**
+	 * Sees if file in word exists
+	 * @param file in index
+	 * @return true if word does exists
+	 */
+	public boolean containsFile(String word, String file) {
+		if (index.containsKey(word)) {
+			if (index.get(word).containsKey(file)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 * Sees if word exists
+	 * @param word in index
+	 * @return true if word does exists
+	 */
+	public TreeSet<Integer> getPos(String word, String file) {
+		if (index.containsKey(word)) { 
+			if (index.get(word).containsKey(file)) {
+				return index.get(word).get(file);
+			}
+		}
+		return new TreeSet<Integer>();
+	}
+	
+	/**
 	 * Adds word if does not exist
 	 * Adds file to word if does not exist
 	 * 

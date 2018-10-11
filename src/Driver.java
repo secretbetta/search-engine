@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.TreeSet;
 
 public class Driver {
 	/**
@@ -13,17 +14,21 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		Path index = null;
-		var finder = new TextFileFinder();
 		
-		//TODO Try what she put
 		var invertedIndex = new InvertedIndex();
 		var argmap = new ArgumentMap(args);
-
+		
+		var temp = new TreeSet<Integer>();
+		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
+			List<Path> files = null;
 			
 			try {
-				List<Path> files = finder.traverse(path);
+				if (path != null) {
+					files = TextFileFinder.traverse(path);
+				}
+				
 				if (files != null) {
 					for (Path file : files) {
 						WordBuilder.getWords(file, invertedIndex);
@@ -31,20 +36,24 @@ public class Driver {
 				}
 			}
 			catch (IOException e) {
-			
 			}
 		}
-
+		
 		if (argmap.hasFlag("-index")) {
-			index = argmap.getPath("-index");
+			if (argmap.getPath("-index") != null) {
+				index = argmap.getPath("-index");
+			} else {
+				index = Paths.get("out", "index.json");
+			}
 		} else {
-			index = Paths.get("index.json");
+			index = Paths.get("out", "index.json");
 		}
 		
 		try {
-			NestedJSON.tripleNested(invertedIndex.getIndex(), index);
-		} catch (IOException e) {
-			e.printStackTrace();
+			if (argmap.hasFlag("-path")) {
+				NestedJSON.tripleNested(invertedIndex.getIndex(), index);
+			}
+		} catch (NullPointerException e) { 
 		}
 		
 //		For next code review, can try to add -locations flag to your project 1 code.

@@ -79,6 +79,7 @@ public class TextFileStemmer {
 				writer.write("\n");
 			}
 			writer.close();
+		} catch (IOException e) {
 		}
 	}
 }
