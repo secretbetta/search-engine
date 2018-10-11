@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -425,5 +426,41 @@ public class NestedJSON {
 			}
 			count--;
 		}
+	}
+	
+	public static void queryObject(TreeSet<Query> queries, Writer writer) throws IOException {
+		writer.write("[");
+		writer.write(System.lineSeparator());
+		
+		for (Query query : queries.headSet(queries.last())) {
+			writer.write(query.toString());
+			writer.write(",");
+			writer.write(System.lineSeparator());
+		}
+		
+		writer.write(queries.last().toString());
+		writer.write(System.lineSeparator());
+		
+		
+		writer.write("}");
+	}
+	
+	public static void queryObject(ArrayList<Query> queries, Writer writer) throws IOException {
+		writer.write("[");
+		writer.write(System.lineSeparator());
+		
+		for (Query query : queries) {
+			writer.write(query.toString());
+			if (query.equals(queries.lastIndexOf(queries))) {
+				writer.write(",");
+			}
+			writer.write(System.lineSeparator());
+		}
+		
+//		writer.write(queries.last().toString());
+//		writer.write(System.lineSeparator());
+		
+		
+		writer.write("}");
 	}
 }

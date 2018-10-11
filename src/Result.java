@@ -1,4 +1,6 @@
 import java.io.IOException;
+import java.io.StringWriter;
+import java.text.DecimalFormat;
 
 public class Result implements Comparable<Result> {
 	public final String file;
@@ -23,38 +25,40 @@ public class Result implements Comparable<Result> {
 		return this.score;
 	}
 	
-	public String toString(int level) throws IOException {
-//		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
-//		DecimalFormat INT = new DecimalFormat("0");
-//		StringWriter writer = new StringWriter();
+	public String toString() {
+		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
+		DecimalFormat INT = new DecimalFormat("0");
+		StringWriter writer = new StringWriter();
 		
-		System.out.println("File: " + this.file + "\nCount: " + this.count + "\nScore: " + this.score);
-
-//		writer.write("{");
-//		writer.write(System.lineSeparator());
-//		NestedJSON.indent(level + 4, writer);
-//		
-//		writer.write("\"where\": \"");
-//		writer.write(this.file);
-//		writer.write("\",");
-//		writer.write(System.lineSeparator());
-//		NestedJSON.indent(level + 4, writer);
-//		
-//		writer.write("\"count\": ");
-//		writer.write(INT.format(this.count));
-//		writer.write(",");
-//		writer.write(System.lineSeparator());
-//		NestedJSON.indent(level + 4, writer);
-//		
-//		writer.write("\"score\": ");
-//		writer.write(FORMATTER.format(this.score));
-//		writer.write(System.lineSeparator());
-//		NestedJSON.indent(level + 3, writer);
-//		
-//		writer.write("}");
+//		System.out.println("File: " + this.file + "\nCount: " + this.count + "\nScore: " + this.score);
+		try {
+			writer.write("{");
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(4, writer);
+			
+			writer.write("\"where\": \"");
+			writer.write(this.file);
+			writer.write("\",");
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(4, writer);
+			
+			writer.write("\"count\": ");
+			writer.write(INT.format(this.count));
+			writer.write(",");
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(4, writer);
+			
+			writer.write("\"score\": ");
+			writer.write(FORMATTER.format(this.score));
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(3, writer);
+			
+			writer.write("}");
+		} catch (IOException e) {
+			
+		}
 		
-//		return writer.toString();
-		return null;
+		return writer.toString();
 	}
 
 	@Override
