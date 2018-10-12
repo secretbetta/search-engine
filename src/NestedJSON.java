@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -147,8 +148,7 @@ public class NestedJSON {
 	 *
 	 * @see #asObject(TreeMap, Writer, int)
 	 */
-	public static void asObject(TreeMap<String, Integer> elements, Path path)
-			throws IOException {
+	public static void asObject(TreeMap<String, Integer> elements, Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
 			asObject(elements, writer, 0);
@@ -174,7 +174,6 @@ public class NestedJSON {
 	 */
 	public static void asObject(TreeMap<String, Integer> elements, Writer writer,
 			int level) throws IOException {
-		indent(level, writer);
 		writer.write('{');
 		writer.write(System.lineSeparator());
 		for (String element : elements.keySet()) {
@@ -201,6 +200,7 @@ public class NestedJSON {
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
 	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
+		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
 		try {
 			StringWriter writer = new StringWriter();
 			asNestedObject(elements, writer, 0);
@@ -279,25 +279,32 @@ public class NestedJSON {
 	 * 
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
-	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) throws IOException {
+	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) {
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			
 			writer.write('{');
 			writer.write(System.lineSeparator());
-			
-			for (String element : elements.keySet()) {
+			for (String element : elements.headMap(elements.lastKey()).keySet()) {
 				indent(1, writer);
 				quote(element.toString(), writer);
 				writer.write(": ");
 				
 				asNestedObject(elements.get(element), writer, 1);
 				
-				if (!element.equals(elements.lastKey()))
-					writer.write(",");
+				writer.write(",");
 				writer.write(System.lineSeparator());
 			}
+			
+			indent(1, writer);
+			quote(elements.lastKey().toString(), writer);
+			writer.write(": ");
+			asNestedObject(elements.get(elements.lastKey()), writer, 1);
+			writer.write(System.lineSeparator());
+			
 			writer.write('}');
-		} catch (IOException e) {
+		} catch (NoSuchElementException e) {
+			System.err.println("No such element");
+		} catch (IOException e) { 
 		}
 	}
 	
