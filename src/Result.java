@@ -2,29 +2,55 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 
+/**
+ * Data structure that stores results of a query
+ * @author Andrew
+ *
+ */
 public class Result implements Comparable<Result> {
 	public final String file;
 	public final double count;
 	public final double score;
 	
+	/**
+	 * Initializes file, count, and score
+	 * @param file filename
+	 * @param count wordcount
+	 * @param score score of words
+	 */
 	public Result(String file, double count, double score) {
 		this.file = file;
 		this.count = count;
 		this.score = score;
 	}
 	
+	/**
+	 * Gets filename
+	 * @return file
+	 */
 	public String file() {
 		return this.file;
 	}
 	
+	/**
+	 * Gets count
+	 * @return count
+	 */
 	public double count() {
 		return this.count;
 	}
 	
+	/**
+	 * Get the score
+	 * @return score
+	 */
 	public double score() {
 		return this.score;
 	}
 	
+	/**
+	 * Default output of Results in JSON format
+	 */
 	public String toString() {
 		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
 		DecimalFormat INT = new DecimalFormat("0");
@@ -32,6 +58,7 @@ public class Result implements Comparable<Result> {
 		
 //		System.out.println("File: " + this.file + "\nCount: " + this.count + "\nScore: " + this.score);
 		try {
+			NestedJSON.indent(3, writer);
 			writer.write("{");
 			writer.write(System.lineSeparator());
 			NestedJSON.indent(4, writer);
@@ -69,7 +96,9 @@ public class Result implements Comparable<Result> {
 			if (this.count() < result.count()) {
 				return 1;
 			} else if (this.count() == result.count()) {
-				return this.file().compareTo(result.file());
+				if (this.file().compareTo(result.file()) < 0) {
+					return 1;
+				}
 			}
 		}
 		return 0;
