@@ -9,7 +9,7 @@ import java.text.DecimalFormat;
  */
 public class Result implements Comparable<Result> {
 	public final String file;
-	public final double count;
+	public final int count;
 	public final double score;
 	
 	/**
@@ -18,7 +18,7 @@ public class Result implements Comparable<Result> {
 	 * @param count wordcount
 	 * @param score score of words
 	 */
-	public Result(String file, double count, double score) {
+	public Result(String file, int count, double score) {
 		this.file = file;
 		this.count = count;
 		this.score = score;

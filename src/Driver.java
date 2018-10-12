@@ -157,7 +157,7 @@ public class Driver {
 				}
 				
 				if (argmap.hasFlag("-search")) {
-					var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
+					var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
 					var query = new TreeSet<String>();
 					String line;
 					
@@ -172,13 +172,13 @@ public class Driver {
 							}
 						} else { //Basically where I need to sort
 							String queryword;
-							var temp = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
+							var temp = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
 							textFiles = TextFileFinder.traverse(path);
 							while ((line = reader.readLine()) != null) {
 								queryword = TextParser.clean(line).trim();
 								query.addAll(QueryParsing.cleaner(line));
 								for (String file : textFiles) {
-									temp = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
+									temp = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
 									if (!queryword.isEmpty()) {
 										temp.putAll(JSONReader.searchNested(Paths.get(file), invertedIndex.getIndex(), queryword, exact));
 										for (String word : temp.keySet()) {
@@ -191,27 +191,33 @@ public class Driver {
 								}
 							}
 						}
-						var querymap = QueryParsing.copy(searchIndex);
-//						Query[] listQuery = new Query[searchIndex.size()];
-//						Result[] results;
-//						int wordcount = 0;
-//						int filecount;
-//						for (String word : searchIndex.keySet()) {
+//						var querymap = QueryParsing.copy(searchIndex);
+						var queries = new TreeSet<Query>();
+						ArrayList<Result> results;
+						Result result;
+						int wordcount = 0;
+						int filecount;
+						double test;
+						for (String word : searchIndex.keySet()) {
 //							filecount = 0;
-//							for (String file : searchIndex.get(word).keySet()) {
-//								results = new Result[searchIndex.get(word).get(file).size()];
-//								listQuery[wordcount] = new Query(word, results);
+							for (String file : searchIndex.get(word).keySet()) {
+								results = new ArrayList<Result>();
+								test = (double)(searchIndex.get(word).get(file).get("score"));
+								wordcount = (searchIndex.get(word).get(file).get("count")).intValue();
+								result = new Result(file, wordcount, test);
+								System.out.println(result);
+								queries.add(new Query(word, results));
 //								results[filecount] = new Result(file, (double)searchIndex.get(word).get(file).get("count"), (double)searchIndex.get(word).get(file).get("score"));
 //								filecount++;
-//							}
-//						}
+							}
+						}
 //						
 //						System.out.println(listQuery[0].toString(0));
 						
 //						Query[] listQuery = new Query[querymap.size()];
 						
-						
-						NestedJSON.queryObject(querymap, writer, 0);
+						NestedJSON.queryObject(queries, writer);
+//						NestedJSON.queryObject(querymap, writer, 0);
 					} catch (IOException e) {
 					}
 				}

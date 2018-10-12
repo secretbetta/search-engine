@@ -1,0 +1,32 @@
+[
+	{
+		"queries": "bird",
+		"results": [
+			{
+				"where": "firstfile.txt",
+				"count": 15,
+				"score": 0.333333
+			},
+			{
+				"where": "secondfile.txt",
+				"count": 13,
+				"score": 0.993333
+			}
+		]
+	},
+	{
+		"queries": "word",
+		"results": [
+			{
+				"where": "secondfile.txt",
+				"count": 13,
+				"score": 0.993333
+			},
+			{
+				"where": "thirdfile.txt",
+				"count": 10,
+				"score": 0.333333
+			}
+		]
+	}
+}

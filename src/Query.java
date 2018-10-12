@@ -116,11 +116,23 @@ public class Query implements Comparable<Query> {
 	
 	public static void main(String[] args) throws IOException {
 		Path index = Paths.get("querytest.json");
+		
+		ArrayList<Result> results = new ArrayList<Result>();
 
 		Result result = new Result("firstfile.txt", 15, 0.33333333);
 		Result result1 = new Result("secondfile.txt", 13, 0.99333333);
 		Result result2 = new Result("thirdfile.txt", 10, 0.33333333);
 		TreeSet<Query> queries = new TreeSet<Query>();
+		
+		results.add(result);
+		results.add(result1);
+		results.add(result2);
+		
+		System.out.println(results);
+		
+		Collections.sort(results);
+		
+		System.out.println(results);
 		
 		Query query = new Query("word", new ArrayList<Result>());
 		Query query2 = new Query("bird", new ArrayList<Result>());

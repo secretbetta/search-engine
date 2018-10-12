@@ -14,8 +14,8 @@ public class JSONReader {
 	 * 
 	 * @throws IOException
 	 */
-	public static TreeMap<String, TreeMap<String, TreeMap<String, Number>>> searchNested(Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
-		var invertedindex = new TreeMap<String, TreeMap<String, TreeMap<String, Number>>>();
+	public static TreeMap<String, TreeMap<String, TreeMap<String, Double>>> searchNested(Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
+		var invertedindex = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
 		String temp = "";
 		String filename = path.normalize().toString();
 		
@@ -29,8 +29,8 @@ public class JSONReader {
 		}
 		
 		temp += querywords.last();
-		invertedindex.put(temp, new TreeMap<String, TreeMap<String, Number>>());
-		invertedindex.get(temp).put(filename, new TreeMap<String, Number>());
+		invertedindex.put(temp, new TreeMap<String, TreeMap<String, Double>>());
+		invertedindex.get(temp).put(filename, new TreeMap<String, Double>());
 		invertedindex.get(temp).get(filename).put("count", 0.0);
 		
 		for (String word: querywords) {
