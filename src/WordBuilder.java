@@ -26,7 +26,6 @@ public class WordBuilder {
 		Path stemmed = Paths.get("stemmedfile.txt");
 		TextFileStemmer.stemFile(file, stemmed);
 		try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
-			
 			int position = 0;
 			var temp = new TreeSet<Integer>();
 			String line = null;

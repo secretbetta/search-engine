@@ -65,7 +65,7 @@ public class TextFileStemmer {
 	 * @see #stemLine(String)
 	 * @see TextParser#parse(String)
 	 */
-	public static void stemFile(Path inputFile, Path outputFile) {
+	public static void stemFile(Path inputFile, Path outputFile) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8); ) {
 			BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
 			List<String> words = new ArrayList<String>();
@@ -80,7 +80,6 @@ public class TextFileStemmer {
 			}
 			writer.close();
 		} catch (IOException e) {
-			System.err.println("Something's wrong");
 		}
 	}
 }
