@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -105,11 +106,8 @@ public class Driver {
 		}
 		
 		if (argmap.hasFlag("-search") || argmap.hasFlag("-results")) {
-			boolean exact = false;
+			boolean exact;
 			Path search;
-			if (argmap.getPath("-search") != null) {
-				search = argmap.getPath("-search");
-			}
 			
 			if (argmap.getPath("-results") != null) {
 				index = Paths.get(argmap.getPath("-results").toString());
@@ -122,8 +120,37 @@ public class Driver {
 			} else {
 				exact = false;
 			}
+
+			if (argmap.getPath("-search") != null) {
+				search = argmap.getPath("-search");
+				try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
+					var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
+					var query = new TreeSet<String>();
+					String line;
+					Path path = argmap.getPath("-path");
+					TreeSet<Query> queries = new TreeSet<Query>();
+					
+					while ((line = reader.readLine()) != null) {
+						query.addAll(QueryParsing.cleaner(line));
+						if (!(line = TextParser.clean(line).trim()).isEmpty()) {
+							System.out.println(line);
+							searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), line, exact));
+							JSONReader.searcher(queries, path, invertedIndex.getIndex(), line, exact);
+						}
+						
+					}
+					for (Query q : queries) {
+						System.out.println(q.toString());
+					}
+					
+				} catch (IOException e) {
+				}
+			}
 			
-			
+			try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
+//				NestedJSON.queryObject(queries, writer);
+			} catch (IOException e) {
+			}
 		}
 
 //		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {

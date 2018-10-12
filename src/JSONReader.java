@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -66,5 +67,43 @@ public class JSONReader {
 		}
 		
 		return invertedindex;
+	}
+	
+	public static void searcher(TreeSet<Query> queries, Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
+		Result result = null;
+		double wordtotal = 0;
+		int wordcount;
+		Query tempQuery;
+		ArrayList<Result> results = new ArrayList<Result>();
+		
+		for (String q : query.split(" ")) {
+			if (exact) {
+				if (index.containsKey(q) && index.get(q).containsKey(path.toString())) {
+					for (String file : index.get(q).keySet()) {
+						wordtotal += index.get(q).get(file).size();
+					}
+					wordcount = index.get(q).get(path.toString()).size();
+					result = new Result(path.toString(), wordcount, ((double)wordcount)/((double)wordtotal));
+				}
+			} else {
+				for (String word : index.keySet()) {
+					if (word.startsWith(q)) {
+						
+					}
+				}
+			}
+		}
+		
+		if (result != null) {
+			for (Query que : queries) {
+				if (que.word().equals(query)) {
+					que.add(result);
+				} else {
+					results.add(result);
+					tempQuery = new Query(query, results);
+					queries.add(tempQuery);
+				}
+			}
+		}
 	}
 }
