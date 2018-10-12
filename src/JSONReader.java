@@ -79,8 +79,12 @@ public class JSONReader {
 		for (String q : query.split(" ")) {
 			if (exact) {
 				if (index.containsKey(q) && index.get(q).containsKey(path.toString())) {
-					for (String file : index.get(q).keySet()) {
-						wordtotal += index.get(q).get(file).size();
+					for (String word : index.keySet()) {
+						for (String file : index.get(word).keySet()) {
+							if (file.equals(path.toString())) {
+								wordtotal += index.get(word).get(file).size();
+							}
+						}
 					}
 					wordcount = index.get(q).get(path.toString()).size();
 					result = new Result(path.toString(), wordcount, ((double)wordcount)/((double)wordtotal));
@@ -98,12 +102,17 @@ public class JSONReader {
 			for (Query que : queries) {
 				if (que.word().equals(query)) {
 					que.add(result);
+					break;
 				} else {
 					results.add(result);
 					tempQuery = new Query(query, results);
 					queries.add(tempQuery);
+					break;
 				}
 			}
+			
+			tempQuery = new Query(query, results);
+			queries.add(tempQuery);
 		}
 	}
 }

@@ -122,8 +122,14 @@ public class Driver {
 			}
 
 			if (argmap.getPath("-search") != null) {
+				Path stemmed = Paths.get("stemmedfile.txt");
 				search = argmap.getPath("-search");
-				try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
+				try {
+					TextFileStemmer.stemFile(search, stemmed);
+				} catch (IOException e1) {
+				}
+				
+				try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
 					var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
 					var query = new TreeSet<String>();
 					String line;
@@ -133,16 +139,13 @@ public class Driver {
 					while ((line = reader.readLine()) != null) {
 						query.addAll(QueryParsing.cleaner(line));
 						if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-							System.out.println(line);
 							searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), line, exact));
 							JSONReader.searcher(queries, path, invertedIndex.getIndex(), line, exact);
 						}
-						
-					}
-					for (Query q : queries) {
-						System.out.println(q.toString());
 					}
 					
+					BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+					NestedJSON.queryObject(queries, writer);
 				} catch (IOException e) {
 				}
 			}

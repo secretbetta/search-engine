@@ -81,6 +81,7 @@ public class Result implements Comparable<Result> {
 			NestedJSON.indent(3, writer);
 			
 			writer.write("}");
+			return writer.toString();
 		} catch (IOException e) {
 			
 		}
