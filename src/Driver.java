@@ -56,9 +56,60 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) {
-		Path path = null;
+		
 		Path index = null;
-		Path search = null;
+		Path locIndex = null;
+		
+		var invertedIndex = new InvertedIndex();
+		var argmap = new ArgumentMap(args);
+		
+		if (argmap.hasFlag("-index")) {
+			if (argmap.getPath("-index") != null) {
+				index = argmap.getPath("-index");
+			} else {
+				index = Paths.get("index.json");
+			}
+		}
+		
+		if (argmap.hasFlag("-locations")) {
+			if (argmap.getPath("-locations") != null) {
+				locIndex = argmap.getPath("-locations");
+			} else {
+				locIndex = Paths.get("out", "index-text-locations.json");
+			}
+		}
+		
+		if (argmap.hasFlag("-path")) {
+			Path path = argmap.getPath("-path");
+			List<Path> files = null;
+			try {
+				if (path != null) {
+					files = TextFileFinder.traverse(path);
+				}
+				if (files != null) {
+					for (Path file : files) {
+						WordBuilder.getWords(file, invertedIndex);
+					}
+				}
+			}
+			catch (IOException e) {
+			}
+		}
+		
+		try {
+			if (argmap.hasFlag("-locations")) {
+				TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
+				NestedJSON.asObject(locationIndex, locIndex);
+			}
+			
+			NestedJSON.tripleNested(invertedIndex.getIndex(), index);
+		} catch (NullPointerException e) { 
+		} catch (IOException e) {
+		}
+//		
+//		Path path = null;
+//		Path index = null;
+//		Path search = null;
 
 		boolean exact = false;
 		
@@ -69,64 +120,64 @@ public class Driver {
 		var argmap = new ArgumentMap(args);
 		var invertedIndex = new InvertedIndex();
 		
-		if (argmap.hasFlag("-index") || argmap.hasFlag("-path"))  {
-			if (argmap.getPath("-path") != null) {
-				path = Paths.get(argmap.getPath("-path").toString());
-			}
+//		if (argmap.hasFlag("-index") || argmap.hasFlag("-path"))  {
+//			if (argmap.getPath("-path") != null) {
+//				path = Paths.get(argmap.getPath("-path").toString());
+//			}
+//			
+//			if (argmap.getPath("-index") != null) {
+//				index = Paths.get(argmap.getPath("-index").toString());
+//			} else if (argmap.getPath("-index") == null) {
+//				index = Paths.get("index.json");
+//			}
+//			
+//			if (argmap.hasFlag("-locations") && (argmap.getPath("-locations") != null)) {
+//				index = Paths.get(argmap.getPath("-locations").toString());
+//				locations = new TreeMap<String, Integer>();
+//				try {
+//					int wordCount;
+//					textFiles = TextFileFinder.traverse(path);
+//					for (String file : textFiles) {
+//						wordCount = 0;
+//						words = getWords(Paths.get(file));
+//						
+//						for (String word : words.keySet()) {
+//							wordCount += words.get(word).size();
+//						}
+//						
+//						if (locations != null && wordCount != 0) {
+//							locations.put(file, wordCount);
+//						}
+//					}
+//				} catch (IOException e) {
+//				}
+//			}
 			
-			if (argmap.getPath("-index") != null) {
-				index = Paths.get(argmap.getPath("-index").toString());
-			} else if (argmap.getPath("-index") == null) {
-				index = Paths.get("index.json");
-			}
-			
-			if (argmap.hasFlag("-locations") && (argmap.getPath("-locations") != null)) {
-				index = Paths.get(argmap.getPath("-locations").toString());
-				locations = new TreeMap<String, Integer>();
-				try {
-					int wordCount;
-					textFiles = TextFileFinder.traverse(path);
-					for (String file : textFiles) {
-						wordCount = 0;
-						words = getWords(Paths.get(file));
-						
-						for (String word : words.keySet()) {
-							wordCount += words.get(word).size();
-						}
-						
-						if (locations != null && wordCount != 0) {
-							locations.put(file, wordCount);
-						}
-					}
-				} catch (IOException e) {
-				}
-			}
-			
-			try {
-				if (path != null && !Files.isDirectory(path)) {
-					words = getWords(path);
-					for (String word : words.keySet()) {
-						invertedIndex.addAllWordFile(word, argmap.getPath("-path").toString(), words.get(word));
-					}
-				} else if (path != null) {
-					textFiles = TextFileFinder.traverse(path);
-					for (String file : textFiles) {
-						words = getWords(Paths.get(file));
-						
-						for (String word : words.keySet()) {
-							invertedIndex.addAllWordFile(word, file, words.get(word));
-						}
-					}
-				}
-				
-				if (locations != null) {
-					NestedJSON.asObject(locations, index);
-				}
-				NestedJSON.tripleNested(invertedIndex.getIndex(), index, 0);
-			} catch (IOException e1) {
-				System.err.println("Cannot get path");
-			}
-		}
+//			try {
+//				if (path != null && !Files.isDirectory(path)) {
+//					words = getWords(path);
+//					for (String word : words.keySet()) {
+//						invertedIndex.addAllWordFile(word, argmap.getPath("-path").toString(), words.get(word));
+//					}
+//				} else if (path != null) {
+//					textFiles = TextFileFinder.traverse(path);
+//					for (String file : textFiles) {
+//						words = getWords(Paths.get(file));
+//						
+//						for (String word : words.keySet()) {
+//							invertedIndex.addAllWordFile(word, file, words.get(word));
+//						}
+//					}
+//				}
+//				
+//				if (locations != null) {
+//					NestedJSON.asObject(locations, index);
+//				}
+//				NestedJSON.tripleNested(invertedIndex.getIndex(), index, 0);
+//			} catch (IOException e1) {
+//				System.err.println("Cannot get path");
+//			}
+//		}
 		
 		if (argmap.hasFlag("-search") || argmap.hasFlag("-results")) {
 			if (argmap.getPath("-search") != null) {

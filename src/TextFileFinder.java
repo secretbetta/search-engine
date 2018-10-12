@@ -3,6 +3,7 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Finds all textfiles
@@ -21,9 +22,9 @@ public class TextFileFinder {
 	 * @return textlist a list of text file names
 	 * @throws IOException
 	 */
-	private static ArrayList<String> findText(Path path) throws IOException {
+	private static List<Path> findText(Path path) throws IOException {
 		try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
-			var  textlist = new ArrayList<String>();
+			List<Path> textlist = new ArrayList<Path>();
 			String filename;
 			
 			for (Path file : listing) {
@@ -31,7 +32,7 @@ public class TextFileFinder {
 				if (Files.isDirectory(file)) {
 					textlist.addAll(findText(file));
 				} else if (filename.endsWith(".txt") || filename.endsWith(".text")) {
-					textlist.add(file.toString());
+					textlist.add(file);
 				}
 			}
 			
@@ -47,8 +48,8 @@ public class TextFileFinder {
 	 * @return findText a list of text names, null if none.
 	 * @throws IOException
 	 */
-	public static ArrayList<String> traverse(Path directory) throws IOException {
-		var single = new ArrayList<String>();
+	public static List<Path> traverse(Path directory) throws IOException {
+		List<Path> single = new ArrayList<Path>();
 		String filename;
 		
 		if (Files.isDirectory(directory)) {
@@ -57,7 +58,7 @@ public class TextFileFinder {
 			filename = directory.getFileName().toString().toLowerCase();
 			
 			if (filename.endsWith("txt") || filename.endsWith("text")) {
-				single.add(directory.getFileName().toString());
+				single.add(directory.getFileName());
 				return single;
 			} else {
 				return null;
