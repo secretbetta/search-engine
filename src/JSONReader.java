@@ -76,21 +76,48 @@ public class JSONReader {
 		Query tempQuery;
 		ArrayList<Result> results = new ArrayList<Result>();
 		
-		for (String q : TextFileStemmer.stemLine(query)) {
+		for (String q : new TreeSet<String>(TextFileStemmer.stemLine(query))) {
 			wordtotal = 0;
-			if (index.containsKey(q) && index.get(q).containsKey(path.toString())) {
-				for (String word : index.keySet()) {
+			
+			for (String word : index.keySet()) {
+				if (word.equals(q)) { 
 					for (String file : index.get(word).keySet()) {
 						if (file.equals(path.toString())) {
 							wordtotal += index.get(word).get(file).size();
 						}
 					}
+					wordcount = index.get(q).get(path.toString()).size();
+					results.add(new Result(path.toString(), wordcount, ((double)wordcount)/wordtotal));
 				}
-				wordcount = index.get(q).get(path.toString()).size();
-				result = new Result(path.toString(), wordcount, ((double)wordcount)/((double)wordtotal));
 			}
+//			if (index.containsKey(q)) {
+//				if (index.get(q).containsKey(path.toString())) {
+//					for (String word : index.keySet()) {
+//						for (String file : index.get(word).keySet()) {
+//							if (file.equals(path.toString())) {
+//								wordtotal += index.get(word).get(file).size();
+//							}
+//						}
+//					}
+//					wordcount = index.get(q).get(path.toString()).size();
+//					results.add(new Result(query, wordcount, ((double)wordcount)/wordtotal));
+//				}
+//			}
+			
+			System.out.println(query + " " + results);
+			
+//			if (index.containsKey(q) && index.get(q).containsKey(path.toString())) {
+//				for (String word : index.keySet()) {
+//					for (String file : index.get(word).keySet()) {
+//						if (file.equals(path.toString())) {
+//							wordtotal += index.get(word).get(file).size();
+//						}
+//					}
+//				}
+//				wordcount = index.get(q).get(path.toString()).size();
+//				result = new Result(path.toString(), wordcount, ((double)wordcount)/((double)wordtotal));
+//			}
 		}
-//		System.out.println(result);
 		
 		if (result != null) {
 			for (Query que : queries) {
