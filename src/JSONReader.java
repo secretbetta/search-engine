@@ -57,9 +57,25 @@ public class JSONReader {
 			}
 		}
 		
-		results.add(result);
-		tempQuery = new Query(query, results);
-		queries.add(tempQuery);
+		if (!queries.isEmpty()) {
+			for (Query q : queries) {
+				for (Result r : q.results) {
+					if (!r.file.equals(filename)) {
+						q.add(result);
+						break;
+					}
+				}
+				
+			}
+		} else {
+			results.add(result);
+			tempQuery = new Query(query, results);
+			queries.add(tempQuery);
+		}
+		
+//		results.add(result);
+//		tempQuery = new Query(query, results);
+//		queries.add(tempQuery);
 	}
 	
 	public static void searcher2(TreeMap<String, ArrayList<Result>> queries) {

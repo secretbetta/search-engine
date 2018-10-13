@@ -11,8 +11,8 @@ import java.util.TreeSet;
  */
 public class Query implements Comparable<Query> {
 
-	private final String word;
-	private final ArrayList<Result> results;
+	public final String word;
+	public final ArrayList<Result> results;
 	
 	/**
 	 * Creates query and list of results
@@ -22,10 +22,6 @@ public class Query implements Comparable<Query> {
 	public Query(String word, ArrayList<Result> results) {
 		this.word = word;
 		this.results = results;
-	}
-
-	public ArrayList<Result> results() {
-		return this.results;
 	}
 	
 	/**
@@ -41,7 +37,14 @@ public class Query implements Comparable<Query> {
 	 * @param result Result of query
 	 */
 	public void add(Result result) {
-		if (!this.results.contains(result)) {
+		if (!this.results.isEmpty()) {
+			for (Result r : this.results) {
+				if (result != null && !r.file.equals(result.file)) {
+					this.results.add(result);
+					break;
+				}
+			}
+		} else {
 			this.results.add(result);
 		}
 	}
@@ -61,7 +64,6 @@ public class Query implements Comparable<Query> {
 	@Override
 	public String toString() {
 		StringWriter writer = new StringWriter();
-		this.sort();
 		try {
 			NestedJSON.indent(1, writer);
 			
@@ -117,18 +119,23 @@ public class Query implements Comparable<Query> {
 		results.add(result1);
 		results.add(result);
 		Collections.sort(results);
-		System.out.println(results);
+//		System.out.println(results);
 		
 		Query query = new Query("word", new ArrayList<Result>());
 		Query query2 = new Query("bird", new ArrayList<Result>());
-		query.add(result2);
-		query2.add(result);
-		
+		query.add(result);
 		query.add(result1);
-		query2.add(result1);
+		query.add(result2);
+		query.sort();
+//		query2.add(result);
 		
-		queries.add(query);
-		queries.add(query2);
+		
+		System.out.println(query.results);
+//		query.add(result1);
+//		query2.add(result1);
+		
+//		queries.add(query);
+//		queries.add(query2);
 		
 		
 		NestedJSON.queryObject(queries, index);
