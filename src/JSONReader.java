@@ -48,8 +48,10 @@ public class JSONReader {
 				
 				for (String word : index.keySet()) {
 					if (word.startsWith(q)) {
-						wordcount = index.get(word).get(filename).size() + wordcount;
-						result = new Result(filename, wordcount, ((double)wordcount)/((double)wordtotal));
+						if (index.get(word).containsKey(filename)) {
+							wordcount = index.get(word).get(filename).size() + wordcount;
+							result = new Result(filename, wordcount, ((double)wordcount)/((double)wordtotal));
+						}
 					}
 				}
 			}
@@ -58,5 +60,9 @@ public class JSONReader {
 		results.add(result);
 		tempQuery = new Query(query, results);
 		queries.add(tempQuery);
+	}
+	
+	public static void searcher2(TreeMap<String, ArrayList<Result>> queries) {
+		
 	}
 }

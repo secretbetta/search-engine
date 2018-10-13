@@ -113,22 +113,19 @@ public class Query implements Comparable<Query> {
 		Result result2 = new Result("thirdfile.txt", 10, 0.33333333);
 		TreeSet<Query> queries = new TreeSet<Query>();
 		
-		results.add(result);
-		results.add(result1);
 		results.add(result2);
-		
-		System.out.println(results);
-		
+		results.add(result1);
+		results.add(result);
 		Collections.sort(results);
-		
 		System.out.println(results);
 		
 		Query query = new Query("word", new ArrayList<Result>());
 		Query query2 = new Query("bird", new ArrayList<Result>());
 		query.add(result2);
-		query2.add(result1);
-		query.add(result1);
 		query2.add(result);
+		
+		query.add(result1);
+		query2.add(result1);
 		
 		queries.add(query);
 		queries.add(query2);

@@ -93,15 +93,18 @@ public class Result implements Comparable<Result> {
 	 * Overriden compareTo method from Comparable for
 	 * comparing results by score, then count, then file name
 	 * 
-	 * return 0 if the same or this values are great than, 1 if less than
+	 * return -1 if the same or this values are great than, 1 if less than
 	 */
 	@Override
 	public int compareTo(Result result) {
-		if (Double.compare(result.score, this.score) == 0) {
-			if (Integer.compare(result.count, this.count) == 0) {
+		int val = Double.compare(result.score, this.score);
+		
+		if (val == 0) {
+			val = Integer.compare(result.count, this.count);
+			if (val == 0) {
 				return this.file.compareTo(result.file);
 			}
 		}
-		return 1;
+		return val;
 	}
 }

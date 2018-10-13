@@ -132,7 +132,6 @@ public class Driver {
 				}
 				
 				try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
-					var query = new TreeSet<String>();
 					String line;
 					Path path = argmap.getPath("-path");
 					TreeSet<Query> queries = new TreeSet<Query>();
@@ -141,9 +140,8 @@ public class Driver {
 					
 					if (path != null) {
 						files = TextFileFinder.traverse(path);
-						for (Path file : files) {
-							while ((line = reader.readLine()) != null) {
-								query.addAll(QueryParsing.cleaner(line));
+						while ((line = reader.readLine()) != null) {
+							for (Path file : files) {
 								if (!(line = TextParser.clean(line).trim()).isEmpty()) {
 									JSONReader.searcher(queries, file, invertedIndex.getIndex(), line, exact);
 								}
