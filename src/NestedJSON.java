@@ -5,8 +5,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.DecimalFormat;
-import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -307,142 +305,22 @@ public class NestedJSON {
 		}
 	}
 	
-	/**
-	 * Creates a Nested JSON query index that stores Word -> File -> word count and score
-	 * 
-	 * @param query Contains word -> 
-	 * 		all files the word appears in ->
-	 * 		word count in each file and score in each file
-	 * @param writer Where to write the index
-	 * @param level Level of indentation
-	 * @throws IOException For Buffered Writer
-	 * 
-	 * @see #result(TreeMap, Writer, int)
-	 */
-	public static void queryObject(TreeMap<String, HashMap<String, HashMap<String, Number>>> query, Writer writer, int level) throws IOException {
-		try {
-			indent(level, writer);
-			writer.write('[');
-			
-			for (String word : query.headMap(query.lastKey()).keySet()) {
-				writer.write(System.lineSeparator());
-				indent(level + 1, writer);
-				writer.write('{');
-				
-				writer.write(System.lineSeparator());
-				indent(level + 2, writer);
-				writer.write("\"queries\": \"" + word + "\",");
-				
-				writer.write(System.lineSeparator());
-				indent(level + 2, writer);
-				writer.write("\"results\": [");
-				
-				writer.write(System.lineSeparator());
-				
-				if (!query.get(word).keySet().isEmpty()) {
-					result(query.get(word), writer, level + 3);
-					writer.write(System.lineSeparator());
-				}
-				
-				indent(level + 2, writer);
-				writer.write(']');
-				writer.write(System.lineSeparator());
-				
-				indent(level + 1, writer);
-				writer.write("},");
-				
-			}
-			
-	
-			writer.write(System.lineSeparator());
-			indent(level + 1, writer);
-			writer.write('{');
-			
-			writer.write(System.lineSeparator());
-			indent(level + 2, writer);
-			writer.write("\"queries\": \"" + query.lastKey() + "\",");
-			
-			writer.write(System.lineSeparator());
-			indent(level + 2, writer);
-			writer.write("\"results\": [");
-			
-			writer.write(System.lineSeparator());
-			
-			if (!query.get(query.lastKey()).keySet().isEmpty()) {
-				result(query.get(query.lastKey()), writer, level + 3);
-				writer.write(System.lineSeparator());
-			}
-			
-			indent(level + 2, writer);
-			writer.write(']');
-			writer.write(System.lineSeparator());
-			
-			indent(level + 1, writer);
-			writer.write("}");
-			
-			writer.write(System.lineSeparator());
-			indent(level, writer);
-			writer.write(']');
-		} catch (IOException e) {
-			
-		}
-	}
-	
-	/**
-	 * Creates JSON format of "result" of searches
-	 * 
-	 * @param query The file(s) to count:int and score:double
-	 * @param writer Where to write the files to
-	 * @param level Indentation level
-	 * @throws IOException For BufferedWriter
-	 */
-	public static void result(HashMap<String, HashMap<String, Number>> query, Writer writer, int level) throws IOException {
-		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
-		DecimalFormat INT = new DecimalFormat("0");
-		int count = query.size();
-		
-		for (String file: query.keySet()) {
-			indent(level, writer);
-			writer.write('{');
-			writer.write(System.lineSeparator());
-			
-			indent(level + 1, writer);
-			writer.write("\"where\": \"" + file + "\",");
-			
-			writer.write(System.lineSeparator());
-			indent(level + 1, writer);
-			writer.write("\"count\": " + INT.format((double)query.get(file).get("count")) + ",");
-			
-			writer.write(System.lineSeparator());
-			indent(level + 1, writer);
-			writer.write("\"score\": " + FORMATTER.format((double)query.get(file).get("score")));
-			writer.write(System.lineSeparator());
-			
-			if (count > 1) {
-				indent(level, writer);
-				writer.write("},");
-				writer.write(System.lineSeparator());
-			} else {
-				writer.write("}");
-			}
-			count--;
-		}
-	}
-	
 	public static void queryObject(TreeSet<Query> queries, Path index) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			writer.write("[");
 			writer.write(System.lineSeparator());
 			
-			for (Query query : queries.headSet(queries.last())) {
-				writer.write(query.toString());
-				writer.write(",");
+			if (!queries.isEmpty()) {
+				for (Query query : queries.headSet(queries.last())) {
+					writer.write(query.toString());
+					writer.write(",");
+					writer.write(System.lineSeparator());
+				}
+				writer.write(queries.last().toString());
 				writer.write(System.lineSeparator());
 			}
-			writer.write(queries.last().toString());
-			writer.write(System.lineSeparator());
 			
-			writer.write("}");
+			writer.write("]");
 		} catch (IOException e) {
 			
 		}

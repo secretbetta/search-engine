@@ -24,6 +24,10 @@ public class Query implements Comparable<Query> {
 		this.results = results;
 	}
 
+	public ArrayList<Result> results() {
+		return this.results;
+	}
+	
 	/**
 	 * Gets query word
 	 * @return String word
@@ -34,10 +38,12 @@ public class Query implements Comparable<Query> {
 	
 	/**
 	 * Adds result to arraylist of results
-	 * @param result Result datatype
+	 * @param result Result of query
 	 */
 	public void add(Result result) {
-		this.results.add(result);
+		if (!this.results.contains(result)) {
+			this.results.add(result);
+		}
 	}
 	
 	/**
@@ -73,12 +79,15 @@ public class Query implements Comparable<Query> {
 			writer.write(System.lineSeparator());
 			
 			for (int i = 0; i < results.size(); i++) {
-				writer.write(results.get(i).toString());
+				if (results.get(i) != null) {
+					writer.write(results.get(i).toString());
+					writer.write(System.lineSeparator());
+				}
 				if (i != results.size() - 1) {
 					writer.write(",");
+					writer.write(System.lineSeparator());
 				} else {
 				}
-				writer.write(System.lineSeparator());
 			}
 			
 			NestedJSON.indent(2, writer);

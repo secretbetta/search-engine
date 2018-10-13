@@ -4,6 +4,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -104,15 +105,17 @@ public class Driver {
 		} catch (IOException e) {
 		}
 		
-		if (argmap.hasFlag("-search") || argmap.hasFlag("-results")) {
-			boolean exact;
-			Path search;
-			
+		if (argmap.hasFlag("-results")) {
 			if (argmap.getPath("-results") != null) {
 				index = Paths.get(argmap.getPath("-results").toString());
 			} else {
-				index = Paths.get("results.json");
+				index = Paths.get("out", "results.json");
 			}
+		}
+		
+		if (argmap.hasFlag("-search")) {
+			boolean exact;
+			Path search;
 			
 			if (argmap.hasFlag("-exact")) {
 				exact = true;
@@ -129,95 +132,30 @@ public class Driver {
 				}
 				
 				try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
-					var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
 					var query = new TreeSet<String>();
 					String line;
 					Path path = argmap.getPath("-path");
 					TreeSet<Query> queries = new TreeSet<Query>();
 					
-					while ((line = reader.readLine()) != null) {
-						query.addAll(QueryParsing.cleaner(line));
-						if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-							searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), line, exact));
-							JSONReader.searcher(queries, path, invertedIndex.getIndex(), line, exact);
+					ArrayList<Path> files = null;
+					
+					if (path != null) {
+						files = TextFileFinder.traverse(path);
+						for (Path file : files) {
+							while ((line = reader.readLine()) != null) {
+								query.addAll(QueryParsing.cleaner(line));
+								if (!(line = TextParser.clean(line).trim()).isEmpty()) {
+									JSONReader.searcher(queries, file, invertedIndex.getIndex(), line, exact);
+								}
+							}
 						}
 					}
-					
-					NestedJSON.queryObject(queries, index);
+					if (index != null) {
+						NestedJSON.queryObject(queries, index);
+					}
 				} catch (IOException e) {
 				}
 			}
 		}
-
-//		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
-//			if (argmap.hasFlag("-search")) {
-//				var searchIndex = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
-//				var query = new TreeSet<String>();
-//				String line;
-//				
-//				// Reads query file
-//				try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-//					if (!Files.isDirectory(path)) {
-//						while ((line = reader.readLine()) != null) {
-//							query.addAll(QueryParsing.cleaner(line));
-//							if (!TextParser.clean(line).trim().isEmpty()) {
-//								searchIndex.putAll(JSONReader.searchNested(path, invertedIndex.getIndex(), TextParser.clean(line), exact));
-//							}
-//						}
-//					} else { //Basically where I need to sort
-//						String queryword;
-//						var temp = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
-//						textFiles = TextFileFinder.traverse(path);
-//						while ((line = reader.readLine()) != null) {
-//							queryword = TextParser.clean(line).trim();
-//							query.addAll(QueryParsing.cleaner(line));
-//							for (String file : textFiles) {
-//								temp = new TreeMap<String, TreeMap<String, TreeMap<String, Double>>>();
-//								if (!queryword.isEmpty()) {
-//									temp.putAll(JSONReader.searchNested(Paths.get(file), invertedIndex.getIndex(), queryword, exact));
-//									for (String word : temp.keySet()) {
-//										searchIndex.putIfAbsent(word, temp.get(word));
-//										if (temp.get(word).get(file) != null) {
-//											searchIndex.get(word).putIfAbsent(file, temp.get(word).get(file));
-//										}
-//									}
-//								}
-//							}
-//						}
-//					}
-////						var querymap = QueryParsing.copy(searchIndex);
-//					var queries = new TreeSet<Query>();
-//					ArrayList<Result> results;
-//					Result result;
-//					int wordcount = 0;
-//					int filecount;
-//					double test;
-//					for (String word : searchIndex.keySet()) {
-////							filecount = 0;
-//						for (String file : searchIndex.get(word).keySet()) {
-//							results = new ArrayList<Result>();
-//							test = (double)(searchIndex.get(word).get(file).get("score"));
-//							wordcount = (searchIndex.get(word).get(file).get("count")).intValue();
-//							result = new Result(file, wordcount, test);
-//							System.out.println(result);
-//							queries.add(new Query(word, results));
-////								results[filecount] = new Result(file, (double)searchIndex.get(word).get(file).get("count"), (double)searchIndex.get(word).get(file).get("score"));
-////								filecount++;
-//						}
-//					}
-////						
-////						System.out.println(listQuery[0].toString(0));
-//					
-////						Query[] listQuery = new Query[querymap.size()];
-//					
-//					NestedJSON.queryObject(queries, writer);
-////						NestedJSON.queryObject(querymap, writer, 0);
-//				} catch (IOException e) {
-//				}
-//			}
-//		} catch (NoSuchFileException e) {
-//		} catch (NullPointerException e) {
-//		} catch (IOException e) {
-//		}
 	}
 }
