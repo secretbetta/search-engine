@@ -429,37 +429,22 @@ public class NestedJSON {
 		}
 	}
 	
-	public static void queryObject(TreeSet<Query> queries, Writer writer) throws IOException {
-		writer.write("[");
-		writer.write(System.lineSeparator());
-		
-		for (Query query : queries.headSet(queries.last())) {
-			writer.write(query.toString());
-			writer.write(",");
+	public static void queryObject(TreeSet<Query> queries, Path index) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
+			writer.write("[");
 			writer.write(System.lineSeparator());
+			
+			for (Query query : queries.headSet(queries.last())) {
+				writer.write(query.toString());
+				writer.write(",");
+				writer.write(System.lineSeparator());
+			}
+			writer.write(queries.last().toString());
+			writer.write(System.lineSeparator());
+			
+			writer.write("}");
+		} catch (IOException e) {
+			
 		}
-		writer.write(queries.last().toString());
-		writer.write(System.lineSeparator());
-		
-		writer.write("}");
 	}
-	
-//	public static void queryObject(ArrayList<Query> queries, Writer writer) throws IOException {
-//		writer.write("[");
-//		writer.write(System.lineSeparator());
-//		
-//		for (Query query : queries) {
-//			writer.write(query.toString());
-//			if (query.equals(queries.lastIndexOf(queries))) {
-//				writer.write(",");
-//			}
-//			writer.write(System.lineSeparator());
-//		}
-//		
-////		writer.write(queries.last().toString());
-////		writer.write(System.lineSeparator());
-//		
-//		
-//		writer.write("}");
-//	}
 }

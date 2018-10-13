@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -144,15 +143,9 @@ public class Driver {
 						}
 					}
 					
-					BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-					NestedJSON.queryObject(queries, writer);
+					NestedJSON.queryObject(queries, index);
 				} catch (IOException e) {
 				}
-			}
-			
-			try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
-//				NestedJSON.queryObject(queries, writer);
-			} catch (IOException e) {
 			}
 		}
 

@@ -72,31 +72,25 @@ public class JSONReader {
 	public static void searcher(TreeSet<Query> queries, Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
 		Result result = null;
 		double wordtotal = 0;
-		int wordcount;
+		int wordcount = 0;
 		Query tempQuery;
 		ArrayList<Result> results = new ArrayList<Result>();
 		
-		for (String q : query.split(" ")) {
-			if (exact) {
-				if (index.containsKey(q) && index.get(q).containsKey(path.toString())) {
-					for (String word : index.keySet()) {
-						for (String file : index.get(word).keySet()) {
-							if (file.equals(path.toString())) {
-								wordtotal += index.get(word).get(file).size();
-							}
+		for (String q : TextFileStemmer.stemLine(query)) {
+			wordtotal = 0;
+			if (index.containsKey(q) && index.get(q).containsKey(path.toString())) {
+				for (String word : index.keySet()) {
+					for (String file : index.get(word).keySet()) {
+						if (file.equals(path.toString())) {
+							wordtotal += index.get(word).get(file).size();
 						}
 					}
-					wordcount = index.get(q).get(path.toString()).size();
-					result = new Result(path.toString(), wordcount, ((double)wordcount)/((double)wordtotal));
 				}
-			} else {
-				for (String word : index.keySet()) {
-					if (word.startsWith(q)) {
-						
-					}
-				}
+				wordcount = index.get(q).get(path.toString()).size();
+				result = new Result(path.toString(), wordcount, ((double)wordcount)/((double)wordtotal));
 			}
 		}
+//		System.out.println(result);
 		
 		if (result != null) {
 			for (Query que : queries) {

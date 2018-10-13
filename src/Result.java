@@ -89,19 +89,19 @@ public class Result implements Comparable<Result> {
 		return writer.toString();
 	}
 
+	/**
+	 * Overriden compareTo method from Comparable for
+	 * comparing results by score, then count, then file name
+	 * 
+	 * return 0 if the same or this values are great than, 1 if less than
+	 */
 	@Override
 	public int compareTo(Result result) {
-		if (this.score() < result.score()) {
-			return 1;
-		} else if (this.score() == result.score()) {
-			if (this.count() < result.count()) {
-				return 1;
-			} else if (this.count() == result.count()) {
-				if (this.file().compareTo(result.file()) < 0) {
-					return 1;
-				}
+		if (Double.compare(result.score, this.score) == 0) {
+			if (Integer.compare(result.count, this.count) == 0) {
+				return this.file.compareTo(result.file);
 			}
 		}
-		return 0;
+		return 1;
 	}
 }

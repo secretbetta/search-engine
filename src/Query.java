@@ -1,8 +1,5 @@
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -35,36 +32,19 @@ public class Query implements Comparable<Query> {
 		return this.word;
 	}
 	
-	public boolean add(Result result) {
-		for (int x = 0; x < this.results.size(); x++) {
-			if (this.results.get(x).compareTo(result) == 1); {
-				this.results.add(x, result);
-				return true;
-			}
-		}
-		
+	/**
+	 * Adds result to arraylist of results
+	 * @param result Result datatype
+	 */
+	public void add(Result result) {
 		this.results.add(result);
-		return false;
-		
 	}
 	
 	/**
 	 * Sorts the results by score, wordcount, and then filename
 	 */
 	public void sort() {
-//		Result tempr = null;
-		
 		Collections.sort(results);
-		
-//		for (int x = 0; x < this.results.length - 1; x++) {
-//			for (int y = x + 1; y < this.results.length; y++) {
-//				if (this.results[y].compareTo(this.results[x]) == 0) {
-//					tempr = this.results[x];
-//					this.results[x] = this.results[y];
-//					this.results[y] = tempr;
-//				}
-//			}
-//		}
 	}
 	
 	/**
@@ -145,9 +125,7 @@ public class Query implements Comparable<Query> {
 		queries.add(query2);
 		
 		
-		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) { 
-			NestedJSON.queryObject(queries, writer);
-		}
+		NestedJSON.queryObject(queries, index);
 	}
 	
 	/**
