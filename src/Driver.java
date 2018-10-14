@@ -5,47 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 public class Driver {
-	/**
-	 * Gets words from a given text file. Adds word and position into TreeMap.
-	 * Words may have more than one position in a text file.
-	 * <p>key = word(s) from text files</p>
-	 * <p>value = position(s) of word from text files</p>
-	 * @param input path to the input file
-	 * @return list list of words in text file
-	 * @throws IOException
-	 */
-	public static TreeMap<String, TreeSet<Integer>> getWords(Path input) 
-			throws IOException {
-		try (BufferedReader reader = Files.newBufferedReader(input, StandardCharsets.UTF_8);) {
-			int position = 0;
-			
-			var index = new TreeMap<String, TreeSet<Integer>>();
-			
-			String line;
-			List<String> list;
-			
-			while ((line = reader.readLine()) != null) {
-				list = TextFileStemmer.stemLine(line);
-				for (String word: list) {
-					position++;
-					if (index.containsKey(word)) {
-						index.get(word).add(position);
-					} else {
-						index.put(word, new TreeSet<Integer>());
-						index.get(word).add(position);
-					}
-				}
-			}
-			
-			return index;
-		}
-	}
-
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
 	 * engine from files or the web.
@@ -105,15 +69,16 @@ public class Driver {
 		} catch (IOException e) {
 		}
 		
-		if (argmap.hasFlag("-results")) {
-			if (argmap.getPath("-results") != null) {
-				index = Paths.get(argmap.getPath("-results").toString());
-			} else {
-				index = Paths.get("out", "results.json");
-			}
-		}
-		
 		if (argmap.hasFlag("-search")) {
+			
+			if (argmap.hasFlag("-results")) {
+				if (argmap.getPath("-results") != null) {
+					index = Paths.get(argmap.getPath("-results").toString());
+				} else {
+					index = Paths.get("results.json");
+				}
+			}
+			
 			boolean exact;
 			Path search;
 			
@@ -126,6 +91,7 @@ public class Driver {
 			if (argmap.getPath("-search") != null) {
 				Path stemmed = Paths.get("stemmedfile.txt");
 				search = argmap.getPath("-search");
+				
 				try {
 					TextFileStemmer.stemFile(search, stemmed);
 				} catch (IOException e1) {
@@ -148,6 +114,10 @@ public class Driver {
 								}
 							}
 						}
+					}
+					
+					for (String que : queries.keySet()) {
+						Collections.sort(queries.get(que));
 					}
 					
 					if (index != null) {

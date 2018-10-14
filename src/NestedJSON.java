@@ -306,6 +306,13 @@ public class NestedJSON {
 		}
 	}
 	
+	/**
+	 * Writes the query inverted index
+	 * @param queries The querymap
+	 * @param index Where to write it
+	 * 
+	 * @throws IOException
+	 */
 	public static void queryObject(TreeMap<String, ArrayList<Result>> queries, Path index) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			writer.write("[");
@@ -327,11 +334,12 @@ public class NestedJSON {
 					
 					writer.write("\"results\": [");
 					writer.write(System.lineSeparator());
-					System.out.println(queries.get(query));
 					for (int i = 0; i < queries.get(query).size() - 1; i++) {
-						writer.write(queries.get(query).get(i).toString());
-						writer.write(",");
-						writer.write(System.lineSeparator());
+						if (queries.get(query).get(i) != null) { 
+							writer.write(queries.get(query).get(i).toString());
+							writer.write(",");
+							writer.write(System.lineSeparator());
+						}
 						
 					}
 					
@@ -346,7 +354,6 @@ public class NestedJSON {
 					NestedJSON.indent(1, writer);
 					
 					writer.write("}");
-//					
 					writer.write(",");
 					writer.write(System.lineSeparator());
 				}
@@ -366,11 +373,11 @@ public class NestedJSON {
 				writer.write(System.lineSeparator());
 				
 				for (int i = 0; i < queries.get(queries.lastKey()).size() - 1; i++) {
-					
-					writer.write(queries.get(queries.lastKey()).get(i).toString());
-					writer.write(",");
-					writer.write(System.lineSeparator());
-					
+					if (queries.get(queries.lastKey()).get(i) != null) { 
+						writer.write(queries.get(queries.lastKey()).get(i).toString());
+						writer.write(",");
+						writer.write(System.lineSeparator());
+					}
 				}
 				
 				if (queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size() - 1) != null) {

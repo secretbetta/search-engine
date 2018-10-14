@@ -6,6 +6,17 @@ import java.util.TreeSet;
 
 public class JSONReader {
 	
+	/**
+	 * Searches through the inverted index for all the query matches. 
+	 * Outputs results in a TreeMap
+	 * 
+	 * @param queries TreeMap data structure of Queries
+	 * @param path What files to look for
+	 * @param index The inverted index used to search for queries
+	 * @param query Word/Query to search for
+	 * @param exact Whether it's an exact or partial search
+	 * @throws IOException
+	 */
 	public static void searcher(TreeMap<String, ArrayList<Result>> queries, Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
 		Result result = null;
 		String filename = path.toString();
@@ -70,7 +81,7 @@ public class JSONReader {
 					containFlag = true;
 				}
 			}
-			if (!containFlag) {
+			if (!containFlag && result != null) {
 				queries.get(query).add(result);
 			}
 		} else {

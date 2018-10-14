@@ -25,30 +25,6 @@ public class Result implements Comparable<Result> {
 	}
 	
 	/**
-	 * Gets filename
-	 * @return file
-	 */
-	public String file() {
-		return this.file;
-	}
-	
-	/**
-	 * Gets count
-	 * @return count
-	 */
-	public double count() {
-		return this.count;
-	}
-	
-	/**
-	 * Get the score
-	 * @return score
-	 */
-	public double score() {
-		return this.score;
-	}
-	
-	/**
 	 * Default output of Results in JSON format
 	 */
 	public String toString() {
@@ -56,7 +32,6 @@ public class Result implements Comparable<Result> {
 		DecimalFormat INT = new DecimalFormat("0");
 		StringWriter writer = new StringWriter();
 		
-//		System.out.println("File: " + this.file + "\nCount: " + this.count + "\nScore: " + this.score);
 		try {
 			NestedJSON.indent(3, writer);
 			writer.write("{");
@@ -97,14 +72,17 @@ public class Result implements Comparable<Result> {
 	 */
 	@Override
 	public int compareTo(Result result) {
-		int val = Double.compare(result.score, this.score);
-		
-		if (val == 0) {
-			val = Integer.compare(result.count, this.count);
+		if (this != null && result != null) {
+			int val = Double.compare(result.score, this.score);
+			
 			if (val == 0) {
-				return this.file.compareTo(result.file);
+				val = Integer.compare(result.count, this.count);
+				if (val == 0) {
+					return this.file.compareTo(result.file);
+				}
 			}
+			return val;
 		}
-		return val;
+		return 0;
 	}
 }
