@@ -134,7 +134,8 @@ public class Driver {
 				try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
 					String line;
 					Path path = argmap.getPath("-path");
-					TreeSet<Query> queries = new TreeSet<Query>();
+					
+					TreeMap<String, ArrayList<Result>> queries = new TreeMap<String, ArrayList<Result>>();
 					
 					ArrayList<Path> files = null;
 					
@@ -148,6 +149,7 @@ public class Driver {
 							}
 						}
 					}
+					
 					if (index != null) {
 						NestedJSON.queryObject(queries, index);
 					}

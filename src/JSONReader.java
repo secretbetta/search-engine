@@ -6,7 +6,7 @@ import java.util.TreeSet;
 
 public class JSONReader {
 	
-	public static void searcher(TreeSet<Query> queries, Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
+	public static void searcher(TreeMap<String, ArrayList<Result>> queries, Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
 		Result result = null;
 		String filename = path.toString();
 		double wordtotal = 0;
@@ -61,28 +61,21 @@ public class JSONReader {
 			}
 		}
 		
-		Query tempQuery = new Query(query, new ArrayList<Result>());
+		results.add(result);
 		
-//		if (!queries.isEmpty()) {
-//			for (Query q : queries) {
-//				for (String que : temp) {
-//					if (q.word.equals(que)) {
-//						q.add(result);
-//						break;
-//					} else {
-//						tempQuery.add(result);
-//						queries.add(tempQuery);
-//						break;
-//					}
-//				}
-//			}
-//		} else {
-//			tempQuery.add(result);
-//			queries.add(tempQuery);
-//		}
-		
-		tempQuery.add(result);
-		queries.add(tempQuery);
+		boolean containFlag = false;
+		if (queries.containsKey(query)) {
+			for (Result r : queries.get(query)) {
+				if (result != null && r != null && r.file.equals(result.file)) {
+					containFlag = true;
+				}
+			}
+			if (!containFlag) {
+				queries.get(query).add(result);
+			}
+		} else {
+			queries.put(query, results);
+		}
 	}
 	
 	public static void searcher2(TreeMap<String, ArrayList<Result>> queries) {

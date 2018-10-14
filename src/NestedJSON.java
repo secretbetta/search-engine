@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -305,18 +306,84 @@ public class NestedJSON {
 		}
 	}
 	
-	public static void queryObject(TreeSet<Query> queries, Path index) throws IOException {
+	public static void queryObject(TreeMap<String, ArrayList<Result>> queries, Path index) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
 			writer.write("[");
 			writer.write(System.lineSeparator());
 			
 			if (!queries.isEmpty()) {
-				for (Query query : queries.headSet(queries.last())) {
-					writer.write(query.toString());
+				for (String query : queries.headMap(queries.lastKey()).keySet()) {
+					NestedJSON.indent(1, writer);
+					
+					writer.write("{");
+					writer.write(System.lineSeparator());
+					NestedJSON.indent(2, writer);
+					
+					writer.write("\"queries\": \"");
+					writer.write(query);
+					writer.write("\",");
+					writer.write(System.lineSeparator());
+					NestedJSON.indent(2, writer);
+					
+					writer.write("\"results\": [");
+					writer.write(System.lineSeparator());
+					System.out.println(queries.get(query));
+					for (int i = 0; i < queries.get(query).size() - 1; i++) {
+						writer.write(queries.get(query).get(i).toString());
+						writer.write(",");
+						writer.write(System.lineSeparator());
+						
+					}
+					
+					if (queries.get(query).get(queries.get(query).size() - 1) != null) {
+						writer.write(queries.get(query).get(queries.get(query).size()-1).toString());
+						writer.write(System.lineSeparator());
+					}
+					
+					NestedJSON.indent(2, writer);
+					writer.write("]");
+					writer.write(System.lineSeparator());
+					NestedJSON.indent(1, writer);
+					
+					writer.write("}");
+//					
 					writer.write(",");
 					writer.write(System.lineSeparator());
 				}
-				writer.write(queries.last().toString());
+				NestedJSON.indent(1, writer);
+				
+				writer.write("{");
+				writer.write(System.lineSeparator());
+				NestedJSON.indent(2, writer);
+				
+				writer.write("\"queries\": \"");
+				writer.write(queries.lastKey());
+				writer.write("\",");
+				writer.write(System.lineSeparator());
+				NestedJSON.indent(2, writer);
+				
+				writer.write("\"results\": [");
+				writer.write(System.lineSeparator());
+				
+				for (int i = 0; i < queries.get(queries.lastKey()).size() - 1; i++) {
+					
+					writer.write(queries.get(queries.lastKey()).get(i).toString());
+					writer.write(",");
+					writer.write(System.lineSeparator());
+					
+				}
+				
+				if (queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size() - 1) != null) {
+					writer.write(queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size()-1).toString());
+					writer.write(System.lineSeparator());
+				}
+				
+				NestedJSON.indent(2, writer);
+				writer.write("]");
+				writer.write(System.lineSeparator());
+				NestedJSON.indent(1, writer);
+				
+				writer.write("}");
 				writer.write(System.lineSeparator());
 			}
 			

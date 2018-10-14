@@ -37,16 +37,27 @@ public class Query implements Comparable<Query> {
 	 * @param result Result of query
 	 */
 	public void add(Result result) {
-		if (!this.results.isEmpty()) {
-			for (Result r : this.results) {
-				if (r != null && !r.file.equals(result.file)) {
-					this.results.add(result);
-					break;
-				}
-			}
-		} else {
-			this.results.add(result);
-		}
+//		boolean flag = true;
+//		if (!this.results.isEmpty()) {
+//			for (Result r : this.results) {
+//				if (r != null && !r.file.equals(result.file)) {
+//					this.results.add(result);
+//					break;
+//				}
+//			}
+//		} else {
+//			this.results.add(result);
+//		}
+		
+//		for (Result r : this.results) {
+//			if (r.file.equals(result.file)) {
+//				flag = false;
+//			}
+//		}
+//		if (flag) {
+//			this.results.add(result);
+//		}
+		this.results.add(result);
 	}
 	
 	/**
@@ -81,14 +92,13 @@ public class Query implements Comparable<Query> {
 			writer.write(System.lineSeparator());
 			
 			for (int i = 0; i < results.size(); i++) {
-				if (results.get(i) != null) {
+				if (results.get(i) != null && i != results.size() - 1) {
 					writer.write(results.get(i).toString());
-					writer.write(System.lineSeparator());
-				}
-				if (i != results.size() - 1) {
 					writer.write(",");
 					writer.write(System.lineSeparator());
-				} else {
+				} else if (results.get(i) != null) {
+					writer.write(results.get(i).toString());
+					writer.write(System.lineSeparator());
 				}
 			}
 			
