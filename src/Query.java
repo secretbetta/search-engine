@@ -4,7 +4,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 /**
  * Stores basic movie information.
@@ -39,7 +39,7 @@ public class Query implements Comparable<Query> {
 	public void add(Result result) {
 		if (!this.results.isEmpty()) {
 			for (Result r : this.results) {
-				if (result != null && !r.file.equals(result.file)) {
+				if (r != null && !r.file.equals(result.file)) {
 					this.results.add(result);
 					break;
 				}
@@ -113,7 +113,7 @@ public class Query implements Comparable<Query> {
 		Result result = new Result("firstfile.txt", 15, 0.33333333);
 		Result result1 = new Result("secondfile.txt", 13, 0.99333333);
 		Result result2 = new Result("thirdfile.txt", 10, 0.33333333);
-		TreeSet<Query> queries = new TreeSet<Query>();
+		TreeMap<String, ArrayList<Result>> queries = new TreeMap<String, ArrayList<Result>>();
 		
 		results.add(result2);
 		results.add(result1);
@@ -123,6 +123,7 @@ public class Query implements Comparable<Query> {
 		
 		Query query = new Query("word", new ArrayList<Result>());
 		Query query2 = new Query("bird", new ArrayList<Result>());
+		queries.put("word", results);
 		query.add(result);
 		query.add(result1);
 		query.add(result2);
@@ -138,7 +139,7 @@ public class Query implements Comparable<Query> {
 //		queries.add(query2);
 		
 		
-		NestedJSON.queryObject(queries, index);
+//		NestedJSON.queryObject(queries, index);
 	}
 	
 	/**

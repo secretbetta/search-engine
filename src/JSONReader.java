@@ -12,12 +12,16 @@ public class JSONReader {
 		double wordtotal = 0;
 		int wordcount = 0;
 		
-		Query tempQuery;
-		
 		ArrayList<Result> results = new ArrayList<Result>();
 		
 		TreeSet<String> temp;
 		temp = new TreeSet<String>(TextFileStemmer.stemLine(query));
+		
+		query = "";
+		for (String w : temp.headSet(temp.last())) {
+			query += w + " ";
+		}
+		query += temp.last();
 		
 		if (exact) {
 			for (String q : temp) {
@@ -57,25 +61,28 @@ public class JSONReader {
 			}
 		}
 		
-		if (!queries.isEmpty()) {
-			for (Query q : queries) {
-				for (Result r : q.results) {
-					if (!r.file.equals(filename)) {
-						q.add(result);
-						break;
-					}
-				}
-				
-			}
-		} else {
-			results.add(result);
-			tempQuery = new Query(query, results);
-			queries.add(tempQuery);
-		}
+		Query tempQuery = new Query(query, new ArrayList<Result>());
 		
-//		results.add(result);
-//		tempQuery = new Query(query, results);
-//		queries.add(tempQuery);
+//		if (!queries.isEmpty()) {
+//			for (Query q : queries) {
+//				for (String que : temp) {
+//					if (q.word.equals(que)) {
+//						q.add(result);
+//						break;
+//					} else {
+//						tempQuery.add(result);
+//						queries.add(tempQuery);
+//						break;
+//					}
+//				}
+//			}
+//		} else {
+//			tempQuery.add(result);
+//			queries.add(tempQuery);
+//		}
+		
+		tempQuery.add(result);
+		queries.add(tempQuery);
 	}
 	
 	public static void searcher2(TreeMap<String, ArrayList<Result>> queries) {
