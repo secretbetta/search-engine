@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -69,16 +70,15 @@ public class Driver {
 		} catch (IOException e) {
 		}
 		
-		if (argmap.hasFlag("-search")) {
-			
-			if (argmap.hasFlag("-results")) {
-				if (argmap.getPath("-results") != null) {
-					index = Paths.get(argmap.getPath("-results").toString());
-				} else {
-					index = Paths.get("results.json");
-				}
+		if (argmap.hasFlag("-results")) {
+			if (argmap.getPath("-results") != null) {
+				index = Paths.get(argmap.getPath("-results").toString());
+			} else {
+				index = Paths.get("results.json");
 			}
-			
+		}
+		
+		if (argmap.hasFlag("-search")) {
 			boolean exact;
 			Path search;
 			
@@ -123,6 +123,21 @@ public class Driver {
 					if (index != null) {
 						NestedJSON.queryObject(queries, index);
 					}
+				} catch (IOException e) {
+				}
+			}
+		} else {
+			//Had to do this weird thing to complete EmptyQuery
+			if (argmap.hasFlag("-results")) {
+				try {
+					if (argmap.getPath("-results") != null) {
+						index = Paths.get(argmap.getPath("-results").toString());
+					} else {
+						index = Paths.get("results.json");
+					}
+					BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+					writer.write("[\n]");
+					writer.close();
 				} catch (IOException e) {
 				}
 			}

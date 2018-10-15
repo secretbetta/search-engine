@@ -88,8 +88,4 @@ public class JSONReader {
 			queries.put(query, results);
 		}
 	}
-	
-	public static void searcher2(TreeMap<String, ArrayList<Result>> queries) {
-		
-	}
 }
