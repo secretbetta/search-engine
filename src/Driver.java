@@ -18,11 +18,24 @@ public class Driver {
 	 * @throws IOException 
 	 */
 	public static void main(String[] args) {
+		// TODO Create index and locIndex in the scope they are used
 		Path index = null;
 		Path locIndex = null;
 		
 		var invertedIndex = new InvertedIndex();
 		var argmap = new ArgumentMap(args);
+		
+		/* TODO Don't separate the logic checking for flags and using them
+		if (argmap.hasFlag("-path")) {
+			Path path = argmap.getPath("-path");
+			try {
+				building code
+			}
+			catch (IOException e) {
+				System.err.println("Unable to build index from path: " + path);
+			}
+		}
+		*/
 		
 		if (argmap.hasFlag("-index")) {
 			if (argmap.getPath("-index") != null) {
@@ -53,19 +66,20 @@ public class Driver {
 					}
 				}
 			}
-			catch (IOException e) {
+			catch (IOException e) { // TODO Never do this!
 			}
 		}
 		
 		try {
+			// TODO Remove for project 1 for now since you already have it in project 2
 			if (argmap.hasFlag("-locations")) {
 				TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
 				NestedJSON.asObject(locationIndex, locIndex);
 			}
 			
 			NestedJSON.tripleNested(invertedIndex.getIndex(), index);
-		} catch (NullPointerException e) { 
-		} catch (IOException e) {
+		} catch (NullPointerException e) {  // TODO Never do this!
+		} catch (IOException e) {  // TODO Never do this!
 		}
 	}
 }

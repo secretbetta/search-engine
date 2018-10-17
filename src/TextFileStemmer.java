@@ -66,6 +66,7 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static void stemFile(Path inputFile, Path outputFile) throws IOException {
+		// TODO Both reader and writer must be in the try-with-resources part
 		try (BufferedReader reader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8); ) {
 			BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
 			List<String> words = new ArrayList<String>();
@@ -79,7 +80,7 @@ public class TextFileStemmer {
 				writer.write("\n");
 			}
 			writer.close();
-		} catch (IOException e) {
+		} catch (IOException e) { // TODO Delete the catch
 		}
 	}
 }

@@ -1,5 +1,6 @@
 import java.util.TreeMap;
 
+// TODO Remove for project 1
 /**
  * Creates a Map of File -> wordcount
  * @author Andrew

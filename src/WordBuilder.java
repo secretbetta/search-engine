@@ -23,6 +23,12 @@ public class WordBuilder {
 	 * @throws IOException
 	 */
 	public static void getWords(Path file, InvertedIndex invertedIndex) throws IOException {
+		/*
+		 * TODO
+		 * Efficiency is one reason why we make more specific versions of generalized code
+		 * 
+		 * Copy/paste some of the code that opens a file and stems it... except instead of writing to another file, immediately add to the index
+		 */
 		Path stemmed = Paths.get("stemmedfile.txt");
 		TextFileStemmer.stemFile(file, stemmed);
 		try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
