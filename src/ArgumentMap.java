@@ -52,6 +52,19 @@ public class ArgumentMap {
 				map.put(args[i], null);
 			}
 		}
+		
+		/* TODO
+		for (int i = 0; i < args.length; i++) {
+			if (isFlag(args[i])) {
+				if (i + 1 < args.length && isValue(args[i + 1])) {
+					map.put(args[i], args[i + 1]);
+				}
+				else {
+					map.put(args[i], null);
+				}
+			}
+		}
+		*/
 	}
 
 	/**
@@ -70,6 +83,9 @@ public class ArgumentMap {
 		if (arg == null) {
 			return false;
 		}
+		
+		// TODO return arg.startsWith("-") && arg.trim().length() > 1;
+		
 		if (arg.length() >= 1) {
 			if (arg.startsWith("-")) {
 				arg = arg.substring(1);
@@ -100,6 +116,9 @@ public class ArgumentMap {
 		if (arg == null) {
 			return false;
 		}
+		
+		// TODO return (!arg.startsWith("-") && !arg.trim().isEmpty());
+		
 		if (arg.length() >= 1) {
 			if (!arg.startsWith("-") && !arg.trim().isEmpty()) {
 				return true;
@@ -134,7 +153,10 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
+		// TODO Oh no!
 		return map.containsValue(flag);
+		
+		// TODO map.get(flag) != null;
 	}
 
 	/**
@@ -204,6 +226,7 @@ public class ArgumentMap {
 	 *         or the default value if there is no mapping for the flag
 	 */
 	public Path getPath(String flag, Path defaultValue) {
+		// TODO Reimplement without the loop!
 		for (String key: map.keySet()) {
 			if (flag.equals(map.get(key))) {
 				return Paths.get(flag);

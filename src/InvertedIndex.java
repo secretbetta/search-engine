@@ -6,6 +6,7 @@ import java.util.TreeSet;
  */
 public class InvertedIndex {
 	
+	// TODO private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 	
 	/**
@@ -15,6 +16,7 @@ public class InvertedIndex {
 		this.index = new TreeMap<>();
 	}
 	
+	// TODO refactor to add( )
 	/**
 	 * Adds word if does not exist
 	 * Adds file to word if does not exist
@@ -36,6 +38,23 @@ public class InvertedIndex {
 		}
 	}
 	
+	/*
+	 * TODO 
+	 * toString()
+	 * 
+	 * add(String word, String file, int position)
+	 * 
+	 * public boolean contains(String word)
+	 * public boolean contains(String word, String location)
+	 * public boolean contains(String word, String location, int position)
+	 * 
+	 * public int words() returns # of words in the index
+	 * public int locations(String word)
+	 * public int positions(String word, String location)
+	 * 
+	 */
+	
+	// TODO Breaks encapsulation, need to remove
 	/**
 	 * Returns inverted index
 	 * 
@@ -44,4 +63,10 @@ public class InvertedIndex {
 	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
 		return index;
 	}
+	
+	/* TODO Do this instead
+	public void toJSON(Path path) {
+		NestedJSON.tripleNested(index, path);
+	}
+	*/
 }

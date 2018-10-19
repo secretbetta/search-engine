@@ -299,7 +299,7 @@ public class NestedJSON {
 			writer.write(System.lineSeparator());
 			
 			writer.write('}');
-		} catch (NoSuchElementException e) {
+		} catch (NoSuchElementException e) { // TODO Throw the exceptions
 			System.err.println("No such element");
 		} catch (IOException e) { 
 		}
