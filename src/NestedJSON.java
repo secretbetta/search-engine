@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -276,32 +275,28 @@ public class NestedJSON {
 	 * 
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
-	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) {
-		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
-			
-			writer.write('{');
-			writer.write(System.lineSeparator());
-			for (String element : elements.headMap(elements.lastKey()).keySet()) {
-				indent(1, writer);
-				quote(element.toString(), writer);
-				writer.write(": ");
-				
-				asNestedObject(elements.get(element), writer, 1);
-				
-				writer.write(",");
-				writer.write(System.lineSeparator());
-			}
-			
+	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) throws IOException {
+		BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+		writer.write('{');
+		writer.write(System.lineSeparator());
+		for (String element : elements.headMap(elements.lastKey()).keySet()) {
 			indent(1, writer);
-			quote(elements.lastKey().toString(), writer);
+			quote(element.toString(), writer);
 			writer.write(": ");
-			asNestedObject(elements.get(elements.lastKey()), writer, 1);
-			writer.write(System.lineSeparator());
 			
-			writer.write('}');
-		} catch (NoSuchElementException e) { // TODO Throw the exceptions
-			System.err.println("No such element");
-		} catch (IOException e) { 
+			asNestedObject(elements.get(element), writer, 1);
+			
+			writer.write(",");
+			writer.write(System.lineSeparator());
 		}
+		
+		indent(1, writer);
+		quote(elements.lastKey().toString(), writer);
+		writer.write(": ");
+		asNestedObject(elements.get(elements.lastKey()), writer, 1);
+		writer.write(System.lineSeparator());
+		
+		writer.write('}');
+		writer.close();
 	}
 }

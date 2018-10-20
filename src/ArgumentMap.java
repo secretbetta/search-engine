@@ -37,23 +37,6 @@ public class ArgumentMap {
 	 * @param args the command line arguments to parse
 	 */
 	public void parse(String[] args) {
-		if (args.length > 0) {
-			if (args.length > 1 && isFlag(args[0]) && isValue(args[1])) {
-				map.put(args[0], args[1]);
-			} else if (isFlag(args[0])) {
-				map.put(args[0], null);
-			}
-		}
-		for (int i = 1; i < args.length; i++) {
-			if (isFlag(args[i - 1]) && isValue(args[i])) {
-				map.put(args[i - 1], args[i]);
-			}
-			else if (isFlag(args[i])) {
-				map.put(args[i], null);
-			}
-		}
-		
-		/* TODO
 		for (int i = 0; i < args.length; i++) {
 			if (isFlag(args[i])) {
 				if (i + 1 < args.length && isValue(args[i + 1])) {
@@ -64,7 +47,6 @@ public class ArgumentMap {
 				}
 			}
 		}
-		*/
 	}
 
 	/**
@@ -80,24 +62,7 @@ public class ArgumentMap {
 	 * @see String#length()
 	 */
 	public boolean isFlag(String arg) {
-		if (arg == null) {
-			return false;
-		}
-		
-		// TODO return arg.startsWith("-") && arg.trim().length() > 1;
-		
-		if (arg.length() >= 1) {
-			if (arg.startsWith("-")) {
-				arg = arg.substring(1);
-				arg = arg.trim();
-				if (arg.isEmpty()) {
-					return false;
-				} else {
-					return true;
-				}
-			}
-		}
-		return false;
+		 return arg.startsWith("-") && arg.trim().length() > 1;
 	}
 
 	/**
@@ -153,10 +118,7 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
-		// TODO Oh no!
-		return map.containsValue(flag);
-		
-		// TODO map.get(flag) != null;
+		return map.containsKey(flag) && map.get(flag) != null;
 	}
 
 	/**
@@ -226,11 +188,8 @@ public class ArgumentMap {
 	 *         or the default value if there is no mapping for the flag
 	 */
 	public Path getPath(String flag, Path defaultValue) {
-		// TODO Reimplement without the loop!
-		for (String key: map.keySet()) {
-			if (flag.equals(map.get(key))) {
-				return Paths.get(flag);
-			}
+		if (map.containsKey(flag)) {
+			return Paths.get(flag);
 		}
 		return defaultValue;
 	}
