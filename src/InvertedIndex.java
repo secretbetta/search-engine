@@ -16,28 +16,36 @@ public class InvertedIndex {
 		this.index = new TreeMap<>();
 	}
 	
-	// TODO refactor to add( )
 	/**
 	 * Adds word if does not exist
-	 * Adds file to word if does not exist
-	 * 
-	 * @param word the inputted word
-	 * @param filepos Treemap of file names and positions
-	 * @return true if word did not exist before
+	 * Adds file if does not exist
+	 * Adds position if does not exist
+	 * @param word The inputted word
+	 * @param file The inputted file
+	 * @param pos The inputted position
 	 */
-	public void addAllWordFile(String word, String file, TreeSet<Integer> pos) {
-		var temp = new TreeMap<String, TreeSet<Integer>>();
-		
-		if (!index.containsKey(word)) {
-			temp.put(file, pos);
-			index.put(word, temp);
-		} else if (index.get(word).containsKey(file)) {
-			index.get(word).get(file).addAll(pos);
-		} else if (!index.get(word).containsKey(file)) {
-			index.get(word).put(file, pos);
-		}
+	public void add(String word, String file, int pos) {
+		index.putIfAbsent(word, new TreeMap<String, TreeSet<Integer>>());
+		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
+		index.get(word).get(file).add(pos);
 	}
 	
+	public boolean contains(String word) {
+		return index.containsKey(word);
+	}
+	
+	public boolean contains(String word, String location) {
+		return this.contains(word) && 
+				index
+				.get(word).containsKey(location);
+	}
+	
+	public boolean contains(String word, String location, int position) {
+		return this.contains(word, location) && 
+				index.get(word)
+				.get(location)
+				.contains(position);
+	}
 	/*
 	 * TODO 
 	 * toString()
