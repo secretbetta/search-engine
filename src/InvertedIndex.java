@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -5,9 +7,7 @@ import java.util.TreeSet;
  * Data structure to store word to file(s) to position(s) in an inverted index format
  */
 public class InvertedIndex {
-	
-	// TODO private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
-	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
+	private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 	
 	/**
 	 * Initializes Inverted Index and its layers
@@ -20,6 +20,7 @@ public class InvertedIndex {
 	 * Adds word if does not exist
 	 * Adds file if does not exist
 	 * Adds position if does not exist
+	 * 
 	 * @param word The inputted word
 	 * @param file The inputted file
 	 * @param pos The inputted position
@@ -30,51 +31,81 @@ public class InvertedIndex {
 		index.get(word).get(file).add(pos);
 	}
 	
+	/**
+	 * Does index contain word?
+	 * @param word Word input
+	 * @return true if index contains word
+	 */
 	public boolean contains(String word) {
 		return index.containsKey(word);
 	}
 	
+	/**
+	 * Does index contain location in this word?
+	 * @param word Word input
+	 * @param location File input
+	 * @return true if location exist in word
+	 */
 	public boolean contains(String word, String location) {
 		return this.contains(word) && 
 				index
 				.get(word).containsKey(location);
 	}
 	
+	/**
+	 * Does position exist in file location in word?
+	 * @param word Word input
+	 * @param location Location input
+	 * @param position Position input
+	 * @return true if position exists in file and in word
+	 */
 	public boolean contains(String word, String location, int position) {
 		return this.contains(word, location) && 
 				index.get(word)
 				.get(location)
 				.contains(position);
 	}
-	/*
-	 * TODO 
-	 * toString()
-	 * 
-	 * add(String word, String file, int position)
-	 * 
-	 * public boolean contains(String word)
-	 * public boolean contains(String word, String location)
-	 * public boolean contains(String word, String location, int position)
-	 * 
-	 * public int words() returns # of words in the index
-	 * public int locations(String word)
-	 * public int positions(String word, String location)
-	 * 
-	 */
 	
-	// TODO Breaks encapsulation, need to remove
 	/**
-	 * Returns inverted index
-	 * 
-	 * @return index The class's index variable
+	 * Number of words in index
+	 * @return Number of words
 	 */
-	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
-		return index;
+	public int words() {
+		return index.size();
 	}
 	
-	/* TODO Do this instead
-	public void toJSON(Path path) {
+	/**
+	 * Gets number of locations in word
+	 * @param word Word to get locations from
+	 * @return Number of locations in word of index, -1 if word does not exist
+	 */
+	public int locations(String word) {
+		return index.containsKey(word) ? index.get(word).size() : -1;
+	}
+	
+	/**
+	 * Gets number of positions in a file of a word
+	 * @param word Word from index
+	 * @param file File from word of index
+	 * @return Number of positions in file of word, 
+	 * 		-1 if word or file location does not exist
+	 */
+	public int positions(String word, String file) {
+		return index.containsKey(word) && index.get(word).containsKey(file) 
+				? index.get(word).get(file).size() : -1;
+	}
+	
+	/**
+	 * Creates a file index in JSON format
+	 * @param path
+	 * @throws IOException
+	 */
+	public void toJSON(Path path) throws IOException {
 		NestedJSON.tripleNested(index, path);
 	}
-	*/
+	
+	@Override
+	public String toString() {
+		return index.toString();
+	}
 }

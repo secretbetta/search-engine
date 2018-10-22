@@ -7,7 +7,6 @@ import java.util.Map;
  * Creates a map of arguments
  */
 public class ArgumentMap {
-
 	private final Map<String, String> map;
 
 	/**
@@ -75,21 +74,9 @@ public class ArgumentMap {
 	 * @see String#startsWith(String)
 	 * @see String#trim()
 	 * @see String#isEmpty()
-	 * @see String#length()
 	 */
 	public boolean isValue(String arg) {
-		if (arg == null) {
-			return false;
-		}
-		
-		// TODO return (!arg.startsWith("-") && !arg.trim().isEmpty());
-		
-		if (arg.length() >= 1) {
-			if (!arg.startsWith("-") && !arg.trim().isEmpty()) {
-				return true;
-			}
-		}
-		return false;
+		return (!arg.startsWith("-") && !arg.trim().isEmpty());
 	}
 
 	/**
@@ -144,11 +131,7 @@ public class ArgumentMap {
 	 *         value if there is no mapping for the flag
 	 */
 	public String getString(String flag, String defaultValue) {
-		if (map.get(flag) != null) {
-			return map.get(flag);
-		} else {
-			return defaultValue;
-		}
+		return (map.get(flag) != null) ? map.get(flag) : defaultValue;
 	}
 
 	/**
@@ -188,7 +171,7 @@ public class ArgumentMap {
 	 *         or the default value if there is no mapping for the flag
 	 */
 	public Path getPath(String flag, Path defaultValue) {
-		if (map.containsKey(flag)) {
+		if (map.containsKey(flag) && map.get(flag) != null) {
 			return Paths.get(flag);
 		}
 		return defaultValue;

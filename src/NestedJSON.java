@@ -276,7 +276,6 @@ public class NestedJSON {
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
 	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) throws IOException {
-		//TODO User Writer writer in parameter
 		BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
 		if (!elements.isEmpty()) {
 			writer.write('{');
