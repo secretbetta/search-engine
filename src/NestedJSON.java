@@ -276,29 +276,29 @@ public class NestedJSON {
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
 	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) throws IOException {
-		BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-		if (!elements.isEmpty()) {
-			writer.write('{');
-			writer.write(System.lineSeparator());
-			for (String element : elements.headMap(elements.lastKey()).keySet()) {
-				indent(1, writer);
-				quote(element.toString(), writer);
-				writer.write(": ");
-				
-				asNestedObject(elements.get(element), writer, 1);
-				
-				writer.write(",");
+		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);) {
+			if (!elements.isEmpty()) {
+				writer.write('{');
 				writer.write(System.lineSeparator());
+				for (String element : elements.headMap(elements.lastKey()).keySet()) {
+					indent(1, writer);
+					quote(element.toString(), writer);
+					writer.write(": ");
+					
+					asNestedObject(elements.get(element), writer, 1);
+					
+					writer.write(",");
+					writer.write(System.lineSeparator());
+				}
+				
+				indent(1, writer);
+				quote(elements.lastKey().toString(), writer);
+				writer.write(": ");
+				asNestedObject(elements.get(elements.lastKey()), writer, 1);
+				writer.write(System.lineSeparator());
+				
+				writer.write('}');
 			}
-			
-			indent(1, writer);
-			quote(elements.lastKey().toString(), writer);
-			writer.write(": ");
-			asNestedObject(elements.get(elements.lastKey()), writer, 1);
-			writer.write(System.lineSeparator());
-			
-			writer.write('}');
 		}
-		writer.close();
 	}
 }

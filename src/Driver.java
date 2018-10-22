@@ -37,13 +37,14 @@ public class Driver {
 					if (path != null) {
 						files = TextFileFinder.traverse(path);
 					}
+					
 					if (files != null && invertedIndex != null) {
 						for (Path file : files) {
 							WordBuilder.getWords(file, invertedIndex);
 						}
 					}
 				} catch (NullPointerException e) {
-					System.err.println("Unable to create inverted Index. Has null elements");
+					System.err.println("Unable to create inverted Index. Has no elements");
 				} catch (IOException e) {
 					System.err.println("Unable to get path from " + path);
 				}
