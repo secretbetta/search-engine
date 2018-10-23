@@ -59,9 +59,9 @@ public class Driver {
 			}
 		}
 		
+		TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
 		try {
 			if (argmap.hasFlag("-locations")) {
-				TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
 				NestedJSON.asObject(locationIndex, locIndex);
 			}
 			
@@ -89,15 +89,9 @@ public class Driver {
 			}
 
 			if (argmap.getPath("-search") != null) {
-				Path stemmed = Paths.get("stemmedfile.txt");
 				search = argmap.getPath("-search");
 				
-				try {
-					TextFileStemmer.stemFile(search, stemmed);
-				} catch (IOException e1) {
-				}
-				
-				try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
+				try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 					String line;
 					Path path = argmap.getPath("-path");
 					
@@ -107,18 +101,25 @@ public class Driver {
 					
 					if (path != null) {
 						files = TextFileFinder.traverse(path);
+						
+						List<String> que;
 						while ((line = reader.readLine()) != null) {
+							que = TextFileStemmer.stemLine(line);
+							//The lag starts here hmmmm
+							//TODO STOP THE LAG
 							for (Path file : files) {
 								if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-									JSONReader.searcher(queries, file, invertedIndex.getIndex(), line, exact);
+									JSONReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
 								}
 							}
 						}
+						System.out.println("Completed JSONReader");
 					}
 					
 					for (String que : queries.keySet()) {
 						Collections.sort(queries.get(que));
 					}
+					System.out.println("Sorted");
 					
 					if (index != null) {
 						NestedJSON.queryObject(queries, index);

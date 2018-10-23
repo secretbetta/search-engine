@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -9,6 +10,7 @@ public class JSONReader {
 	/**
 	 * Searches through the inverted index for all the query matches. 
 	 * Outputs results in a TreeMap
+	 * @param locationIndex 
 	 * 
 	 * @param queries TreeMap data structure of Queries
 	 * @param path What files to look for
@@ -17,7 +19,12 @@ public class JSONReader {
 	 * @param exact Whether it's an exact or partial search
 	 * @throws IOException
 	 */
-	public static void searcher(TreeMap<String, ArrayList<Result>> queries, Path path, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, String query, boolean exact) throws IOException {
+	public static void searcher(TreeMap<String, Integer> locationIndex, 
+			TreeMap<String, ArrayList<Result>> queries, 
+			Path path, 
+			TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, 
+			List<String> query, 
+			boolean exact) throws IOException {
 		Result result = null;
 		String filename = path.toString();
 		double wordtotal = 0;
@@ -25,26 +32,27 @@ public class JSONReader {
 		
 		ArrayList<Result> results = new ArrayList<Result>();
 		
-		TreeSet<String> temp;
-		temp = new TreeSet<String>(TextFileStemmer.stemLine(query));
+		TreeSet<String> temp = new TreeSet<String>();
+		temp.addAll(query);
 		
-		query = "";
+		String line = "";
 		for (String w : temp.headSet(temp.last())) {
-			query += w + " ";
+			line += w + " ";
 		}
-		query += temp.last();
+		line += temp.last();
 		
 		if (exact) {
 			for (String q : temp) {
 				wordtotal = 0;
 				if (index.containsKey(q) && index.get(q).containsKey(filename)) {
-					for (String word : index.keySet()) {
-						for (String file : index.get(word).keySet()) {
-							if (file.equals(filename)) {
-								wordtotal += index.get(word).get(file).size();
-							}
-						}
-					}
+//					for (String word : index.keySet()) {
+//						for (String file : index.get(word).keySet()) {
+//							if (file.equals(filename)) {
+//								wordtotal += index.get(word).get(file).size();
+//							}
+//						}
+//					}
+					wordtotal = locationIndex.get(filename);
 					
 					wordcount = index.get(q).get(filename).size() + wordcount;
 					result = new Result(filename, wordcount, ((double)wordcount)/((double)wordtotal));
@@ -53,13 +61,8 @@ public class JSONReader {
 		} else {
 			for (String q : temp) {
 				wordtotal = 0;
-				for (String word : index.keySet()) {
-					for (String file : index.get(word).keySet()) {
-						if (file.equals(filename)) {
-							wordtotal += index.get(word).get(file).size();
-						}
-					}
-				}
+				
+				wordtotal = locationIndex.containsKey(filename) ? locationIndex.get(filename) : 1;
 				
 				for (String word : index.keySet()) {
 					if (word.startsWith(q)) {
@@ -75,17 +78,17 @@ public class JSONReader {
 		results.add(result);
 		
 		boolean containFlag = false;
-		if (queries.containsKey(query)) {
-			for (Result r : queries.get(query)) {
+		if (queries.containsKey(line)) {
+			for (Result r : queries.get(line)) {
 				if (result != null && r != null && r.file.equals(result.file)) {
 					containFlag = true;
 				}
 			}
 			if (!containFlag && result != null) {
-				queries.get(query).add(result);
+				queries.get(line).add(result);
 			}
 		} else {
-			queries.put(query, results);
+			queries.put(line, results);
 		}
 	}
 }
