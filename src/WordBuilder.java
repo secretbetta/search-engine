@@ -5,6 +5,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+/*
+TODO
+Consider renaming this class and method. You aren't "building" words, you are building an inverted index.
+And you aren't "getting" words, you are adding them to the index.
+*/
+
 /**
  * Creates an InvertedIndex in words -> file -> positions format
  * @author Andrew
@@ -29,6 +35,27 @@ public class WordBuilder {
 			String filename = file.toString();
 			
 			List<String> tempLine;
+			
+			/*
+			TODO Two efficiency issues in your while loop.
+			
+			1) stemLine(...) creates 1 stemmer object per line. This is a lot of objects
+			that get created and are only used for a short period of time. This forces the
+			Java garbage collector to run in the background cleaning up memory, and slowing
+			down your code. Create 1 stemer object here before the while loop, and reuse it
+			inside the while loop.
+			
+			2) stemLine(...) loops through the parse words and adds them to a list. Then,
+			you loop through the list and add everything to the index. This is more loops
+			than necessary, and since it happens for every line, you are essentially looping
+			through the entire file twice. 
+			
+			Efficiency is one reason why you can make a more-specific version of generalized
+			code. In this case, that means leaving stemLine(...) as it is but copy/pasting 
+			the relevant parts of that code into your while loop below. Except, instead of 
+			adding to a list, immediately add to the index without using any kind of temporary
+			storage inbetween the parsed words and the inverted index.
+			*/
 			
 			while ((line = reader.readLine()) != null) {
 				tempLine = TextFileStemmer.stemLine(line);
