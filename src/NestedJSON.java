@@ -270,6 +270,7 @@ public class NestedJSON {
 	 * Creates a triple nested reverse index in JSON format
 	 * 
 	 * @param elements The data taken in to format into JSON format
+	 * @param index Where to write the data
 	 * @return writer.toString() Whatever is written in JSON format
 	 * @throws IOException
 	 * 

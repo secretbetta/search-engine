@@ -22,7 +22,6 @@ public class Driver {
 		
 		if (argmap.hasFlag("-index")) {
 			Path index = null;
-			index = null;
 			if (argmap.getPath("-index") != null) {
 				index = argmap.getPath("-index");
 			} else {
