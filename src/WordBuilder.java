@@ -35,14 +35,13 @@ public class WordBuilder {
 			String filename = file.toString();
 			
 			List<String> tempLine;
-			
 			/*
 			TODO Two efficiency issues in your while loop.
 			
 			1) stemLine(...) creates 1 stemmer object per line. This is a lot of objects
 			that get created and are only used for a short period of time. This forces the
 			Java garbage collector to run in the background cleaning up memory, and slowing
-			down your code. Create 1 stemer object here before the while loop, and reuse it
+			down your code. Create 1 stemmer object here before the while loop, and reuse it
 			inside the while loop.
 			
 			2) stemLine(...) loops through the parse words and adds them to a list. Then,
@@ -56,9 +55,10 @@ public class WordBuilder {
 			adding to a list, immediately add to the index without using any kind of temporary
 			storage inbetween the parsed words and the inverted index.
 			*/
+			TextFileStemmer stem = new TextFileStemmer();
 			
 			while ((line = reader.readLine()) != null) {
-				tempLine = TextFileStemmer.stemLine(line);
+				tempLine = stem.stemLine(line);
 				for (String word: tempLine) {
 					if (!word.isEmpty()) {
 						invertedIndex.add(word, filename, ++pos);
