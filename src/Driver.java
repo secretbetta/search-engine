@@ -10,6 +10,28 @@ import java.util.List;
  */
 public class Driver {
 	
+	/*
+	TODO
+	Driver should not need to test for flags within nested if blocks. Simplify.
+	
+	var argmap = new ArgumentMap(args);
+	InvertedIndex invertedIndex = new InvertedIndex();
+	
+	(check -path first so index is built)
+	if (-path) {
+		build index
+	}
+	
+	(output stuff goes after building stuff)
+	if (-index) {
+		output index
+	}
+	
+	if (-locations) {
+		output locations
+	}
+	*/
+	
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
 	 * engine from files or the web.
