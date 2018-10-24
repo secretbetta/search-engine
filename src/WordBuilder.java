@@ -53,13 +53,14 @@ public class WordBuilder {
 			code. In this case, that means leaving stemLine(...) as it is but copy/pasting 
 			the relevant parts of that code into your while loop below. Except, instead of 
 			adding to a list, immediately add to the index without using any kind of temporary
-			storage inbetween the parsed words and the inverted index.
+			storage in between the parsed words and the inverted index.
 			*/
 			TextFileStemmer stem = new TextFileStemmer();
 			
 			while ((line = reader.readLine()) != null) {
-				tempLine = stem.stemLine(line);
-				for (String word: tempLine) {
+				//TODO Ask what sophie means when she says immediately add it to the index without using temp storage
+//				tempLine = stem.stemLine(line);
+				for (String word: stem.stemLine(line)) {
 					if (!word.isEmpty()) {
 						invertedIndex.add(word, filename, ++pos);
 					}
