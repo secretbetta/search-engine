@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 
 /*
 TODO
@@ -34,7 +33,7 @@ public class WordBuilder {
 			String line = null;
 			String filename = file.toString();
 			
-			List<String> tempLine;
+//			List<String> tempLine;
 			/*
 			TODO Two efficiency issues in your while loop.
 			
@@ -58,7 +57,7 @@ public class WordBuilder {
 			TextFileStemmer stem = new TextFileStemmer();
 			
 			while ((line = reader.readLine()) != null) {
-				//TODO Ask what sophie means when she says immediately add it to the index without using temp storage
+				//TODO How should I do this? I feel like this is wrong
 //				tempLine = stem.stemLine(line);
 				for (String word: stem.stemLine(line)) {
 					if (!word.isEmpty()) {
