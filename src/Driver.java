@@ -91,6 +91,7 @@ public class Driver {
 			if (argmap.getPath("-search") != null) {
 				search = argmap.getPath("-search");
 				
+				//TODO Try to clean this up
 				try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 					String line;
 					Path path = argmap.getPath("-path");
@@ -104,7 +105,7 @@ public class Driver {
 						
 						List<String> que;
 						while ((line = reader.readLine()) != null) {
-							que = TextFileStemmer.stemLine(line);
+							que = TextFileStemmer.stemLine(line); //TODO Copy code from TextFileStemmer instead of using it like this
 							//The lag starts here hmmmm
 							//TODO STOP THE LAG
 							for (Path file : files) {
@@ -112,6 +113,7 @@ public class Driver {
 									JSONReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
 								}
 							}
+							//TODO Change que to string and use cleaner on it to sort queries here
 						}
 						System.out.println("Completed JSONReader");
 					}

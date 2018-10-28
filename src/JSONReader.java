@@ -45,13 +45,6 @@ public class JSONReader {
 			for (String q : temp) {
 				wordtotal = 0;
 				if (index.containsKey(q) && index.get(q).containsKey(filename)) {
-//					for (String word : index.keySet()) {
-//						for (String file : index.get(word).keySet()) {
-//							if (file.equals(filename)) {
-//								wordtotal += index.get(word).get(file).size();
-//							}
-//						}
-//					}
 					wordtotal = locationIndex.get(filename);
 					
 					wordcount = index.get(q).get(filename).size() + wordcount;
