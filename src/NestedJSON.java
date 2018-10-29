@@ -172,6 +172,9 @@ public class NestedJSON {
 			int level) throws IOException {
 		writer.write('{');
 		writer.write(System.lineSeparator());
+		
+		// TODO No check for empty, if inside the for loop, etc. try to clean up
+		
 		for (String element : elements.keySet()) {
 			indent(level + 2, writer);
 			quote(element.toString(), writer);
@@ -249,6 +252,7 @@ public class NestedJSON {
 		writer.write('{');
 		writer.write(System.lineSeparator());
 
+		// TODO No check for empty, if inside the for loop, etc. try to clean up
 		for (String element : elements.keySet()) {
 			indent(level + 1, writer);
 			quote(element.toString(), writer);
@@ -266,6 +270,11 @@ public class NestedJSON {
 		writer.write('}');
 	}
 	
+	/*
+	 * TODO
+	 * The code below can only write to file. If you use the pattern of the other methods
+	 * the same code can write to file and to string.
+	 */
 	/**
 	 * Creates a triple nested reverse index in JSON format
 	 * 

@@ -91,6 +91,7 @@ public class InvertedIndex {
 	 * 		-1 if word or file location does not exist
 	 */
 	public int positions(String word, String file) {
+		// TODO return this.contains(word, file) && ...
 		return index.containsKey(word) && index.get(word).containsKey(file) 
 				? index.get(word).get(file).size() : -1;
 	}
