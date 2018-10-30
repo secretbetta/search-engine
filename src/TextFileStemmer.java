@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-//import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +27,6 @@ public class TextFileStemmer {
 	 * @see #stemLine(String, Stemmer)
 	 */
 	public static List<String> stemLine(String line) {
-		// This is provided for you.
 		return stemLine(line, new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH));
 	}
 
@@ -66,8 +64,8 @@ public class TextFileStemmer {
 	 * @see TextParser#parse(String)
 	 */
 	public static void stemFile(Path inputFile, Path outputFile) throws IOException {
-		try (BufferedReader reader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8); ) {
-			BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
+		try (BufferedReader reader = Files.newBufferedReader(inputFile, StandardCharsets.UTF_8);
+			BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);) {
 			List<String> words = new ArrayList<String>();
 			String line;
 			
@@ -78,8 +76,6 @@ public class TextFileStemmer {
 				}
 				writer.write("\n");
 			}
-			writer.close();
-		} catch (IOException e) {
 		}
 	}
 }

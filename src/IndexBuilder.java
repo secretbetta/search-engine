@@ -3,8 +3,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.TreeSet;
+
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
 
 /**
  * Creates an InvertedIndex in words -> file -> positions format
@@ -12,36 +14,26 @@ import java.util.TreeSet;
  *
  */
 public class IndexBuilder {
-	
 	/**
-	 * Gets words from a given text file. Adds word and position into TreeMap.
-	 * Words may have more than one position in a text file.
-	 * <p>key = word(s) from text files</p>
-	 * <p>value = position(s) of word from text files</p>
+	 * Parses a text file into stemmed words, and adds those words to an inverted index
+	 * 
 	 * @param file path to the input file
-	 * @return list list of words in text file
-	 * @throws IOException
+	 * @param invertedIndex The index to edit
+	 * @throws IOException For BufferedReader
 	 */
 	public static void getWords(Path file, InvertedIndex invertedIndex) throws IOException {
-		Path stemmed = Paths.get("stemmedfile.txt");
-		TextFileStemmer.stemFile(file, stemmed);
-		try (BufferedReader reader = Files.newBufferedReader(stemmed, StandardCharsets.UTF_8);) {
-			int position = 0;
-			var temp = new TreeSet<Integer>();
+		try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);) {
+			int pos = 0;
 			String line = null;
+			String filename = file.toString();
+			
+			Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 			
 			while ((line = reader.readLine()) != null) {
-				for (String word: line.split(" ")) {
-					if (!word.isEmpty()) {
-						temp = new TreeSet<Integer>();
-						position++;
-						
-						temp.add(position);
-						invertedIndex.addAllWordFile(word, file.toString(), temp);
-					}
+				for (String word : TextParser.parse(line)) {
+					invertedIndex.add(stem.stem(word).toString(), filename, ++pos);
 				}
 			}
 		}
 	}
-	
 }

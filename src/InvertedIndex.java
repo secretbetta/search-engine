@@ -19,29 +19,34 @@ public class InvertedIndex {
 	
 	/**
 	 * Adds word if does not exist
-	 * Adds file to word if does not exist
+	 * Adds file if does not exist
+	 * Adds position if does not exist
 	 * 
-	 * @param word the inputted word
-	 * @param filepos Treemap of file names and positions
-	 * @return true if word did not exist before
+	 * @param word The inputted word
+	 * @param file The inputted file
+	 * @param pos The inputted position
 	 */
-	public void addAllWordFile(String word, String file, TreeSet<Integer> pos) {
-		var temp = new TreeMap<String, TreeSet<Integer>>();
-		
-		if (!index.containsKey(word)) {
-			temp.put(file, pos);
-			index.put(word, temp);
-		} else if (index.get(word).containsKey(file)) {
-			index.get(word).get(file).addAll(pos);
-		} else if (!index.get(word).containsKey(file)) {
-			index.get(word).put(file, pos);
-		}
+	public void add(String word, String file, int pos) {
+		index.putIfAbsent(word, new TreeMap<String, TreeSet<Integer>>());
+		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
+		index.get(word).get(file).add(pos);
 	}
 	
+	/**
+	 * Returns word treemap
+	 * @param word Word in index
+	 * @return treemap if word exists
+	 */
 	public TreeMap<String, TreeSet<Integer>> get(String word) {
 		return this.contains(word) ? index.get(word) : null;
 	}
 	
+	/**
+	 * Returns list of ints
+	 * @param word Word in index
+	 * @param file File in word of index
+	 * @return list of ints if true
+	 */
 	public TreeSet<Integer> get(String word, String file) {
 		return this.contains(word, file) ? index.get(word).get(file) : null;
 	}
@@ -109,11 +114,6 @@ public class InvertedIndex {
 		return this.contains(word, file) ? index.get(word).get(file).size() : -1;
 	}
 	
-	@Override
-	public String toString() {
-		return index.toString();
-	}
-	
 	/**
 	 * Returns inverted index
 	 * 
@@ -130,5 +130,10 @@ public class InvertedIndex {
 	 */
 	public void toJSON(Path path) throws IOException {
 		NestedJSON.tripledNested(index, path);
+	}
+
+	@Override
+	public String toString() {
+		return index.toString();
 	}
 }
