@@ -40,14 +40,7 @@ public class Driver {
 		
 		if (argmap.hasFlag("-index")) {
 			Path index = null;
-			
-			// TODO Path index = argmap.getPath("-index", Paths.get("index.json"));
-			
-			if (argmap.getPath("-index") != null) {
-				index = argmap.getPath("-index");
-			} else {
-				index = Paths.get("index.json");
-			}
+			index = argmap.getPath("-index", Paths.get("index.json"));
 			
 			try {
 				invertedIndex.toJSON(index);

@@ -172,7 +172,7 @@ public class ArgumentMap {
 	 */
 	public Path getPath(String flag, Path defaultValue) {
 		if (map.containsKey(flag) && map.get(flag) != null) {
-			return Paths.get(flag);
+			return Paths.get(map.get(flag));
 		}
 		return defaultValue;
 	}
