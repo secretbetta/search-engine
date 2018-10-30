@@ -36,6 +36,14 @@ public class InvertedIndex {
 		}
 	}
 	
+	public TreeMap<String, TreeSet<Integer>> get(String word) {
+		return this.contains(word) ? index.get(word) : null;
+	}
+	
+	public TreeSet<Integer> get(String word, String file) {
+		return this.contains(word, file) ? index.get(word).get(file) : null;
+	}
+	
 	/**
 	 * Does index contain word?
 	 * @param word Word input
