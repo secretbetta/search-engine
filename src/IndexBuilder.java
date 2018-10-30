@@ -14,7 +14,8 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  *
  */
 public class IndexBuilder {
-	
+	// TODO Avoid describing your implementation in Javadoc, try to describe generally the functionality
+	// TODO Parses a text file into stemmed words, and adds those to an inverted index.
 	/**
 	 * Gets words from a given text file. Adds word and position into TreeMap.
 	 * Words may have more than one position in a text file.

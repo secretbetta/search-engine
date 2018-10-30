@@ -32,7 +32,7 @@ public class Driver {
 					IndexBuilder.getWords(file, invertedIndex);
 				}
 			} catch (NullPointerException e) {
-				System.err.println("Unable to create inverted Index. Has no elements");
+				System.err.println("Unable to create inverted index. Has no elements");
 			} catch (IOException e) {
 				System.err.println("Unable to get path from " + path);
 			}
@@ -40,6 +40,8 @@ public class Driver {
 		
 		if (argmap.hasFlag("-index")) {
 			Path index = null;
+			
+			// TODO Path index = argmap.getPath("-index", Paths.get("index.json"));
 			
 			if (argmap.getPath("-index") != null) {
 				index = argmap.getPath("-index");
