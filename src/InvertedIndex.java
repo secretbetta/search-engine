@@ -1,3 +1,5 @@
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -119,5 +121,14 @@ public class InvertedIndex {
 	 */
 	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
 		return index;
+	}
+	
+	/**
+	 * Creates a file index in JSON format
+	 * @param path
+	 * @throws IOException
+	 */
+	public void toJSON(Path path) throws IOException {
+		NestedJSON.tripledNested(index, path);
 	}
 }

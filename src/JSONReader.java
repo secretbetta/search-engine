@@ -25,6 +25,7 @@ public class JSONReader {
 			TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, 
 			List<String> query, 
 			boolean exact) throws IOException {
+		
 		Result result = null;
 		String filename = path.toString();
 		double wordtotal = 0;
@@ -123,14 +124,14 @@ public class JSONReader {
 				
 				wordtotal = locationIndex.containsKey(filename) ? locationIndex.get(filename) : 1;
 				
-//				for (String word : index.keySet()) {
-//					if (word.startsWith(q)) {
-//						if (index.get(word).containsKey(filename)) {
-//							wordcount = index.get(word).get(filename).size() + wordcount;
-//							result = new Result(filename, wordcount, ((double)wordcount)/((double)wordtotal));
-//						}
-//					}
-//				}
+				for (String word : index.index.keySet()) {
+					if (word.startsWith(q)) {
+						if (index.get(word).containsKey(filename)) {
+							wordcount = index.get(word).get(filename).size() + wordcount;
+							result = new Result(filename, wordcount, ((double)wordcount)/((double)wordtotal));
+						}
+					}
+				}
 				
 				
 			}

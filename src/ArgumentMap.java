@@ -7,7 +7,6 @@ import java.util.Map;
  * Creates a map of arguments
  */
 public class ArgumentMap {
-
 	private final Map<String, String> map;
 
 	/**
@@ -37,25 +36,14 @@ public class ArgumentMap {
 	 * @param args the command line arguments to parse
 	 */
 	public void parse(String[] args) {
-		if (args.length > 0) {
-			if (args.length > 1 && isFlag(args[0]) && isValue(args[1])) {
-				map.put(args[0], args[1]);
-			} else if (isFlag(args[0])) {
-				map.put(args[0], null);
-			}
-		}
-		for (int i = 1; i < args.length; i++) {
-			if (isFlag(args[i - 1]) && isValue(args[i])) {
-//				if (args.length == 2) {
-//					System.out.println(args[0] + args[1]);
-//				}
-				map.put(args[i - 1], args[i]);
-//				if (args.length == 2) {
-//					System.out.println(map.keySet());
-//				}
-			}
-			else if (isFlag(args[i])) {
-				map.put(args[i], null);
+		for (int i = 0; i < args.length; i++) {
+			if (isFlag(args[i])) {
+				if (i + 1 < args.length && isValue(args[i + 1])) {
+					map.put(args[i], args[i + 1]);
+				}
+				else {
+					map.put(args[i], null);
+				}
 			}
 		}
 	}
@@ -73,21 +61,7 @@ public class ArgumentMap {
 	 * @see String#length()
 	 */
 	public boolean isFlag(String arg) {
-		if (arg == null) {
-			return false;
-		}
-		if (arg.length() >= 1) {
-			if (arg.startsWith("-")) {
-				arg = arg.substring(1);
-				arg = arg.trim();
-				if (arg.isEmpty()) {
-					return false;
-				} else {
-					return true;
-				}
-			}
-		}
-		return false;
+		 return arg.startsWith("-") && arg.trim().length() > 1;
 	}
 
 	/**
@@ -100,18 +74,9 @@ public class ArgumentMap {
 	 * @see String#startsWith(String)
 	 * @see String#trim()
 	 * @see String#isEmpty()
-	 * @see String#length()
 	 */
 	public boolean isValue(String arg) {
-		if (arg == null) {
-			return false;
-		}
-		if (arg.length() >= 1) {
-			if (!arg.startsWith("-") && !arg.trim().isEmpty()) {
-				return true;
-			}
-		}
-		return false;
+		return (!arg.startsWith("-") && !arg.trim().isEmpty());
 	}
 
 	/**
@@ -140,8 +105,7 @@ public class ArgumentMap {
 	 * @return {@code true} if the flag is mapped to a non-null value
 	 */
 	public boolean hasValue(String flag) {
-//		return hasFlag(flag) && map.get(flag) != null;
-		return map.containsValue(flag);
+		return map.containsKey(flag) && map.get(flag) != null;
 	}
 
 	/**
@@ -167,11 +131,7 @@ public class ArgumentMap {
 	 *         value if there is no mapping for the flag
 	 */
 	public String getString(String flag, String defaultValue) {
-		if (map.get(flag) != null) {
-			return map.get(flag);
-		} else {
-			return defaultValue;
-		}
+		return (map.get(flag) != null) ? map.get(flag) : defaultValue;
 	}
 
 	/**
@@ -211,10 +171,8 @@ public class ArgumentMap {
 	 *         or the default value if there is no mapping for the flag
 	 */
 	public Path getPath(String flag, Path defaultValue) {
-		for (String key: map.keySet()) {
-			if (flag.equals(map.get(key))) {
-				return Paths.get(flag);
-			}
+		if (map.containsKey(flag) && map.get(flag) != null) {
+			return Paths.get(map.get(flag));
 		}
 		return defaultValue;
 	}

@@ -11,7 +11,7 @@ import java.util.TreeSet;
  * @author Andrew
  *
  */
-public class WordBuilder {
+public class IndexBuilder {
 	
 	/**
 	 * Gets words from a given text file. Adds word and position into TreeMap.
