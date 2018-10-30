@@ -110,11 +110,10 @@ public class JSONReader {
 		if (exact) {
 			for (String q : temp) {
 				wordtotal = 0;
-//				if (index.containsKey(q) && index.get(q).containsKey(filename)) {
 				if (index.contains(q, filename)) {
 					wordtotal = locationIndex.get(filename);
 					
-					wordcount = index.get(q).get(filename).size() + wordcount;
+					wordcount = index.get(q, filename).size() + wordcount;
 					result = new Result(filename, wordcount, ((double)wordcount)/((double)wordtotal));
 				}
 			}
@@ -132,6 +131,8 @@ public class JSONReader {
 //						}
 //					}
 //				}
+				
+				
 			}
 		}
 		
