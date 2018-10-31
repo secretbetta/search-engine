@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -95,6 +94,7 @@ public class NestedJSON {
 	 */
 	public static void asArray(TreeSet<Integer> elements, Writer writer,
 			int level) throws IOException {
+		
 		if (!elements.isEmpty()) {
 			writer.write('[');
 			writer.write(System.lineSeparator());
@@ -174,17 +174,25 @@ public class NestedJSON {
 			int level) throws IOException {
 		writer.write('{');
 		writer.write(System.lineSeparator());
-		for (String element : elements.keySet()) {
-			indent(level + 2, writer);
-			quote(element.toString(), writer);
-			writer.write(": ");
-			writer.write(elements.get(element).toString());
-			
-			if (!element.equals(elements.lastKey()))
+		if (!elements.isEmpty()) {
+			for (String element : elements.headMap(elements.lastKey()).keySet()) {
+				indent(level + 2, writer);
+				quote(element.toString(), writer);
+				writer.write(": ");
+				writer.write(elements.get(element).toString());
+				
 				writer.write(",");
-			
+				
+				writer.write(System.lineSeparator());
+			}
+			indent(level + 2, writer);
+			quote(elements.lastKey().toString(), writer);
+			writer.write(": ");
+			writer.write(elements.get(elements.lastKey()).toString());
 			writer.write(System.lineSeparator());
 		}
+		
+		
 		indent(level, writer);
 		writer.write('}');
 	}
@@ -198,7 +206,6 @@ public class NestedJSON {
 	 * @see #asNestedObject(TreeMap, Writer, int)
 	 */
 	public static String asNestedObject(TreeMap<String, TreeSet<Integer>> elements) {
-		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY.
 		try {
 			StringWriter writer = new StringWriter();
 			asNestedObject(elements, writer, 0);
@@ -251,58 +258,104 @@ public class NestedJSON {
 		writer.write('{');
 		writer.write(System.lineSeparator());
 
-		for (String element : elements.keySet()) {
-			indent(level + 1, writer);
-			quote(element.toString(), writer);
-
-			writer.write(": ");
-			
-			asArray(elements.get(element), writer, level + 1);
-			
-			if (!element.equals(elements.lastKey()))
+		if (!elements.isEmpty()) {
+			for (String element : elements.headMap(elements.lastKey()).keySet()) {
+				indent(level + 1, writer);
+				quote(element.toString(), writer);
+	
+				writer.write(": ");
+				
+				asArray(elements.get(element), writer, level + 1);
+				
 				writer.write(",");
+				writer.write(System.lineSeparator());
+			}
+			
+			indent(level + 1, writer);
+			quote(elements.lastKey().toString(), writer);
+			writer.write(": ");
+			asArray(elements.get(elements.lastKey()), writer, level + 1);
 			writer.write(System.lineSeparator());
 		}
+		
 		
 		indent(level, writer);
 		writer.write('}');
 	}
 	
 	/**
+	 * Creates an inverted index version of elements in JSON format
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @return {@link String} containing the elements in pretty JSON format
+	 *
+	 * @see #tripleNested(TreeMap, Writer, int)
+	 */
+	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements) {
+		try {
+			StringWriter writer = new StringWriter();
+			tripleNested(elements, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * Creates tripleNested inverted index in JSON format
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @param path     the path to the file write to output
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see #tripleNested(TreeMap, Writer, int)
+	 */
+	public static void tripledNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements,
+			Path path) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path,
+				StandardCharsets.UTF_8)) {
+			tripleNested(elements, writer, 0);
+		}
+	}
+	
+	/**
 	 * Creates a triple nested reverse index in JSON format
 	 * 
 	 * @param elements The data taken in to format into JSON format
+	 * @param index Where to write the data
 	 * @return writer.toString() Whatever is written in JSON format
 	 * @throws IOException
 	 * 
 	 * @see {@link #asNestedObject(TreeMap, Writer, int)}
 	 */
-	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, Path index) {
-		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
-			
+	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements,
+			Writer writer,
+			int level) throws IOException {
+		if (!elements.isEmpty()) {
+			indent(level, writer);
 			writer.write('{');
 			writer.write(System.lineSeparator());
+			
 			for (String element : elements.headMap(elements.lastKey()).keySet()) {
-				indent(1, writer);
+				indent(level + 1, writer);
 				quote(element.toString(), writer);
 				writer.write(": ");
 				
-				asNestedObject(elements.get(element), writer, 1);
+				asNestedObject(elements.get(element), writer, level + 1);
 				
 				writer.write(",");
 				writer.write(System.lineSeparator());
 			}
 			
-			indent(1, writer);
+			indent(level + 1, writer);
 			quote(elements.lastKey().toString(), writer);
 			writer.write(": ");
-			asNestedObject(elements.get(elements.lastKey()), writer, 1);
+			asNestedObject(elements.get(elements.lastKey()), writer, level + 1);
 			writer.write(System.lineSeparator());
 			
+			indent(level, writer);
 			writer.write('}');
-		} catch (NoSuchElementException e) {
-			System.err.println("No such element");
-		} catch (IOException e) { 
 		}
 	}
 	
