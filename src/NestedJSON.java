@@ -175,7 +175,7 @@ public class NestedJSON {
 		writer.write('{');
 		writer.write(System.lineSeparator());
 		
-		if (elements.isEmpty()) {
+		if (!elements.isEmpty()) {
 			for (String element : elements.headMap(elements.lastKey()).keySet()) {
 				indent(level + 2, writer);
 				quote(element.toString(), writer);

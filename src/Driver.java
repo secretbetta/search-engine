@@ -57,12 +57,8 @@ public class Driver {
 			} else {
 				locIndex = Paths.get("out", "index-text-locations.json");
 			}
-//			TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
-//			try {
-//				NestedJSON.asObject(locationIndex, locIndex);
-//			} catch (IOException e) {
-//			}
 		}
+		
 		TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
 		try {
 			if (locIndex != null) {
@@ -71,7 +67,6 @@ public class Driver {
 		} catch (IOException e) {
 		}
 		
-//		Path index = null;
 		if (argmap.hasFlag("-results")) {
 			Path index;
 			if (argmap.getPath("-results") != null) {
@@ -92,13 +87,13 @@ public class Driver {
 
 				if (argmap.getPath("-search") != null) {
 					search = argmap.getPath("-search");
+					String line;
+					Path path = argmap.getPath("-path");
+					
+					TreeMap<String, ArrayList<Result>> queries = new TreeMap<String, ArrayList<Result>>();
 					
 					//TODO Try to clean this up
 					try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-						String line;
-						Path path = argmap.getPath("-path");
-						
-						TreeMap<String, ArrayList<Result>> queries = new TreeMap<String, ArrayList<Result>>();
 						
 						ArrayList<Path> files = null;
 						
