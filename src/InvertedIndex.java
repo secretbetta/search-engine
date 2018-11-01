@@ -32,6 +32,25 @@ public class InvertedIndex {
 	}
 	
 	/**
+	 * Returns word treemap
+	 * @param word Word in index
+	 * @return treemap if word exists
+	 */
+	public TreeMap<String, TreeSet<Integer>> get(String word) {
+		return this.contains(word) ? index.get(word) : null;
+	}
+	
+	/**
+	 * Returns list of ints
+	 * @param word Word in index
+	 * @param file File in word of index
+	 * @return list of ints if true
+	 */
+	public TreeSet<Integer> get(String word, String file) {
+		return this.contains(word, file) ? index.get(word).get(file) : null;
+	}
+	
+	/**
 	 * Does index contain word?
 	 * @param word Word input
 	 * @return true if index contains word
@@ -103,6 +122,20 @@ public class InvertedIndex {
 		NestedJSON.tripledNested(index, path);
 	}
 	
+	@Override
+	public String toString() {
+		return index.toString();
+	}
+	
+	/**
+	 * Creates a file index in JSON format
+	 * @param path
+	 * @throws IOException
+	 */
+	public void toJSON(Path path) throws IOException {
+		NestedJSON.tripledNested(index, path);
+	}
+
 	@Override
 	public String toString() {
 		return index.toString();

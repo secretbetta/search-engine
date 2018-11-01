@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -174,7 +175,7 @@ public class NestedJSON {
 		writer.write('{');
 		writer.write(System.lineSeparator());
 		
-		if (elements.isEmpty()) {
+		if (!elements.isEmpty()) {
 			for (String element : elements.headMap(elements.lastKey()).keySet()) {
 				indent(level + 2, writer);
 				quote(element.toString(), writer);
@@ -190,9 +191,8 @@ public class NestedJSON {
 			writer.write(": ");
 			writer.write(elements.get(elements.lastKey()).toString());
 			writer.write(System.lineSeparator());
-		}
-		
-		
+    }
+      
 		indent(level, writer);
 		writer.write('}');
 	}
@@ -356,6 +356,100 @@ public class NestedJSON {
 			
 			indent(level, writer);
 			writer.write('}');
+		}
+	}
+	
+	/**
+	 * Writes the query inverted index
+	 * @param queries The querymap
+	 * @param index Where to write it
+	 * 
+	 * @throws IOException
+	 */
+	public static void queryObject(TreeMap<String, ArrayList<Result>> queries, Path index) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
+			writer.write("[");
+			writer.write(System.lineSeparator());
+			
+			if (!queries.isEmpty()) {
+				for (String query : queries.headMap(queries.lastKey()).keySet()) {
+					NestedJSON.indent(1, writer);
+					
+					writer.write("{");
+					writer.write(System.lineSeparator());
+					NestedJSON.indent(2, writer);
+					
+					writer.write("\"queries\": \"");
+					writer.write(query);
+					writer.write("\",");
+					writer.write(System.lineSeparator());
+					NestedJSON.indent(2, writer);
+					
+					writer.write("\"results\": [");
+					writer.write(System.lineSeparator());
+					for (int i = 0; i < queries.get(query).size() - 1; i++) {
+						if (queries.get(query).get(i) != null) { 
+							writer.write(queries.get(query).get(i).toString());
+							writer.write(",");
+							writer.write(System.lineSeparator());
+						}
+						
+					}
+					
+					if (queries.get(query).get(queries.get(query).size() - 1) != null) {
+						writer.write(queries.get(query).get(queries.get(query).size()-1).toString());
+						writer.write(System.lineSeparator());
+					}
+					
+					NestedJSON.indent(2, writer);
+					writer.write("]");
+					writer.write(System.lineSeparator());
+					NestedJSON.indent(1, writer);
+					
+					writer.write("}");
+					writer.write(",");
+					writer.write(System.lineSeparator());
+				}
+				NestedJSON.indent(1, writer);
+				
+				writer.write("{");
+				writer.write(System.lineSeparator());
+				NestedJSON.indent(2, writer);
+				
+				writer.write("\"queries\": \"");
+				writer.write(queries.lastKey());
+				writer.write("\",");
+				writer.write(System.lineSeparator());
+				NestedJSON.indent(2, writer);
+				
+				writer.write("\"results\": [");
+				writer.write(System.lineSeparator());
+				
+				for (int i = 0; i < queries.get(queries.lastKey()).size() - 1; i++) {
+					if (queries.get(queries.lastKey()).get(i) != null) { 
+						writer.write(queries.get(queries.lastKey()).get(i).toString());
+						writer.write(",");
+						writer.write(System.lineSeparator());
+					}
+				}
+				
+				if (queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size() - 1) != null) {
+					writer.write(queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size()-1).toString());
+					writer.write(System.lineSeparator());
+				}
+				
+				NestedJSON.indent(2, writer);
+				writer.write("]");
+				writer.write(System.lineSeparator());
+				NestedJSON.indent(1, writer);
+				
+				writer.write("}");
+				writer.write(System.lineSeparator());
+			}
+			
+			writer.write("]");
+		} catch (IOException e) {
+			
 		}
 	}
 }

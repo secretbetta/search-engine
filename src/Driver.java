@@ -1,15 +1,20 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.TreeMap;
 
 /**
- * Driver of the project codes
+ * Driver of Project Codes
  * @author Andrew
  *
  */
 public class Driver {
-	
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
 	 * engine from files or the web.
@@ -49,12 +54,78 @@ public class Driver {
 			}
 		}
 		
+		Path locIndex = null;
 		if (argmap.hasFlag("-locations")) {
-			Path locIndex;
 			if (argmap.getPath("-locations") != null) {
 				locIndex = argmap.getPath("-locations");
 			} else {
 				locIndex = Paths.get("out", "index-text-locations.json");
+			}
+		}
+		
+		TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
+		try {
+			if (locIndex != null) {
+				NestedJSON.asObject(locationIndex, locIndex);
+			}
+		} catch (IOException e) {
+			System.err.println("Cannot write to file " + locIndex);
+		}
+		
+		TreeMap<String, ArrayList<Result>> queries = null;
+		if (argmap.hasFlag("-search")) {
+			boolean exact;
+			Path search;
+			
+			if (argmap.hasFlag("-exact")) {
+				exact = true;
+			} else {
+				exact = false;
+			}
+
+			search = argmap.getPath("-search");
+			String line;
+			Path path = argmap.getPath("-path");
+			
+			queries = new TreeMap<String, ArrayList<Result>>();
+			
+			try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
+				
+				ArrayList<Path> files = null;
+				
+				if (path != null) {
+					files = TextFileFinder.traverse(path);
+					
+					List<String> que;
+					
+					while ((line = reader.readLine()) != null) {
+						que = TextFileStemmer.stemLine(line);
+						for (Path file : files) {
+							if (!(line = TextParser.clean(line).trim()).isEmpty()) {
+								IndexReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
+							}
+						}
+					}
+				}
+				
+				for (String que : queries.keySet()) {
+					Collections.sort(queries.get(que));
+				}
+			} catch (IOException e) {
+				System.err.println("Cannot read from path " + search);
+			}
+		}
+		
+		if (argmap.hasFlag("-results")) {
+			Path index;
+			index = argmap.getPath("-results", Paths.get("results.json"));
+			
+			try {
+				NestedJSON.queryObject(queries, index);
+			} catch (NullPointerException e) {
+				System.err.println("Cannot write query from empty index");
+			} catch (IOException e) {
+				System.err.println("Cannot write query at path " + index);
 			}
 		}
 	}
