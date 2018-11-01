@@ -7,8 +7,7 @@ import java.util.TreeSet;
  * Data structure to store word to file(s) to position(s) in an inverted index format
  */
 public class InvertedIndex {
-	
-	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
+	private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 	
 	/**
 	 * Initializes Inverted Index and its layers
@@ -115,12 +114,17 @@ public class InvertedIndex {
 	}
 	
 	/**
-	 * Returns inverted index
-	 * 
-	 * @return index The class's index variable
+	 * Creates a file index in JSON format
+	 * @param path
+	 * @throws IOException
 	 */
-	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
-		return index;
+	public void toJSON(Path path) throws IOException {
+		NestedJSON.tripledNested(index, path);
+	}
+	
+	@Override
+	public String toString() {
+		return index.toString();
 	}
 	
 	/**

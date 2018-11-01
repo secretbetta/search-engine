@@ -191,8 +191,8 @@ public class NestedJSON {
 			writer.write(": ");
 			writer.write(elements.get(elements.lastKey()).toString());
 			writer.write(System.lineSeparator());
-		}
-		
+    }
+      
 		indent(level, writer);
 		writer.write('}');
 	}
