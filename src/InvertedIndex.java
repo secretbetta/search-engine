@@ -113,18 +113,13 @@ public class InvertedIndex {
 		return this.contains(word, file) ? index.get(word).get(file).size() : -1;
 	}
 	
-	/**
-	 * Creates a file index in JSON format
-	 * @param path
-	 * @throws IOException
-	 */
-	public void toJSON(Path path) throws IOException {
-		NestedJSON.tripledNested(index, path);
-	}
-	
 	@Override
 	public String toString() {
 		return index.toString();
+	}
+	
+	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
+		return index;
 	}
 	
 	/**
@@ -134,10 +129,5 @@ public class InvertedIndex {
 	 */
 	public void toJSON(Path path) throws IOException {
 		NestedJSON.tripledNested(index, path);
-	}
-
-	@Override
-	public String toString() {
-		return index.toString();
 	}
 }

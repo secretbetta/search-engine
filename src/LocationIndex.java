@@ -16,12 +16,12 @@ public class LocationIndex {
 		int wordcount = 0;
 		var locationIndex = new TreeMap<String, Integer>();
 		
-		for (String word : index.index.keySet()) {
-			for (String file : index.index.get(word).keySet()) {
+		for (String word : index.getIndex().keySet()) {
+			for (String file : index.getIndex().get(word).keySet()) {
 				if (locationIndex.containsKey(file)) {
-					wordcount = index.index.get(word).get(file).size() + locationIndex.get(file);
+					wordcount = index.getIndex().get(word).get(file).size() + locationIndex.get(file);
 				} else {
-					wordcount = index.index.get(word).get(file).size();
+					wordcount = index.getIndex().get(word).get(file).size();
 				}
 				locationIndex.put(file, wordcount);
 			}
