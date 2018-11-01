@@ -23,7 +23,7 @@ public class JSONReader {
 			TreeMap<String, ArrayList<Result>> queries, 
 			Path path, 
 			TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, 
-			List<String> query, 
+			List<String> query,
 			boolean exact) throws IOException {
 		
 		Result result = null;
@@ -90,8 +90,9 @@ public class JSONReader {
 			TreeMap<String, ArrayList<Result>> queries, 
 			Path path, 
 			InvertedIndex index, 
-			List<String> query, 
+			String query, 
 			boolean exact) throws IOException {
+		
 		Result result = null;
 		String filename = path.toString();
 		double wordtotal = 0;
@@ -100,7 +101,7 @@ public class JSONReader {
 		ArrayList<Result> results = new ArrayList<Result>();
 		
 		TreeSet<String> temp = new TreeSet<String>();
-		temp.addAll(query);
+//		temp.addAll(query);
 		
 		String line = "";
 		for (String w : temp.headSet(temp.last())) {

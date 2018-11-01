@@ -10,6 +10,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
+/**
+ * Driver of Project Codes
+ * @author Andrew
+ *
+ */
 public class Driver {
 	/**
 	 * Parses the command-line arguments to build and use an in-memory search
@@ -101,24 +109,31 @@ public class Driver {
 							files = TextFileFinder.traverse(path);
 							
 							List<String> que;
+//							String que;
+							Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+							
 							while ((line = reader.readLine()) != null) {
-								que = TextFileStemmer.stemLine(line); //TODO Copy code from TextFileStemmer instead of using it like this
+//								que = stem.stem(TextParser.clean(line)).toString(); //TODO Copy code from TextFileStemmer instead of using it like this
+								que = TextFileStemmer.stemLine(line);
+//								System.out.println(que);
 								//The lag starts here hmmmm
 								//TODO STOP THE LAG
 								for (Path file : files) {
 									if (!(line = TextParser.clean(line).trim()).isEmpty()) {
 										JSONReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
+//										JSONReader.searcher(locationIndex, queries, file, invertedIndex, que, exact);
 									}
 								}
+								
 								//TODO Change que to string and use cleaner on it to sort queries here
 							}
-							System.out.println("Completed JSONReader");
+//							System.out.println("Completed JSONReader");
 						}
 						
 						for (String que : queries.keySet()) {
 							Collections.sort(queries.get(que));
 						}
-						System.out.println("Sorted");
+//						System.out.println("Sorted");
 						
 						if (index != null) {
 							NestedJSON.queryObject(queries, index);
@@ -143,73 +158,5 @@ public class Driver {
 				}
 			}
 		}
-		
-//		if (argmap.hasFlag("-search")) {
-//			boolean exact;
-//			Path search;
-//			
-//			if (argmap.hasFlag("-exact")) {
-//				exact = true;
-//			} else {
-//				exact = false;
-//			}
-//
-//			if (argmap.getPath("-search") != null) {
-//				search = argmap.getPath("-search");
-//				
-//				//TODO Try to clean this up
-//				try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-//					String line;
-//					Path path = argmap.getPath("-path");
-//					
-//					TreeMap<String, ArrayList<Result>> queries = new TreeMap<String, ArrayList<Result>>();
-//					
-//					ArrayList<Path> files = null;
-//					
-//					if (path != null) {
-//						files = TextFileFinder.traverse(path);
-//						
-//						List<String> que;
-//						while ((line = reader.readLine()) != null) {
-//							que = TextFileStemmer.stemLine(line); //TODO Copy code from TextFileStemmer instead of using it like this
-//							//The lag starts here hmmmm
-//							//TODO STOP THE LAG
-//							for (Path file : files) {
-//								if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-//									JSONReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
-//								}
-//							}
-//							//TODO Change que to string and use cleaner on it to sort queries here
-//						}
-//						System.out.println("Completed JSONReader");
-//					}
-//					
-//					for (String que : queries.keySet()) {
-//						Collections.sort(queries.get(que));
-//					}
-//					System.out.println("Sorted");
-//					
-//					if (index != null) {
-//						NestedJSON.queryObject(queries, index);
-//					}
-//				} catch (IOException e) {
-//				}
-//			}
-//		} else {
-//			//Had to do this weird thing to complete EmptyQuery
-//			if (argmap.hasFlag("-results")) {
-//				try {
-//					if (argmap.getPath("-results") != null) {
-//						index = Paths.get(argmap.getPath("-results").toString());
-//					} else {
-//						index = Paths.get("results.json");
-//					}
-//					BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-//					writer.write("[\n]");
-//					writer.close();
-//				} catch (IOException e) {
-//				}
-//			}
-//		}
 	}
 }

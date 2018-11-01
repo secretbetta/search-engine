@@ -174,6 +174,7 @@ public class NestedJSON {
 			int level) throws IOException {
 		writer.write('{');
 		writer.write(System.lineSeparator());
+		
 		if (!elements.isEmpty()) {
 			for (String element : elements.headMap(elements.lastKey()).keySet()) {
 				indent(level + 2, writer);
@@ -191,7 +192,6 @@ public class NestedJSON {
 			writer.write(elements.get(elements.lastKey()).toString());
 			writer.write(System.lineSeparator());
 		}
-		
 		
 		indent(level, writer);
 		writer.write('}');
