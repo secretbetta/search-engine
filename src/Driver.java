@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -9,9 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
-
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * Driver of Project Codes
@@ -73,89 +69,63 @@ public class Driver {
 				NestedJSON.asObject(locationIndex, locIndex);
 			}
 		} catch (IOException e) {
+			System.err.println("Cannot write to file " + locIndex);
+		}
+		
+		TreeMap<String, ArrayList<Result>> queries = null;
+		if (argmap.hasFlag("-search")) {
+			boolean exact;
+			Path search;
+			
+			if (argmap.hasFlag("-exact")) {
+				exact = true;
+			} else {
+				exact = false;
+			}
+
+			search = argmap.getPath("-search");
+			String line;
+			Path path = argmap.getPath("-path");
+			
+			queries = new TreeMap<String, ArrayList<Result>>();
+			
+			try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
+				
+				ArrayList<Path> files = null;
+				
+				if (path != null) {
+					files = TextFileFinder.traverse(path);
+					
+					List<String> que;
+					
+					while ((line = reader.readLine()) != null) {
+						que = TextFileStemmer.stemLine(line);
+						for (Path file : files) {
+							if (!(line = TextParser.clean(line).trim()).isEmpty()) {
+								IndexReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
+							}
+						}
+					}
+				}
+				
+				for (String que : queries.keySet()) {
+					Collections.sort(queries.get(que));
+				}
+			} catch (IOException e) {
+				System.err.println("Cannot read from path " + search);
+			}
 		}
 		
 		if (argmap.hasFlag("-results")) {
 			Path index;
-			if (argmap.getPath("-results") != null) {
-				index = Paths.get(argmap.getPath("-results").toString());
-			} else {
-				index = Paths.get("results.json");
-			}
+			index = argmap.getPath("-results", Paths.get("results.json"));
 			
-			if (argmap.hasFlag("-search")) {
-				boolean exact;
-				Path search;
-				
-				if (argmap.hasFlag("-exact")) {
-					exact = true;
-				} else {
-					exact = false;
-				}
-
-				if (argmap.getPath("-search") != null) {
-					search = argmap.getPath("-search");
-					String line;
-					Path path = argmap.getPath("-path");
-					
-					TreeMap<String, ArrayList<Result>> queries = new TreeMap<String, ArrayList<Result>>();
-					
-					//TODO Try to clean this up
-					try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-						
-						ArrayList<Path> files = null;
-						
-						if (path != null) {
-							files = TextFileFinder.traverse(path);
-							
-							List<String> que;
-//							String que;
-							Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-							
-							while ((line = reader.readLine()) != null) {
-//								que = stem.stem(TextParser.clean(line)).toString(); //TODO Copy code from TextFileStemmer instead of using it like this
-								que = TextFileStemmer.stemLine(line);
-//								System.out.println(que);
-								//The lag starts here hmmmm
-								//TODO STOP THE LAG
-								for (Path file : files) {
-									if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-										JSONReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
-//										JSONReader.searcher(locationIndex, queries, file, invertedIndex, que, exact);
-									}
-								}
-								
-								//TODO Change que to string and use cleaner on it to sort queries here
-							}
-//							System.out.println("Completed JSONReader");
-						}
-						
-						for (String que : queries.keySet()) {
-							Collections.sort(queries.get(que));
-						}
-//						System.out.println("Sorted");
-						
-						if (index != null) {
-							NestedJSON.queryObject(queries, index);
-						}
-					} catch (IOException e) {
-					}
-				}
-			} else {
-				//Had to do this weird thing to complete EmptyQuery
-				if (argmap.hasFlag("-results")) {
-					try {
-						if (argmap.getPath("-results") != null) {
-							index = Paths.get(argmap.getPath("-results").toString());
-						} else {
-							index = Paths.get("results.json");
-						}
-						BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
-						writer.write("[\n]");
-						writer.close();
-					} catch (IOException e) {
-					}
-				}
+			try {
+				NestedJSON.queryObject(queries, index);
+			} catch (NullPointerException e) {
+				System.err.println("Cannot write query from empty index");
+			} catch (IOException e) {
+				System.err.println("Cannot write query at path " + index);
 			}
 		}
 	}
