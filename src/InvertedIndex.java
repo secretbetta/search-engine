@@ -25,7 +25,7 @@ public class InvertedIndex {
 	 * @param file The inputted file
 	 * @param pos The inputted position
 	 */
-	public void add(String word, String file, int pos) {
+	public synchronized void add(String word, String file, int pos) {
 		index.putIfAbsent(word, new TreeMap<String, TreeSet<Integer>>());
 		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
 		index.get(word).get(file).add(pos);
@@ -89,7 +89,7 @@ public class InvertedIndex {
 	 * Number of words in index
 	 * @return Number of words
 	 */
-	public int words() {
+	public int size() {
 		return index.size();
 	}
 	
@@ -118,6 +118,10 @@ public class InvertedIndex {
 		return index.toString();
 	}
 	
+	/**
+	 * Gets TreeMap type index
+	 * @return index TreeMap of index
+	 */
 	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
 		return index;
 	}

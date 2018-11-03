@@ -21,7 +21,7 @@ public class IndexBuilder {
 	 * @param invertedIndex The index to edit
 	 * @throws IOException For BufferedReader
 	 */
-	public static void getWords(Path file, InvertedIndex invertedIndex) throws IOException {
+	public synchronized static void getWords(Path file, InvertedIndex invertedIndex) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8);) {
 			int pos = 0;
 			String line = null;
@@ -36,4 +36,6 @@ public class IndexBuilder {
 			}
 		}
 	}
+	
+	
 }

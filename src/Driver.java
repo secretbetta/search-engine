@@ -26,6 +26,11 @@ public class Driver {
 		var argmap = new ArgumentMap(args);
 		InvertedIndex invertedIndex = new InvertedIndex();
 		
+		int threads = 1;
+		if (argmap.hasFlag("-threads")) {
+			threads = argmap.getInt("-threads", 5);
+		}
+		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
 			List<Path> files = null;

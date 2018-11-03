@@ -449,7 +449,7 @@ public class NestedJSON {
 			
 			writer.write("]");
 		} catch (IOException e) {
-			
+			System.err.println("Cannot write to file " + index);
 		}
 	}
 }
