@@ -1,12 +1,7 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -24,7 +19,7 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
-		InvertedIndex invertedIndex = new ThreadSafeInvertedIndex();
+		ThreadSafeInvertedIndex invertedIndex = new ThreadSafeInvertedIndex();
 		
 		int threads = 1;
 		if (argmap.hasFlag("-threads")) {
@@ -35,7 +30,8 @@ public class Driver {
 			Path path = argmap.getPath("-path");
 			
 			try {
-				TextFileFinder.traverse(path, invertedIndex, threads);
+				ArrayList<Path> files = TextFileFinder.traverse(path);
+				TextFileFinder.builder(invertedIndex, files, threads);
 			} catch (NullPointerException e) {
 				System.err.println("Unable to create inverted index. Has no elements");
 			} catch (IOException e) {
@@ -84,36 +80,11 @@ public class Driver {
 			}
 
 			search = argmap.getPath("-search");
-			String line;
 			Path path = argmap.getPath("-path");
 			
 			queries = new TreeMap<String, ArrayList<Result>>();
 			
-			try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-				
-				ArrayList<Path> files = null;
-				
-				if (path != null) {
-					files = TextFileFinder.traverse(path);
-					
-					List<String> que;
-					
-					while ((line = reader.readLine()) != null) {
-						que = TextFileStemmer.stemLine(line);
-						for (Path file : files) {
-							if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-								IndexReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
-							}
-						}
-					}
-				}
-				
-				for (String que : queries.keySet()) {
-					Collections.sort(queries.get(que));
-				}
-			} catch (IOException e) {
-				System.err.println("Cannot read from path " + search);
-			}
+			IndexReader.search(path, search, locationIndex, invertedIndex, queries, exact, threads);
 		}
 		
 		if (argmap.hasFlag("-results")) {

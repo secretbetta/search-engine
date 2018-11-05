@@ -14,6 +14,7 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  *
  */
 public class IndexBuilder {
+	
 	/**
 	 * Parses a text file into stemmed words, and adds those words to an inverted index
 	 * 

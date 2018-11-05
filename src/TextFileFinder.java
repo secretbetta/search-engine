@@ -16,9 +16,8 @@ public class TextFileFinder {
 	 * @throws IOException
 	 */
 	public static ArrayList<Path> traverse(Path path) throws IOException {
-		ArrayList<Path> files = new ArrayList<Path>();
-		
 		String filename;
+		ArrayList<Path> files = new ArrayList<Path>();
 		
 		if (Files.isDirectory(path)) {
 			try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
@@ -37,38 +36,15 @@ public class TextFileFinder {
 		return files;
 	}
 	
-	public static void traverse(Path path, InvertedIndex index) throws IOException {
-		String filename;
+	public static void builder(InvertedIndex index, ArrayList<Path> files, int threads) throws IOException {
+		WorkQueue queue = new WorkQueue(threads);
 		
-		if (Files.isDirectory(path)) {
-			try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
-				for (Path file : listing) {
-					traverse(file, index);
-				}
-			}
-		} else {
-			filename = path.getFileName().toString().toLowerCase();
-			
-			if (filename.endsWith(".txt") || filename.endsWith(".text")) {
-				IndexBuilder.buildWords(path, index);
-			}
+		for (Path file : files) {
+			queue.execute(new Traverser(file, index));
 		}
-	}
-	
-	public static void traverse(Path path, InvertedIndex index, int threads) throws IOException {
-		if (Files.isDirectory(path)) {
-			try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
-				for (Path file : listing) {
-					traverse(file, index);
-				}
-			}
-		} else {
-			String filename = path.getFileName().toString().toLowerCase();
-			
-			if (filename.endsWith(".txt") || filename.endsWith(".text")) {
-				IndexBuilder.buildWords(path, index);
-			}
-		}
+		
+		queue.finish();
+		queue.shutdown();
 	}
 	
 	/**
@@ -76,7 +52,7 @@ public class TextFileFinder {
 	 * @author Andrew
 	 *
 	 */
-	public static class Traverser extends Thread {
+	public static class Traverser implements Runnable {
 
 		InvertedIndex index;
 		Path path;
@@ -88,30 +64,11 @@ public class TextFileFinder {
 		
 		@Override
 		public void run() {
-			if (Files.isDirectory(path)) {
-				try (DirectoryStream<Path> listing = Files.newDirectoryStream(path)) {
-					for (Path file : listing) {
-						Thread worker = new Traverser(file, index);
-						worker.start();
-					}
-				} catch (IOException e) {
-					System.err.println("Path is not a valid path: " + path);
-				}
-			} else {
-				String filename = path.getFileName().toString().toLowerCase();
-				
-				if (filename.endsWith(".txt") || filename.endsWith(".text")) {
-					try {
-						IndexBuilder.buildWords(path, index);
-					} catch (IOException e) {
-						System.err.println("Cannot build index from " + path.toString());
-					}
-				}
+			try {
+				IndexBuilder.buildWords(path, index);
+			} catch (IOException e) {
+				System.err.println("Cannot build index from path " + path);
 			}
-			
-			synchronized(index) {
-				
-			}
-		}	
+		}
 	}
 }
