@@ -85,4 +85,7 @@ public class IndexReader {
 			queries.put(line, results);
 		}
 	}
+	
+	
+	
 }

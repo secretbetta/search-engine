@@ -24,7 +24,7 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
-		InvertedIndex invertedIndex = new InvertedIndex();
+		InvertedIndex invertedIndex = new ThreadSafeInvertedIndex();
 		
 		int threads = 1;
 		if (argmap.hasFlag("-threads")) {
@@ -33,14 +33,9 @@ public class Driver {
 		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
-			List<Path> files = null;
 			
 			try {
-				files = TextFileFinder.traverse(path);
-				
-				for (Path file : files) {
-					IndexBuilder.getWords(file, invertedIndex);
-				}
+				TextFileFinder.traverse(path, invertedIndex, threads);
 			} catch (NullPointerException e) {
 				System.err.println("Unable to create inverted index. Has no elements");
 			} catch (IOException e) {
@@ -133,5 +128,7 @@ public class Driver {
 				System.err.println("Cannot write query at path " + index);
 			}
 		}
+		
+		
 	}
 }

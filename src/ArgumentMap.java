@@ -156,7 +156,8 @@ public class ArgumentMap {
 	 *         value if there is no mapping for the flag
 	 */
 	public int getInt(String flag, int defaultValue) {
-		return (map.get(flag) != null) ? (int)map.get(flag) : defaultValue;
+		System.out.println();
+		return (map.get(flag) != null) ? Integer.parseInt(map.get(flag).toString()) : defaultValue;
 	}
 
 	/**
