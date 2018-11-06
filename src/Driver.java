@@ -72,7 +72,7 @@ public class Driver {
 			System.err.println("Cannot write to file " + locIndex);
 		}
 		
-		TreeMap<String, ArrayList<Result>> queries = null;
+		TreeMap<String, ArrayList<Result>> queries = null; // TODO Move this into IndexReader class (might rename that class)
 		if (argmap.hasFlag("-search")) {
 			boolean exact;
 			Path search;
