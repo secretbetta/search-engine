@@ -43,6 +43,7 @@ public class IndexReader {
 		line += temp.last();
 		
 		if (exact) {
+			// TODO Move this into an exactSearch(...) method in index.
 			for (String q : temp) {
 				wordtotal = 0;
 				if (index.containsKey(q) && index.get(q).containsKey(filename)) {

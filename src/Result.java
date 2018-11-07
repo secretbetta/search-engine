@@ -2,6 +2,13 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 
+/*
+ * TODO
+ * Make the members private and create getters and setters.
+ * Want the ability to change the number of matches (trigger updates to the score calculation).
+ * Want to simplify the score calculation.
+ */
+
 /**
  * Data structure that stores results of a query
  * @author Andrew
@@ -9,8 +16,10 @@ import java.text.DecimalFormat;
  */
 public class Result implements Comparable<Result> {
 	public final String file;
-	public final int count;
-	public final double score;
+	public final int count; // TODO not final
+	public final double score; // TODO not final
+	
+	// TODO private final int total; (total words for this file)
 	
 	/**
 	 * Initializes file, count, and score
@@ -18,10 +27,11 @@ public class Result implements Comparable<Result> {
 	 * @param count wordcount
 	 * @param score score of words
 	 */
+	// TODO Result(String file, int count, int total)
 	public Result(String file, int count, double score) {
 		this.file = file;
 		this.count = count;
-		this.score = score;
+		this.score = score; // TODO calculate this from the (double) count / total
 	}
 	
 	/**
