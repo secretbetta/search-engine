@@ -1,5 +1,8 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -8,13 +11,14 @@ import java.util.TreeSet;
  */
 public class InvertedIndex {
 	private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
-	// TODO TreeMap<String, Integer>() locationIndex;
+	private final TreeMap<String, Integer> locationIndex;
 	
 	/**
 	 * Initializes Inverted Index and its layers
 	 */
 	public InvertedIndex() {
 		this.index = new TreeMap<>();
+		this.locationIndex = new TreeMap<>();
 	}
 	
 	/**
@@ -31,32 +35,8 @@ public class InvertedIndex {
 		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
 		index.get(word).get(file).add(pos);
 		
-		// TODO Update the location index here every time you add
-	}
-
-	/*
-	 * TODO Breaks encapsulation
-	 */
-	/**
-	 * Returns word treemap
-	 * @param word Word in index
-	 * @return treemap if word exists
-	 */
-	public TreeMap<String, TreeSet<Integer>> get(String word) {
-		return this.contains(word) ? index.get(word) : null;
-	}
-	
-	/*
-	 * TODO Breaks encapsulation
-	 */
-	/**
-	 * Returns list of ints
-	 * @param word Word in index
-	 * @param file File in word of index
-	 * @return list of ints if true
-	 */
-	public TreeSet<Integer> get(String word, String file) {
-		return this.contains(word, file) ? index.get(word).get(file) : null;
+		locationIndex.putIfAbsent(file, 0);
+		locationIndex.put(file, locationIndex.get(file) + 1);
 	}
 	
 	/**
@@ -127,18 +107,6 @@ public class InvertedIndex {
 		return index.toString();
 	}
 	
-	/*
-	 * TODO Breaks encapsulation.
-	 * 
-	 * Did the data we are breaking encapsulation for need to be a private member in the first place?
-	 * Yes, we need the index as a member.
-	 * 
-	 * In that case, you need to add more functionality to this class where you have access to the private data. 
-	 */
-	public TreeMap<String, TreeMap<String, TreeSet<Integer>>> getIndex() {
-		return index;
-	}
-	
 	/**
 	 * Creates a file index in JSON format
 	 * @param path
@@ -146,6 +114,15 @@ public class InvertedIndex {
 	 */
 	public void toJSON(Path path) throws IOException {
 		NestedJSON.tripledNested(index, path);
+	}
+	
+	/**
+	 * Creates a file location index in JSON format
+	 * @param locIndex
+	 * @throws IOException 
+	 */
+	public void locationtoJSON(Path locIndex) throws IOException {
+		NestedJSON.asObject(this.locationIndex, locIndex);
 	}
 	
 	/*
@@ -169,4 +146,40 @@ public class InvertedIndex {
 	
 	public List<Result> partialSearch(Collection<String> queryWords) {
 	 */
+	
+	public ArrayList<Result> exactSearch(Collection<String> query) {
+		ArrayList<Result> resultList = new ArrayList<Result>();
+		int wordcount = 0;
+		boolean exists;
+		
+		
+		for (String que : query) {
+			if (this.contains(que)) {
+				for (String loc : this.index.get(que).keySet()) {
+					exists = false;
+					wordcount = this.index.get(que).get(loc).size();
+					
+					for (Result r : resultList) {
+						if (r.file.equals(loc)) {
+							r.add(wordcount);
+							exists = true;
+						}
+					}
+					
+					if (!exists) {
+						resultList.add(new Result(loc, wordcount, this.locationIndex.get(loc)));
+					}
+				}
+			}
+		}
+		
+		System.out.println(resultList);
+		Collections.sort(resultList);
+		return resultList;
+	}
+	
+	public ArrayList<Result> partialSearch(Collection<String> queryWords) {
+		ArrayList<Result> resultList = new ArrayList<Result>();
+		return resultList;
+	}
 }

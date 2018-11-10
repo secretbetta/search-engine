@@ -1,11 +1,7 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -61,15 +57,12 @@ public class Driver {
 			} else {
 				locIndex = Paths.get("out", "index-text-locations.json");
 			}
-		}
-		
-		TreeMap<String, Integer> locationIndex = LocationIndex.indexLocation(invertedIndex);
-		try {
-			if (locIndex != null) {
-				NestedJSON.asObject(locationIndex, locIndex);
+			
+			try {
+				invertedIndex.locationtoJSON(locIndex);
+			} catch (IOException e) {
+				System.err.println("Cannot write to file " + locIndex);
 			}
-		} catch (IOException e) {
-			System.err.println("Cannot write to file " + locIndex);
 		}
 		
 		TreeMap<String, ArrayList<Result>> queries = null; // TODO Move this into IndexReader class (might rename that class)
@@ -89,31 +82,37 @@ public class Driver {
 			
 			queries = new TreeMap<String, ArrayList<Result>>();
 			
-			try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-				
-				ArrayList<Path> files = null;
-				
-				if (path != null) {
-					files = TextFileFinder.traverse(path);
-					
-					List<String> que;
-					
-					while ((line = reader.readLine()) != null) {
-						que = TextFileStemmer.stemLine(line);
-						for (Path file : files) {
-							if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-								IndexReader.searcher(locationIndex, queries, file, invertedIndex.getIndex(), que, exact);
-							}
-						}
-					}
-				}
-				
-				for (String que : queries.keySet()) {
-					Collections.sort(queries.get(que));
-				}
+			try {
+				QueryBuilder.builder(search, path, exact, invertedIndex, queries);
 			} catch (IOException e) {
-				System.err.println("Cannot read from path " + search);
+				System.err.println("Cannot build query");
 			}
+			
+//			try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
+//				
+//				ArrayList<Path> files = null;
+//				
+//				if (path != null) {
+//					files = TextFileFinder.traverse(path);
+//					
+//					List<String> que;
+//					
+//					while ((line = reader.readLine()) != null) {
+//						que = TextFileStemmer.stemLine(line);
+//						for (Path file : files) {
+//							if (!(line = TextParser.clean(line).trim()).isEmpty()) {
+//								IndexReader.searcher(locationIndex, queries, file, invertedIndex, que, exact);
+//							}
+//						}
+//					}
+//				}
+//				
+//				for (String que : queries.keySet()) {
+//					Collections.sort(queries.get(que));
+//				}
+//			} catch (IOException e) {
+//				System.err.println("Cannot read from path " + search);
+//			}
 		}
 		
 		if (argmap.hasFlag("-results")) {

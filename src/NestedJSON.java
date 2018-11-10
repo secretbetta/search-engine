@@ -396,7 +396,7 @@ public class NestedJSON {
 						
 					}
 					
-					if (queries.get(query).get(queries.get(query).size() - 1) != null) {
+					if (!queries.get(query).isEmpty()) {
 						writer.write(queries.get(query).get(queries.get(query).size()-1).toString());
 						writer.write(System.lineSeparator());
 					}
@@ -433,7 +433,7 @@ public class NestedJSON {
 					}
 				}
 				
-				if (queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size() - 1) != null) {
+				if (!queries.isEmpty() && !queries.get(queries.lastKey()).isEmpty() && queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size() - 1) != null) {
 					writer.write(queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size()-1).toString());
 					writer.write(System.lineSeparator());
 				}

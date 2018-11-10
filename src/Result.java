@@ -16,10 +16,9 @@ import java.text.DecimalFormat;
  */
 public class Result implements Comparable<Result> {
 	public final String file;
-	public final int count; // TODO not final
-	public final double score; // TODO not final
-	
-	// TODO private final int total; (total words for this file)
+	private int count;
+	private final int wordtotal;
+	private double score;
 	
 	/**
 	 * Initializes file, count, and score
@@ -27,11 +26,21 @@ public class Result implements Comparable<Result> {
 	 * @param count wordcount
 	 * @param score score of words
 	 */
-	// TODO Result(String file, int count, int total)
-	public Result(String file, int count, double score) {
+	public Result(String file, int count, int wordtotal) {
 		this.file = file;
 		this.count = count;
-		this.score = score; // TODO calculate this from the (double) count / total
+		this.wordtotal = wordtotal;
+//		this.score = score; // TODO calculate this from the (double) count / total
+	}
+	
+	//TODO an update method
+	public void add(int count) {
+		this.count += count;
+		score = (double)(this.count / this.wordtotal);
+	}
+	
+	public String getFile() {
+		return this.file;
 	}
 	
 	/**
@@ -41,6 +50,8 @@ public class Result implements Comparable<Result> {
 		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
 		DecimalFormat INT = new DecimalFormat("0");
 		StringWriter writer = new StringWriter();
+		
+		this.score = (double)this.count / this.wordtotal;
 		
 		try {
 			NestedJSON.indent(3, writer);
