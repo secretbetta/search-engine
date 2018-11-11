@@ -14,10 +14,10 @@ public class Result implements Comparable<Result> {
 	private double score;
 	
 	/**
-	 * Initializes file, count, and score
+	 * Initializes file, count, wordtotal, and score
 	 * @param file filename
 	 * @param count wordcount
-	 * @param score score of words
+	 * @param wordtotal total amount of words
 	 */
 	public Result(String file, int count, int wordtotal) {
 		this.file = file;

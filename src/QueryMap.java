@@ -13,7 +13,7 @@ import java.util.TreeSet;
  *
  */
 public class QueryMap {
-	private TreeMap<String, ArrayList<Result>> query;
+	private final TreeMap<String, ArrayList<Result>> query;
 	
 	public QueryMap() {
 		this.query = new TreeMap<>();
