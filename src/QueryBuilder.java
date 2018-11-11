@@ -16,11 +16,8 @@ public class QueryBuilder {
 			TreeMap<String, ArrayList<Result>> query) throws IOException {
 		
 		BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);
-		ArrayList<Path> files = null;
 		
 		if (path != null) {
-			files = TextFileFinder.traverse(path);
-			
 			TreeSet<String> que;
 			String line;
 			
@@ -39,6 +36,8 @@ public class QueryBuilder {
 				if (!(word.isEmpty())) {
 					if (exact) {
 						query.put(word, index.exactSearch(que));
+					} else {
+						query.put(word, index.partialSearch(que));
 					}
 				}
 			}

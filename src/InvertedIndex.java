@@ -125,28 +125,6 @@ public class InvertedIndex {
 		NestedJSON.asObject(this.locationIndex, locIndex);
 	}
 	
-	/*
-	 * TODO
-	public List<Result> exactSearch(Collection<String> queryWords) {
-		List<Result> resultList = ...
-		
-		for every query word...
-			if the query word is a key in our index
-				for every location for that key in our index
-					if we have already created a result for this location
-					(just loop through the result list and test the location.equals(...))
-						update the number of matches for that result
-					else
-						add a new result to our list
-		
-		
-		Collections.sort(resultList);
-		return resultList;
-	}
-	
-	public List<Result> partialSearch(Collection<String> queryWords) {
-	 */
-	
 	public ArrayList<Result> exactSearch(Collection<String> query) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
 		int wordcount = 0;
@@ -160,7 +138,7 @@ public class InvertedIndex {
 					wordcount = this.index.get(que).get(loc).size();
 					
 					for (Result r : resultList) {
-						if (r.file.equals(loc)) {
+						if (r.getFile().equals(loc)) {
 							r.add(wordcount);
 							exists = true;
 						}
@@ -173,13 +151,36 @@ public class InvertedIndex {
 			}
 		}
 		
-		System.out.println(resultList);
 		Collections.sort(resultList);
 		return resultList;
 	}
 	
-	public ArrayList<Result> partialSearch(Collection<String> queryWords) {
+	public ArrayList<Result> partialSearch(Collection<String> query) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
+		int wordcount = 0;
+		boolean exists;
+		
+		for (String que : query) {
+			//TODO Instead of contains, it's startswith
+//			if (this.contains(que)) {
+				for (String loc : this.index.get(que).keySet()) {
+					exists = false;
+					wordcount = this.index.get(que).get(loc).size();
+					
+					for (Result r : resultList) {
+						if (r.getFile().equals(loc)) {
+							r.add(wordcount);
+							exists = true;
+						}
+					}
+					
+					if (!exists) {
+						resultList.add(new Result(loc, wordcount, this.locationIndex.get(loc)));
+					}
+				}
+//			}
+		}
+		
 		return resultList;
 	}
 }

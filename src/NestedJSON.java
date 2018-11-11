@@ -367,49 +367,12 @@ public class NestedJSON {
 	 * @throws IOException
 	 */
 	public static void queryObject(TreeMap<String, ArrayList<Result>> queries, Path index) throws IOException {
-		try (BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8)) {
-			writer.write("[");
-			writer.write(System.lineSeparator());
-			
-			if (!queries.isEmpty()) {
-				for (String query : queries.headMap(queries.lastKey()).keySet()) {
-					NestedJSON.indent(1, writer);
-					
-					writer.write("{");
-					writer.write(System.lineSeparator());
-					NestedJSON.indent(2, writer);
-					
-					writer.write("\"queries\": \"");
-					writer.write(query);
-					writer.write("\",");
-					writer.write(System.lineSeparator());
-					NestedJSON.indent(2, writer);
-					
-					writer.write("\"results\": [");
-					writer.write(System.lineSeparator());
-					for (int i = 0; i < queries.get(query).size() - 1; i++) {
-						if (queries.get(query).get(i) != null) { 
-							writer.write(queries.get(query).get(i).toString());
-							writer.write(",");
-							writer.write(System.lineSeparator());
-						}
-						
-					}
-					
-					if (!queries.get(query).isEmpty()) {
-						writer.write(queries.get(query).get(queries.get(query).size()-1).toString());
-						writer.write(System.lineSeparator());
-					}
-					
-					NestedJSON.indent(2, writer);
-					writer.write("]");
-					writer.write(System.lineSeparator());
-					NestedJSON.indent(1, writer);
-					
-					writer.write("}");
-					writer.write(",");
-					writer.write(System.lineSeparator());
-				}
+		BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+		writer.write("[");
+		writer.write(System.lineSeparator());
+		
+		if (!queries.isEmpty()) {
+			for (String query : queries.headMap(queries.lastKey()).keySet()) {
 				NestedJSON.indent(1, writer);
 				
 				writer.write("{");
@@ -417,7 +380,7 @@ public class NestedJSON {
 				NestedJSON.indent(2, writer);
 				
 				writer.write("\"queries\": \"");
-				writer.write(queries.lastKey());
+				writer.write(query);
 				writer.write("\",");
 				writer.write(System.lineSeparator());
 				NestedJSON.indent(2, writer);
@@ -425,16 +388,17 @@ public class NestedJSON {
 				writer.write("\"results\": [");
 				writer.write(System.lineSeparator());
 				
-				for (int i = 0; i < queries.get(queries.lastKey()).size() - 1; i++) {
-					if (queries.get(queries.lastKey()).get(i) != null) { 
-						writer.write(queries.get(queries.lastKey()).get(i).toString());
+				for (int i = 0; i < queries.get(query).size() - 1; i++) {
+					if (queries.get(query).get(i) != null) { 
+						writer.write(queries.get(query).get(i).toString());
 						writer.write(",");
 						writer.write(System.lineSeparator());
 					}
+					
 				}
 				
-				if (!queries.isEmpty() && !queries.get(queries.lastKey()).isEmpty() && queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size() - 1) != null) {
-					writer.write(queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size()-1).toString());
+				if (!queries.get(query).isEmpty()) {
+					writer.write(queries.get(query).get(queries.get(query).size()-1).toString());
 					writer.write(System.lineSeparator());
 				}
 				
@@ -444,12 +408,47 @@ public class NestedJSON {
 				NestedJSON.indent(1, writer);
 				
 				writer.write("}");
+				writer.write(",");
+				writer.write(System.lineSeparator());
+			}
+			NestedJSON.indent(1, writer);
+			
+			writer.write("{");
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(2, writer);
+			
+			writer.write("\"queries\": \"");
+			writer.write(queries.lastKey());
+			writer.write("\",");
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(2, writer);
+			
+			writer.write("\"results\": [");
+			writer.write(System.lineSeparator());
+			
+			for (int i = 0; i < queries.get(queries.lastKey()).size() - 1; i++) {
+				if (queries.get(queries.lastKey()).get(i) != null) { 
+					writer.write(queries.get(queries.lastKey()).get(i).toString());
+					writer.write(",");
+					writer.write(System.lineSeparator());
+				}
+			}
+			
+			if (!queries.isEmpty() && !queries.get((queries.lastKey())).isEmpty()) {
+				writer.write(queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size()-1).toString());
 				writer.write(System.lineSeparator());
 			}
 			
+			NestedJSON.indent(2, writer);
 			writer.write("]");
-		} catch (IOException e) {
+			writer.write(System.lineSeparator());
+			NestedJSON.indent(1, writer);
 			
+			writer.write("}");
+			writer.write(System.lineSeparator());
 		}
+		
+		writer.write("]");
+		writer.close();
 	}
 }

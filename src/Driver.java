@@ -77,7 +77,7 @@ public class Driver {
 			}
 
 			search = argmap.getPath("-search");
-			String line;
+			
 			Path path = argmap.getPath("-path");
 			
 			queries = new TreeMap<String, ArrayList<Result>>();
@@ -87,32 +87,6 @@ public class Driver {
 			} catch (IOException e) {
 				System.err.println("Cannot build query");
 			}
-			
-//			try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-//				
-//				ArrayList<Path> files = null;
-//				
-//				if (path != null) {
-//					files = TextFileFinder.traverse(path);
-//					
-//					List<String> que;
-//					
-//					while ((line = reader.readLine()) != null) {
-//						que = TextFileStemmer.stemLine(line);
-//						for (Path file : files) {
-//							if (!(line = TextParser.clean(line).trim()).isEmpty()) {
-//								IndexReader.searcher(locationIndex, queries, file, invertedIndex, que, exact);
-//							}
-//						}
-//					}
-//				}
-//				
-//				for (String que : queries.keySet()) {
-//					Collections.sort(queries.get(que));
-//				}
-//			} catch (IOException e) {
-//				System.err.println("Cannot read from path " + search);
-//			}
 		}
 		
 		if (argmap.hasFlag("-results")) {

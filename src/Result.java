@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
  *
  */
 public class Result implements Comparable<Result> {
-	public final String file;
+	private final String file;
 	private int count;
 	private final int wordtotal;
 	private double score;
@@ -30,17 +30,48 @@ public class Result implements Comparable<Result> {
 		this.file = file;
 		this.count = count;
 		this.wordtotal = wordtotal;
-//		this.score = score; // TODO calculate this from the (double) count / total
+		this.score = (double)(this.count / (double)this.wordtotal);
 	}
 	
-	//TODO an update method
+	/**
+	 * Updates count and score
+	 * @param count Additional word count
+	 */
 	public void add(int count) {
 		this.count += count;
-		score = (double)(this.count / this.wordtotal);
+		score = (double)(this.count / (double)this.wordtotal);
 	}
 	
+	/**
+	 * Gets filename
+	 * @return {@link #file}
+	 */
 	public String getFile() {
 		return this.file;
+	}
+	
+	/**
+	 * Gets count of words
+	 * @return {@link #count}
+	 */
+	public int getCount() {
+		return this.count;
+	}
+	
+	/**
+	 * Gets total words
+	 * @return {@link #wordtotal}
+	 */
+	public int getTotal() {
+		return this.wordtotal;
+	}
+	
+	/**
+	 * Gets score
+	 * @return {@link #score}
+	 */
+	public double getScore() {
+		return this.score;
 	}
 	
 	/**
@@ -50,8 +81,6 @@ public class Result implements Comparable<Result> {
 		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
 		DecimalFormat INT = new DecimalFormat("0");
 		StringWriter writer = new StringWriter();
-		
-		this.score = (double)this.count / this.wordtotal;
 		
 		try {
 			NestedJSON.indent(3, writer);
@@ -79,7 +108,7 @@ public class Result implements Comparable<Result> {
 			writer.write("}");
 			return writer.toString();
 		} catch (IOException e) {
-			
+			System.err.println("Cannot write to JSON");
 		}
 		
 		return writer.toString();
@@ -89,13 +118,12 @@ public class Result implements Comparable<Result> {
 	 * Overriden compareTo method from Comparable for
 	 * comparing results by score, then count, then file name
 	 * 
-	 * return -1 if the same or this values are great than, 1 if less than
+	 * return difference of values, 0 if equal
 	 */
 	@Override
 	public int compareTo(Result result) {
 		if (this != null && result != null) {
 			int val = Double.compare(result.score, this.score);
-			
 			if (val == 0) {
 				val = Integer.compare(result.count, this.count);
 				if (val == 0) {
