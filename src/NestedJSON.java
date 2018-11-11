@@ -360,19 +360,54 @@ public class NestedJSON {
 	}
 	
 	/**
+	 * Writes query map in JSON format
+	 *
+	 * @param elements the elements to convert to JSON
+	 * @return {@link String} containing the elements in pretty JSON format
+	 *
+	 * @see #queryObject(TreeMap, Writer, int)
+	 */
+	public static String queryObject(TreeMap<String, ArrayList<Result>> query) {
+		try {
+			StringWriter writer = new StringWriter();
+			queryObject(query, writer, 0);
+			return writer.toString();
+		}
+		catch (IOException e) {
+			return null;
+		}
+	}
+	
+	/**
+	 * Writes query map in JSON format
+	 *
+	 * @param queries the query to convert to JSON
+	 * @param path     the path to the file write to output
+	 * @throws IOException if the writer encounters any issues
+	 *
+	 * @see #queryObject(TreeMap, Writer, int)
+	 */
+	public static void queryObject(TreeMap<String, ArrayList<Result>> query,
+			Path path) throws IOException {
+		try (BufferedWriter writer = Files.newBufferedWriter(path,
+				StandardCharsets.UTF_8)) {
+			queryObject(query, writer, 0);
+		}
+	}
+	
+	/**
 	 * Writes the query inverted index
-	 * @param queries The querymap
+	 * @param queries The query map
 	 * @param index Where to write it
 	 * 
 	 * @throws IOException
 	 */
-	public static void queryObject(TreeMap<String, ArrayList<Result>> queries, Path index) throws IOException {
-		BufferedWriter writer = Files.newBufferedWriter(index, StandardCharsets.UTF_8);
+	public static void queryObject(TreeMap<String, ArrayList<Result>> query, Writer writer, int level) throws IOException {
 		writer.write("[");
 		writer.write(System.lineSeparator());
 		
-		if (!queries.isEmpty()) {
-			for (String query : queries.headMap(queries.lastKey()).keySet()) {
+		if (!query.isEmpty()) {
+			for (String que : query.headMap(query.lastKey()).keySet()) {
 				NestedJSON.indent(1, writer);
 				
 				writer.write("{");
@@ -380,7 +415,7 @@ public class NestedJSON {
 				NestedJSON.indent(2, writer);
 				
 				writer.write("\"queries\": \"");
-				writer.write(query);
+				writer.write(que);
 				writer.write("\",");
 				writer.write(System.lineSeparator());
 				NestedJSON.indent(2, writer);
@@ -388,17 +423,16 @@ public class NestedJSON {
 				writer.write("\"results\": [");
 				writer.write(System.lineSeparator());
 				
-				for (int i = 0; i < queries.get(query).size() - 1; i++) {
-					if (queries.get(query).get(i) != null) { 
-						writer.write(queries.get(query).get(i).toString());
-						writer.write(",");
-						writer.write(System.lineSeparator());
+				if (!query.get(que).isEmpty()) {
+					for (int i = 0; i < query.get(que).size() - 1; i++) {
+						if (query.get(que).get(i) != null) { 
+							writer.write(query.get(que).get(i).toString());
+							writer.write(",");
+							writer.write(System.lineSeparator());
+						}
+						
 					}
-					
-				}
-				
-				if (!queries.get(query).isEmpty()) {
-					writer.write(queries.get(query).get(queries.get(query).size()-1).toString());
+					writer.write(query.get(que).get(query.get(que).size()-1).toString());
 					writer.write(System.lineSeparator());
 				}
 				
@@ -418,7 +452,7 @@ public class NestedJSON {
 			NestedJSON.indent(2, writer);
 			
 			writer.write("\"queries\": \"");
-			writer.write(queries.lastKey());
+			writer.write(query.lastKey());
 			writer.write("\",");
 			writer.write(System.lineSeparator());
 			NestedJSON.indent(2, writer);
@@ -426,16 +460,16 @@ public class NestedJSON {
 			writer.write("\"results\": [");
 			writer.write(System.lineSeparator());
 			
-			for (int i = 0; i < queries.get(queries.lastKey()).size() - 1; i++) {
-				if (queries.get(queries.lastKey()).get(i) != null) { 
-					writer.write(queries.get(queries.lastKey()).get(i).toString());
-					writer.write(",");
-					writer.write(System.lineSeparator());
+			if (!query.get(query.lastKey()).isEmpty()) {
+				for (int i = 0; i < query.get(query.lastKey()).size() - 1; i++) {
+					if (query.get(query.lastKey()).get(i) != null) { 
+						writer.write(query.get(query.lastKey()).get(i).toString());
+						writer.write(",");
+						writer.write(System.lineSeparator());
+					}
 				}
-			}
-			
-			if (!queries.isEmpty() && !queries.get((queries.lastKey())).isEmpty()) {
-				writer.write(queries.get(queries.lastKey()).get(queries.get(queries.lastKey()).size()-1).toString());
+				
+				writer.write(query.get(query.lastKey()).get(query.get(query.lastKey()).size()-1).toString());
 				writer.write(System.lineSeparator());
 			}
 			
@@ -447,8 +481,6 @@ public class NestedJSON {
 			writer.write("}");
 			writer.write(System.lineSeparator());
 		}
-		
 		writer.write("]");
-		writer.close();
 	}
 }

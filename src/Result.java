@@ -2,13 +2,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DecimalFormat;
 
-/*
- * TODO
- * Make the members private and create getters and setters.
- * Want the ability to change the number of matches (trigger updates to the score calculation).
- * Want to simplify the score calculation.
- */
-
 /**
  * Data structure that stores results of a query
  * @author Andrew
@@ -77,6 +70,7 @@ public class Result implements Comparable<Result> {
 	/**
 	 * Default output of Results in JSON format
 	 */
+	@Override
 	public String toString() {
 		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
 		DecimalFormat INT = new DecimalFormat("0");

@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  * Driver of Project Codes
@@ -20,7 +18,7 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
-		InvertedIndex invertedIndex = new InvertedIndex();
+		var invertedIndex = new InvertedIndex();
 		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
@@ -65,27 +63,23 @@ public class Driver {
 			}
 		}
 		
-		TreeMap<String, ArrayList<Result>> queries = null; // TODO Move this into IndexReader class (might rename that class)
+		var query = new QueryMap();
 		if (argmap.hasFlag("-search")) {
-			boolean exact;
-			Path search;
 			
+			boolean exact;
 			if (argmap.hasFlag("-exact")) {
 				exact = true;
 			} else {
 				exact = false;
 			}
 
-			search = argmap.getPath("-search");
-			
+			Path search = argmap.getPath("-search");
 			Path path = argmap.getPath("-path");
 			
-			queries = new TreeMap<String, ArrayList<Result>>();
-			
 			try {
-				QueryBuilder.builder(search, path, exact, invertedIndex, queries);
+				query.builder(search, path, exact, invertedIndex);
 			} catch (IOException e) {
-				System.err.println("Cannot build query");
+				System.err.println("Cannot build query map");
 			}
 		}
 		
@@ -94,7 +88,7 @@ public class Driver {
 			index = argmap.getPath("-results", Paths.get("results.json"));
 			
 			try {
-				NestedJSON.queryObject(queries, index);
+				query.toJSON(index);
 			} catch (NullPointerException e) {
 				System.err.println("Cannot write query from empty index");
 			} catch (IOException e) {

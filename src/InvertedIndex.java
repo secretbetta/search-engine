@@ -102,11 +102,6 @@ public class InvertedIndex {
 		return this.contains(word, file) ? index.get(word).get(file).size() : -1;
 	}
 	
-	@Override
-	public String toString() {
-		return index.toString();
-	}
-	
 	/**
 	 * Creates a file index in JSON format
 	 * @param path
@@ -125,11 +120,16 @@ public class InvertedIndex {
 		NestedJSON.asObject(this.locationIndex, locIndex);
 	}
 	
+	/**
+	 * Exact index search, returns arraylist of Results that
+	 * matches words from query words with index words
+	 * @param query Query words to match
+	 * @return resultList ArrayList of Result
+	 */
 	public ArrayList<Result> exactSearch(Collection<String> query) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
 		int wordcount = 0;
 		boolean exists;
-		
 		
 		for (String que : query) {
 			if (this.contains(que)) {
@@ -155,32 +155,45 @@ public class InvertedIndex {
 		return resultList;
 	}
 	
+	/**
+	 * Partial index search, returns arraylist of Results that
+	 * matches all words starting with query words
+	 * @param query Query words
+	 * @return resultList ArrayList of Results
+	 */
 	public ArrayList<Result> partialSearch(Collection<String> query) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
 		int wordcount = 0;
 		boolean exists;
 		
 		for (String que : query) {
-			//TODO Instead of contains, it's startswith
-//			if (this.contains(que)) {
-				for (String loc : this.index.get(que).keySet()) {
-					exists = false;
-					wordcount = this.index.get(que).get(loc).size();
-					
-					for (Result r : resultList) {
-						if (r.getFile().equals(loc)) {
-							r.add(wordcount);
-							exists = true;
+			for (String word : this.index.keySet()) {
+				if (word.startsWith(que)) {
+					for (String loc : this.index.get(word).keySet()) {
+						exists = false;
+						wordcount = this.index.get(word).get(loc).size();
+						
+						for (Result r : resultList) {
+							if (r.getFile().equals(loc)) {
+								r.add(wordcount);
+								exists = true;
+							}
+						}
+						
+						if (!exists) {
+							resultList.add(new Result(loc, wordcount, this.locationIndex.get(loc)));
 						}
 					}
-					
-					if (!exists) {
-						resultList.add(new Result(loc, wordcount, this.locationIndex.get(loc)));
-					}
 				}
-//			}
+			}
 		}
 		
+		Collections.sort(resultList);
 		return resultList;
+	}
+
+	@Override
+	public String toString() {
+		return index.toString();
 	}
 }
