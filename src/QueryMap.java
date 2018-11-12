@@ -13,9 +13,13 @@ import java.util.TreeSet;
  *
  */
 public class QueryMap {
-	private TreeMap<String, ArrayList<Result>> query;
+	private TreeMap<String, ArrayList<Result>> query; // TODO final
+	// TODO private final InvertedIndex index;
 	
-	public QueryMap() {
+	/**
+	 * TODO
+	 */
+	public QueryMap() { // TODO Take the index as a parameter here
 		this.query = new TreeMap<>();
 	}
 	
@@ -30,28 +34,33 @@ public class QueryMap {
 	 * @throws IOException
 	 */
 	public void builder(Path search, 
-			Path path, 
+			Path path, // TODO Remove??
 			boolean exact, 
-			InvertedIndex index) throws IOException {
+			InvertedIndex index) throws IOException { // TODO Remove as a parameter here
+		
+		// TODO try-with-resources
 		BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);
 		
 		if (path != null) {
-			TreeSet<String> que;
+			TreeSet<String> que; // TODO Better variable names
 			String line;
 			
+			// TODO Maybe create a stemmer object here
+			
 			while ((line = reader.readLine()) != null) {
-				String word = "";
+				String word = ""; // TODO Rename to queryLine
 				que = new TreeSet<String>();
-				que.addAll(TextFileStemmer.stemLine(line));
+				que.addAll(TextFileStemmer.stemLine(line)); // TODO Time to improve stemLine?? (See TextFileStemmer)
 				
 				if (!que.isEmpty()) {
+					// TODO String concatenation!!!!! String.join(" ", que)
 					for (String w : que.headSet(que.last())) {
 						word += w + " ";
 					}
 					word += que.last();
 				}
 				
-				if (!(word.isEmpty())) {
+				if (!(word.isEmpty()) /* TODO && !this.query.containsKey(queryLine) */) {
 					if (exact) {
 						this.query.put(word, index.exactSearch(que));
 					} else {

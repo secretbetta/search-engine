@@ -22,7 +22,7 @@ public class Driver {
 		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
-			List<Path> files = null;
+			List<Path> files = null; // TODO See IndexBuilder
 			
 			try {
 				files = TextFileFinder.traverse(path);
@@ -38,6 +38,7 @@ public class Driver {
 		}
 		
 		if (argmap.hasFlag("-index")) {
+			// TODO Combine into one line
 			Path index = null;
 			index = argmap.getPath("-index", Paths.get("index.json"));
 			
@@ -48,7 +49,7 @@ public class Driver {
 			}
 		}
 		
-		Path locIndex = null;
+		Path locIndex = null; // TODO Declare within the if block below
 		if (argmap.hasFlag("-locations")) {
 			if (argmap.getPath("-locations") != null) {
 				locIndex = argmap.getPath("-locations");
@@ -63,7 +64,7 @@ public class Driver {
 			}
 		}
 		
-		var query = new QueryMap();
+		var query = new QueryMap(); // TODO Move up with the other declarations that are used in multiple blocks
 		if (argmap.hasFlag("-search")) {
 			
 			boolean exact;
@@ -72,6 +73,8 @@ public class Driver {
 			} else {
 				exact = false;
 			}
+			
+			// TODO boolean exact = argmap.hasFlag("-exact");
 
 			Path search = argmap.getPath("-search");
 			Path path = argmap.getPath("-path");
