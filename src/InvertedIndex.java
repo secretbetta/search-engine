@@ -35,6 +35,13 @@ public class InvertedIndex {
 		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
 		index.get(word).get(file).add(pos);
 		
+		/*
+		 * TODO
+		 * if (index.get(word).get(file).add(pos)) {
+		 * 		locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
+		 * }
+		 */
+		
 		locationIndex.putIfAbsent(file, 0);
 		locationIndex.put(file, locationIndex.get(file) + 1);
 	}
@@ -128,15 +135,30 @@ public class InvertedIndex {
 	 */
 	public ArrayList<Result> exactSearch(Collection<String> query) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
+		// TODO Map<String (location), Result> lookup = ....
+		
 		int wordcount = 0;
 		boolean exists;
 		
-		for (String que : query) {
+		for (String que : query) { // TODO Improve variable names!
 			if (this.contains(que)) {
 				for (String loc : this.index.get(que).keySet()) {
 					exists = false;
 					wordcount = this.index.get(que).get(loc).size();
 					
+					/*
+					 * TODO Linear search! Use what you are looking for as a key
+					 * in a map to improve the efficiency.
+					 * 
+					 * if (lookup.containsKey(loc)) {
+					 * 		get and update
+					 * }
+					 * else {
+					 * 		Result current = new Result(loc, wordcount, this.locationIndex.get(loc));
+					 * 		resultList.add(current);
+					 * 		lookup.put(loc, current);
+					 * }
+					 */
 					for (Result r : resultList) {
 						if (r.getFile().equals(loc)) {
 							r.add(wordcount);
@@ -167,8 +189,24 @@ public class InvertedIndex {
 		boolean exists;
 		
 		for (String que : query) {
+			/*
+			 * TODO Another linear search!
+			 * 
+			 * If we can start in the "right" place, we can break out of our loop
+			 * as soon as we find a key that no longer starts with our query
+			 * 
+			 * To start in the right place, look at what happens when you give
+			 * headMap or tailMap somethign that isn't a key! Decide which one 
+			 * is appropriate to use for this search method.
+			 * 
+			 * https://github.com/usf-cs212-fall2018/lectures/blob/master/Data%20Structures/src/FindDemo.java
+			 */
 			for (String word : this.index.keySet()) {
 				if (word.startsWith(que)) {
+					/*
+					 * TODO this for loop will be the same in both search methods
+					 * pull this out into a private void searchHelper(String word...)
+					 */
 					for (String loc : this.index.get(word).keySet()) {
 						exists = false;
 						wordcount = this.index.get(word).get(loc).size();

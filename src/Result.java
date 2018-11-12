@@ -89,6 +89,7 @@ public class Result implements Comparable<Result> {
 			NestedJSON.indent(4, writer);
 			
 			writer.write("\"count\": ");
+			// TODO Integer.toString(this.count);
 			writer.write(INT.format(this.count));
 			writer.write(",");
 			writer.write(System.lineSeparator());
