@@ -33,17 +33,10 @@ public class InvertedIndex {
 	public void add(String word, String file, int pos) {
 		index.putIfAbsent(word, new TreeMap<String, TreeSet<Integer>>());
 		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
-		index.get(word).get(file).add(pos);
-		
-		/*
-		 * TODO
-		 * if (index.get(word).get(file).add(pos)) {
-		 * 		locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
-		 * }
-		 */
-		
-		locationIndex.putIfAbsent(file, 0);
-		locationIndex.put(file, locationIndex.get(file) + 1);
+
+		if (index.get(word).get(file).add(pos)) {
+			locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
+		}
 	}
 	
 	/**
@@ -130,46 +123,18 @@ public class InvertedIndex {
 	/**
 	 * Exact index search, returns arraylist of Results that
 	 * matches words from query words with index words
-	 * @param query Query words to match
+	 * @param queries Query words to match
 	 * @return resultList ArrayList of Result
+	 * 
+	 * @see #searchHelper(String, ArrayList, TreeMap)
 	 */
-	public ArrayList<Result> exactSearch(Collection<String> query) {
+	public ArrayList<Result> exactSearch(Collection<String> queries) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
-		// TODO Map<String (location), Result> lookup = ....
+		TreeMap<String, Result> lookup = new TreeMap<String, Result>();
 		
-		int wordcount = 0;
-		boolean exists;
-		
-		for (String que : query) { // TODO Improve variable names!
-			if (this.contains(que)) {
-				for (String loc : this.index.get(que).keySet()) {
-					exists = false;
-					wordcount = this.index.get(que).get(loc).size();
-					
-					/*
-					 * TODO Linear search! Use what you are looking for as a key
-					 * in a map to improve the efficiency.
-					 * 
-					 * if (lookup.containsKey(loc)) {
-					 * 		get and update
-					 * }
-					 * else {
-					 * 		Result current = new Result(loc, wordcount, this.locationIndex.get(loc));
-					 * 		resultList.add(current);
-					 * 		lookup.put(loc, current);
-					 * }
-					 */
-					for (Result r : resultList) {
-						if (r.getFile().equals(loc)) {
-							r.add(wordcount);
-							exists = true;
-						}
-					}
-					
-					if (!exists) {
-						resultList.add(new Result(loc, wordcount, this.locationIndex.get(loc)));
-					}
-				}
+		for (String query : queries) {
+			if (this.contains(query)) {
+				searchHelper(query, resultList, lookup);
 			}
 		}
 		
@@ -180,54 +145,49 @@ public class InvertedIndex {
 	/**
 	 * Partial index search, returns arraylist of Results that
 	 * matches all words starting with query words
-	 * @param query Query words
+	 * @param queries Query words
 	 * @return resultList ArrayList of Results
+	 * 
+	 * @see #searchHelper(String, ArrayList, TreeMap)
 	 */
-	public ArrayList<Result> partialSearch(Collection<String> query) {
+	public ArrayList<Result> partialSearch(Collection<String> queries) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
-		int wordcount = 0;
-		boolean exists;
+		TreeMap<String, Result> lookup = new TreeMap<String, Result>();
 		
-		for (String que : query) {
-			/*
-			 * TODO Another linear search!
-			 * 
-			 * If we can start in the "right" place, we can break out of our loop
-			 * as soon as we find a key that no longer starts with our query
-			 * 
-			 * To start in the right place, look at what happens when you give
-			 * headMap or tailMap somethign that isn't a key! Decide which one 
-			 * is appropriate to use for this search method.
-			 * 
-			 * https://github.com/usf-cs212-fall2018/lectures/blob/master/Data%20Structures/src/FindDemo.java
-			 */
-			for (String word : this.index.keySet()) {
-				if (word.startsWith(que)) {
-					/*
-					 * TODO this for loop will be the same in both search methods
-					 * pull this out into a private void searchHelper(String word...)
-					 */
-					for (String loc : this.index.get(word).keySet()) {
-						exists = false;
-						wordcount = this.index.get(word).get(loc).size();
-						
-						for (Result r : resultList) {
-							if (r.getFile().equals(loc)) {
-								r.add(wordcount);
-								exists = true;
-							}
-						}
-						
-						if (!exists) {
-							resultList.add(new Result(loc, wordcount, this.locationIndex.get(loc)));
-						}
-					}
+		for (String query : queries) {
+			for (String word : this.index.tailMap(query).keySet()) {
+				if (word.startsWith(query)) {
+					searchHelper(word, resultList, lookup);
+				} else {
+					break;
 				}
 			}
 		}
 		
 		Collections.sort(resultList);
 		return resultList;
+	}
+	
+	/**
+	 * The extension of searching for both partial and exact searches
+	 * @param query Query word 
+	 * @param resultList List of results to add
+	 * @param lookup 
+	 */
+	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
+		int wordcount;
+		
+		for (String path : this.index.get(query).keySet()) {
+			wordcount = this.index.get(query).get(path).size();
+			
+			if (lookup.containsKey(path)) {
+				lookup.get(path).add(wordcount);
+			} else {
+				Result current = new Result(path, wordcount, this.locationIndex.get(path));
+				resultList.add(current);
+				lookup.put(path, current);
+			}
+		}
 	}
 
 	@Override

@@ -14,13 +14,20 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  *
  */
 public class IndexBuilder {
-	/* TODO
+	
+	/**
+	 * Traverses through path and builds index from each file
+	 * @param path Path to traverse
+	 * @param index InvertedIndex to build
+	 * @throws IOException
+	 * 
+	 * @see {@link #getWords(Path, InvertedIndex)}
+	 */
 	public static void traverse(Path path, InvertedIndex index) throws IOException {
 		for (Path file : TextFileFinder.traverse(path)) {
-			IndexBuilder.getWords(file, index;
+			getWords(file, index);
 		}
 	}
-	*/
 	
 	/**
 	 * Parses a text file into stemmed words, and adds those words to an inverted index

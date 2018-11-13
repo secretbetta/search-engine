@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import opennlp.tools.stemmer.Stemmer;
@@ -36,30 +37,30 @@ public class TextFileStemmer {
 	 * @param line the line of words to clean, split, and stem
 	 * @param stemmer the stemmer to use
 	 * @return list of cleaned and stemmed words
-	 *
-	 * @see Stemmer#stem(CharSequence)
-	 * @see TextParser#parse(String)
+	 * 
+	 * @see #stemLine(String, Stemmer, Collection)
 	 */
 	public static List<String> stemLine(String line, Stemmer stemmer) {
-		String[] list;
-		var words = new ArrayList<String>();
-		
-		// TODO After you create a new version of stemLine..
-		// TODO stemLine(line, stemmer, words);
-		
-		list = TextParser.parse(line);
-		
-		for (String word : list) {
-			words.add(stemmer.stem(word).toString());
-		}
+		List<String> words = new ArrayList<String>();
+		stemLine(line, stemmer, words);
 		return words;
 	}
 	
-	/* TODO
-	public static void stemLine(String line, Stemmer stemmer, Collection<String> container) {
-		same as above, except add to container instead of the list
+	/**
+	 * Adds all stemmed words into collection of strings
+	 * @param line
+	 * @param stemmer
+	 * @param container
+	 * 
+	 * @see Stemmer#stem(CharSequence)
+	 * @see TextParser#parse(String)
+	 */
+	public static void stemLine(String line, Stemmer stemmer, List<String> container) {
+		String[] list = TextParser.parse(line);
+		for (String word : list) {
+			container.add(stemmer.stem(word).toString());
+		}
 	}
-	*/
 
 	/**
 	 * Reads a file line by line, parses each line into cleaned and stemmed words,

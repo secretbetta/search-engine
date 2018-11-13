@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
 /**
  * Driver of Project Codes
@@ -19,17 +18,13 @@ public class Driver {
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
 		var invertedIndex = new InvertedIndex();
+		var query = new QueryMap(invertedIndex);
 		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
-			List<Path> files = null; // TODO See IndexBuilder
 			
 			try {
-				files = TextFileFinder.traverse(path);
-				
-				for (Path file : files) {
-					IndexBuilder.getWords(file, invertedIndex);
-				}
+				IndexBuilder.traverse(path, invertedIndex);
 			} catch (NullPointerException e) {
 				System.err.println("Unable to create inverted index. Has no elements");
 			} catch (IOException e) {
@@ -38,9 +33,7 @@ public class Driver {
 		}
 		
 		if (argmap.hasFlag("-index")) {
-			// TODO Combine into one line
-			Path index = null;
-			index = argmap.getPath("-index", Paths.get("index.json"));
+			Path index = argmap.getPath("-index", Paths.get("index.json"));
 			
 			try {
 				invertedIndex.toJSON(index);
@@ -49,13 +42,8 @@ public class Driver {
 			}
 		}
 		
-		Path locIndex = null; // TODO Declare within the if block below
 		if (argmap.hasFlag("-locations")) {
-			if (argmap.getPath("-locations") != null) {
-				locIndex = argmap.getPath("-locations");
-			} else {
-				locIndex = Paths.get("out", "index-text-locations.json");
-			}
+			Path locIndex = argmap.getPath("-locations", Paths.get("index-text-locations.json"));
 			
 			try {
 				invertedIndex.locationtoJSON(locIndex);
@@ -64,23 +52,14 @@ public class Driver {
 			}
 		}
 		
-		var query = new QueryMap(); // TODO Move up with the other declarations that are used in multiple blocks
 		if (argmap.hasFlag("-search")) {
 			
-			boolean exact;
-			if (argmap.hasFlag("-exact")) {
-				exact = true;
-			} else {
-				exact = false;
-			}
-			
-			// TODO boolean exact = argmap.hasFlag("-exact");
+			boolean exact = argmap.hasFlag("-exact");
 
 			Path search = argmap.getPath("-search");
-			Path path = argmap.getPath("-path");
 			
 			try {
-				query.builder(search, path, exact, invertedIndex);
+				query.builder(search, exact);
 			} catch (IOException e) {
 				System.err.println("Cannot build query map");
 			}

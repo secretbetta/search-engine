@@ -14,12 +14,15 @@ import java.util.TreeSet;
  */
 public class QueryMap {
 	private final TreeMap<String, ArrayList<Result>> query;
+	private final InvertedIndex index;
 	
 	/**
-	 * TODO
+	 * Initializes querymap and invertindex
+	 * @param index
 	 */
-	public QueryMap() { // TODO Take the index as a parameter here
+	public QueryMap(InvertedIndex index) {
 		this.query = new TreeMap<>();
+		this.index = index;
 	}
 	
 	/**
@@ -33,37 +36,33 @@ public class QueryMap {
 	 * @throws IOException
 	 */
 	public void builder(Path search, 
-			Path path, // TODO Remove??
-			boolean exact, 
-			InvertedIndex index) throws IOException { // TODO Remove as a parameter here
+			boolean exact) throws IOException {
+		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 		
-		// TODO try-with-resources
-		BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);
-		
-		if (path != null) {
-			TreeSet<String> que; // TODO Better variable names
+			TreeSet<String> query; 
 			String line;
 			
 			// TODO Maybe create a stemmer object here
 			
+//			Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+			
 			while ((line = reader.readLine()) != null) {
-				String word = ""; // TODO Rename to queryLine
-				que = new TreeSet<String>();
-				que.addAll(TextFileStemmer.stemLine(line)); // TODO Time to improve stemLine?? (See TextFileStemmer)
+				String queryLine = "";
+//				line = stemmer.stem(line).toString();
+//				que.addAll(TextParser.parse(line));
 				
-				if (!que.isEmpty()) {
-					// TODO String concatenation!!!!! String.join(" ", que)
-					for (String w : que.headSet(que.last())) {
-						word += w + " ";
-					}
-					word += que.last();
+				query = new TreeSet<String>();
+				query.addAll(TextFileStemmer.stemLine(line));
+				
+				if (!query.isEmpty()) {
+					queryLine = String.join(" ", query);
 				}
 				
-				if (!(word.isEmpty()) /* TODO && !this.query.containsKey(queryLine) */) {
+				if (!(queryLine.isEmpty() && !this.query.containsKey(queryLine))) {
 					if (exact) {
-						this.query.put(word, index.exactSearch(que));
+						this.query.put(queryLine, this.index.exactSearch(query));
 					} else {
-						this.query.put(word, index.partialSearch(que));
+						this.query.put(queryLine, this.index.partialSearch(query));
 					}
 				}
 			}

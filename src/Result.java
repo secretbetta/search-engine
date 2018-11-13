@@ -73,7 +73,6 @@ public class Result implements Comparable<Result> {
 	@Override
 	public String toString() {
 		DecimalFormat FORMATTER = new DecimalFormat("0.000000");
-		DecimalFormat INT = new DecimalFormat("0");
 		StringWriter writer = new StringWriter();
 		
 		try {
@@ -89,8 +88,7 @@ public class Result implements Comparable<Result> {
 			NestedJSON.indent(4, writer);
 			
 			writer.write("\"count\": ");
-			// TODO Integer.toString(this.count);
-			writer.write(INT.format(this.count));
+			writer.write(Integer.toString((this.count)));
 			writer.write(",");
 			writer.write(System.lineSeparator());
 			NestedJSON.indent(4, writer);
