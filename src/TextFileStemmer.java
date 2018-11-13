@@ -44,6 +44,9 @@ public class TextFileStemmer {
 		String[] list;
 		var words = new ArrayList<String>();
 		
+		// TODO After you create a new version of stemLine..
+		// TODO stemLine(line, stemmer, words);
+		
 		list = TextParser.parse(line);
 		
 		for (String word : list) {
@@ -51,6 +54,12 @@ public class TextFileStemmer {
 		}
 		return words;
 	}
+	
+	/* TODO
+	public static void stemLine(String line, Stemmer stemmer, Collection<String> container) {
+		same as above, except add to container instead of the list
+	}
+	*/
 
 	/**
 	 * Reads a file line by line, parses each line into cleaned and stemmed words,
