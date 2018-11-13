@@ -53,21 +53,17 @@ public class Driver {
 		}
 		
 		if (argmap.hasFlag("-search")) {
-			
-			boolean exact = argmap.hasFlag("-exact");
-
 			Path search = argmap.getPath("-search");
 			
 			try {
-				query.builder(search, exact);
+				query.builder(search, argmap.hasFlag("-exact"));
 			} catch (IOException e) {
 				System.err.println("Cannot build query map");
 			}
 		}
 		
 		if (argmap.hasFlag("-results")) {
-			Path index;
-			index = argmap.getPath("-results", Paths.get("results.json"));
+			Path index = argmap.getPath("-results", Paths.get("results.json"));
 			
 			try {
 				query.toJSON(index);

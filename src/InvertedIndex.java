@@ -172,7 +172,7 @@ public class InvertedIndex {
 	 * The extension of searching for both partial and exact searches
 	 * @param query Query word 
 	 * @param resultList List of results to add
-	 * @param lookup 
+	 * @param lookup To keep track of location in Results
 	 */
 	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
 		int wordcount;

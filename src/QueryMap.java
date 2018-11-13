@@ -35,21 +35,14 @@ public class QueryMap {
 	 * 
 	 * @throws IOException
 	 */
-	public void builder(Path search, 
-			boolean exact) throws IOException {
+	public void builder(Path search, boolean exact) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 		
 			TreeSet<String> query; 
 			String line;
 			
-			// TODO Maybe create a stemmer object here
-			
-//			Stemmer stemmer = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-			
 			while ((line = reader.readLine()) != null) {
 				String queryLine = "";
-//				line = stemmer.stem(line).toString();
-//				que.addAll(TextParser.parse(line));
 				
 				query = new TreeSet<String>();
 				query.addAll(TextFileStemmer.stemLine(line));
