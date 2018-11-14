@@ -115,16 +115,13 @@ public class Result implements Comparable<Result> {
 	 */
 	@Override
 	public int compareTo(Result result) {
-		if (this != null && result != null) { // TODO Remove the null checks, if you are getting nulls here there is a bug we need to find.
-			int val = Double.compare(result.score, this.score);
+		int val = Double.compare(result.score, this.score);
+		if (val == 0) {
+			val = Integer.compare(result.count, this.count);
 			if (val == 0) {
-				val = Integer.compare(result.count, this.count);
-				if (val == 0) {
-					return this.file.compareTo(result.file);
-				}
+				return this.file.compareTo(result.file);
 			}
-			return val;
 		}
-		return 0;
+		return val;
 	}
 }
