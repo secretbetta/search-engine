@@ -2,7 +2,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.TreeMap;
 
 /**
  * Thread safe version of inverted index
@@ -112,39 +111,6 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 		
 		try {
 			super.locationtoJSON(locIndex);
-		} finally {
-			lock.unlockReadWrite();
-		}
-	}
-	
-	@Override
-	public ArrayList<Result> exactSearch(Collection<String> queries) {
-		lock.lockReadWrite();
-		
-		try {
-			return super.exactSearch(queries);
-		} finally {
-			lock.unlockReadWrite();
-		}
-	}
-	
-	@Override
-	public ArrayList<Result> partialSearch(Collection<String> queries) {
-		lock.lockReadWrite();
-		
-		try {
-			return super.partialSearch(queries);
-		} finally {
-			lock.unlockReadWrite();
-		}
-	}
-	
-	@Override
-	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
-		lock.lockReadWrite();
-		
-		try {
-			super.searchHelper(query, resultList, lookup);
 		} finally {
 			lock.unlockReadWrite();
 		}
