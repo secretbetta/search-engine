@@ -61,6 +61,21 @@ public class QueryMap {
 			}
 		}
 	}
+	
+	public void builder(Path search, boolean exact, int threads) throws IOException {
+		WorkQueue queue = new WorkQueue(threads);
+		
+		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
+			String line;
+			
+			while ((line = reader.readLine()) != null) {
+				queue.execute(new Builder(line, this.query, index, exact));
+			}
+		}
+		
+		queue.finish();
+		queue.shutdown();
+	}
 
 	/**
 	 * Writes to index file the query map in JSON format
@@ -70,5 +85,44 @@ public class QueryMap {
 	 */
 	public void toJSON(Path index) throws IOException {
 		NestedJSON.queryObject(this.query, index);
+	}
+	
+	/**
+	 * Runnable builder class for QueryMap
+	 * @author Andrew
+	 *
+	 */
+	public static class Builder implements Runnable {
+
+		String queryLine;
+		TreeMap<String, ArrayList<Result>> query;
+		InvertedIndex index;
+		TreeSet<String> que;
+		boolean exact;
+		
+		public Builder(String line, TreeMap<String, ArrayList<Result>> query, InvertedIndex index, boolean exact) {
+			this.queryLine = line;
+			this.query = query;
+			this.index = index;
+			this.que = new TreeSet<String>();
+			this.exact = exact;
+		}
+		
+		@Override
+		public void run() {
+			que.addAll(TextFileStemmer.stemLine(this.queryLine));
+			
+			if (!query.isEmpty()) {
+				queryLine = String.join(" ", que);
+			}
+			
+			if (!(this.queryLine.isEmpty() && !this.query.containsKey(queryLine))) {
+				if (this.exact) {
+					this.query.put(queryLine, this.index.exactSearch(que));
+				} else {
+					this.query.put(queryLine, this.index.partialSearch(que));
+				}
+			}
+		}	
 	}
 }

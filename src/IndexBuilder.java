@@ -65,6 +65,9 @@ public class IndexBuilder {
 		for (Path file : TextFileFinder.traverse(path)) {
 			queue.execute(new Builder(file, index));
 		}
+		
+		queue.finish();
+		queue.shutdown();
 	}
 	
 	/**

@@ -7,13 +7,13 @@ import java.util.Map;
  * Creates a map of arguments
  */
 public class ArgumentMap {
-	private final Map<String, String> map;
+	private final Map<String, Object> map;
 
 	/**
 	 * Initializes this argument map.
 	 */
 	public ArgumentMap() {
-		this.map = new HashMap<String, String>();
+		this.map = new HashMap<String, Object>();
 	}
 
 	/**
@@ -117,7 +117,7 @@ public class ArgumentMap {
 	 *         there is no mapping for the flag
 	 */
 	public String getString(String flag) {
-		return map.get(flag);
+		return (String) map.get(flag);
 	}
 
 	/**
@@ -131,7 +131,7 @@ public class ArgumentMap {
 	 *         value if there is no mapping for the flag
 	 */
 	public String getString(String flag, String defaultValue) {
-		return (map.get(flag) != null) ? map.get(flag) : defaultValue;
+		return (map.get(flag) != null) ? (String) map.get(flag) : defaultValue;
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class ArgumentMap {
 	 */
 	public Path getPath(String flag) {
 		if (map.containsKey(flag) && map.get(flag) != null) {
-			return Paths.get(map.get(flag));
+			return Paths.get((String) map.get(flag));
 		} else {
 			return null;
 		}
@@ -172,9 +172,35 @@ public class ArgumentMap {
 	 */
 	public Path getPath(String flag, Path defaultValue) {
 		if (map.containsKey(flag) && map.get(flag) != null) {
-			return Paths.get(map.get(flag));
+			return Paths.get((String) map.get(flag));
 		}
 		return defaultValue;
+	}
+	
+	/**
+	 * Returns the value to which the specified flag is mapped as a
+	 * {@link int}, or -1 if there is no mapping for the flag.
+	 *
+	 * @param flag         the flag whose associated value is to be returned
+	 * @return the value to which the specified flag is mapped, -1 if there is no mapping for the flag
+	 */
+	public int getInt(String flag) {
+		return this.getInt(flag, -1);
+	}
+	
+	/**
+	 * Returns the value to which the specified flag is mapped as a
+	 * {@link int}, or the default value if there is no mapping for the flag.
+	 *
+	 * @param flag         the flag whose associated value is to be returned
+	 * @param defaultValue the default value to return if there is no mapping for
+	 *                     the flag
+	 * @return the value to which the specified flag is mapped, or the default
+	 *         value if there is no mapping for the flag
+	 */
+	public int getInt(String flag, int defaultValue) {
+		System.out.println();
+		return (map.get(flag) != null) ? Integer.parseInt(map.get(flag).toString()) : defaultValue;
 	}
 
 	@Override

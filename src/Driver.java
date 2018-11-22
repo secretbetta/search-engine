@@ -17,14 +17,19 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
-		var invertedIndex = new InvertedIndex();
+		var invertedIndex = new ThreadSafeInvertedIndex();
 		var query = new QueryMap(invertedIndex);
+		
+		int threads = 1;
+		if (argmap.hasFlag("-threads")) {
+			threads = argmap.getInt("-threads", 5);
+		}
 		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
 			
 			try {
-				IndexBuilder.traverse(path, invertedIndex);
+				IndexBuilder.traverse(path, invertedIndex, threads);
 			} catch (NullPointerException e) {
 				System.err.println("Unable to create inverted index. Has no elements");
 			} catch (IOException e) {
@@ -56,7 +61,7 @@ public class Driver {
 			Path search = argmap.getPath("-search");
 			
 			try {
-				query.builder(search, argmap.hasFlag("-exact"));
+				query.builder(search, argmap.hasFlag("-exact"), threads);
 			} catch (IOException e) {
 				System.err.println("Cannot build query map");
 			}
