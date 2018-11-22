@@ -131,13 +131,11 @@ public class InvertedIndex {
 	public ArrayList<Result> exactSearch(Collection<String> queries) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
 		TreeMap<String, Result> lookup = new TreeMap<String, Result>();
-		
 		for (String query : queries) {
-			if (this.contains(query)) {
-				searchHelper(query, resultList, lookup);
+			if (this.index.containsKey(query)) {
+				InvertedIndex.searchHelper(query, resultList, lookup, this.index, this.locationIndex);
 			}
 		}
-		
 		Collections.sort(resultList);
 		return resultList;
 	}
@@ -157,7 +155,7 @@ public class InvertedIndex {
 		for (String query : queries) {
 			for (String word : this.index.tailMap(query).keySet()) {
 				if (word.startsWith(query)) {
-					searchHelper(word, resultList, lookup);
+					InvertedIndex.searchHelper(word, resultList, lookup, this.index, this.locationIndex);
 				} else {
 					break;
 				}
@@ -174,16 +172,14 @@ public class InvertedIndex {
 	 * @param resultList List of results to add
 	 * @param lookup To keep track of location in Results
 	 */
-	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
+	public static void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, TreeMap<String, Integer> locationIndex) {
 		int wordcount;
-		
-		for (String path : this.index.get(query).keySet()) {
-			wordcount = this.index.get(query).get(path).size();
-			
+		for (String path : index.get(query).keySet()) {
+			wordcount = index.get(query).get(path).size();
 			if (lookup.containsKey(path)) {
 				lookup.get(path).add(wordcount);
 			} else {
-				Result current = new Result(path, wordcount, this.locationIndex.get(path));
+				Result current = new Result(path, wordcount, locationIndex.get(path));
 				resultList.add(current);
 				lookup.put(path, current);
 			}

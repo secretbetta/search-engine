@@ -71,10 +71,10 @@ public class QueryMap {
 			while ((line = reader.readLine()) != null) {
 				queue.execute(new Builder(line, this.query, index, exact));
 			}
+			
+			queue.finish();
+			queue.shutdown();
 		}
-		
-		queue.finish();
-		queue.shutdown();
 	}
 
 	/**
@@ -111,16 +111,15 @@ public class QueryMap {
 		@Override
 		public void run() {
 			que.addAll(TextFileStemmer.stemLine(this.queryLine));
+			queryLine = String.join(" ", que);
 			
-			if (!query.isEmpty()) {
-				queryLine = String.join(" ", que);
-			}
-			
-			if (!(this.queryLine.isEmpty() && !this.query.containsKey(queryLine))) {
-				if (this.exact) {
-					this.query.put(queryLine, this.index.exactSearch(que));
-				} else {
-					this.query.put(queryLine, this.index.partialSearch(que));
+			synchronized(query) {
+				if (!(this.queryLine.isEmpty() && !this.query.containsKey(queryLine))) {
+					if (this.exact) {
+						this.query.put(queryLine, this.index.exactSearch(que));
+					} else {
+						this.query.put(queryLine, this.index.partialSearch(que));
+					}
 				}
 			}
 		}	
