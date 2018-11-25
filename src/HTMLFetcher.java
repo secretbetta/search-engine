@@ -52,29 +52,29 @@ public class HTMLFetcher {
 			request.flush();
 
 			String line = response.readLine();
-
+			
 			results.put(null, Arrays.asList(line));
+			
+			if (Integer.parseInt(results.get(null).get(0).substring(9, 12)) == 200) {
+				while ((line = response.readLine()) != null) {
+					if (line.trim().isEmpty()) {
+						break;
+					}
 
-			while ((line = response.readLine()) != null) {
-				if (line.trim().isEmpty()) {
-					break;
+					String[] split = line.split(":\\s+", 2);
+
+					results.putIfAbsent(split[0], new ArrayList<>());
+					results.get(split[0]).add(split[1]);
+				}
+				
+				List<String> lines = new ArrayList<>();
+				while ((line = response.readLine()) != null) {
+					lines.add(line);
 				}
 
-				String[] split = line.split(":\\s+", 2);
-//				assert split.length == 2;
-
-				results.putIfAbsent(split[0], new ArrayList<>());
-				results.get(split[0]).add(split[1]);
+				results.put("Content", lines);
 			}
-			
-			List<String> lines = new ArrayList<>();
-			while ((line = response.readLine()) != null) {
-				lines.add(line);
-			}
-
-			results.put("Content", lines);
 		}
-
 		return results;
 	}
 
@@ -179,46 +179,4 @@ public class HTMLFetcher {
 	public static String fetchHTML(URL url) throws IOException {
 		return fetchHTML(url, 0);
 	}
-//	
-//	/**
-//	 * Removes the fragment component of a URL (if present), and properly encodes
-//	 * the query string (if necessary).
-//	 *
-//	 * @param url url to clean
-//	 * @return cleaned url (or original url if any issues occurred)
-//	 */
-//	public static URL clean(URL url) {
-//		try {
-//			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(),
-//					url.getQuery(), null).toURL();
-//		}
-//		catch (MalformedURLException | URISyntaxException e) {
-//			return url;
-//		}
-//	}
-//	
-//	/**
-//	 * Returns a list of all the HTTP(S) links found in the href attribute of the
-//	 * anchor tags in the provided HTML. The links will be converted to absolute
-//	 * using the base URL and cleaned (removing fragments and encoding special
-//	 * characters as necessary).
-//	 *
-//	 * @param base base url used to convert relative links to absolute3
-//	 * @param html raw html associated with the base url
-//	 * @return cleaned list of all http(s) links in the order they were found
-//	 * @throws MalformedURLException 
-//	 */
-//	public static ArrayList<URL> listLinks(URL base, String html) throws MalformedURLException {
-//		ArrayList<URL> links = new ArrayList<URL>();
-//		
-//		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
-//		Pattern pattern = Pattern.compile(regex);
-//		Matcher matcher = pattern.matcher(html);
-//		
-//		while (matcher.find()) {
-//			links.add(clean(new URL(base, matcher.group(1))));
-//		}
-//
-//		return links;
-//	}
 }

@@ -75,18 +75,20 @@ public class Traverser {
 		
 		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
 		Pattern pattern = Pattern.compile(regex);
-		Matcher matcher = pattern.matcher(html);
 		
 		//TODO Make this faster
-		
-		if (limit > 0) {
+		System.out.println(limit);
+		if (limit > 0 && html != null) {
+			Matcher matcher = pattern.matcher(html);
 			while (matcher.find()) {
+				System.out.println(url);
+				System.out.println(urls);
 				if (!urls.contains(clean(new URL(url, matcher.group(1))))) {
 					urls.addAll(traverse((clean(new URL(url, matcher.group(1)))), limit));
 				}
 			}
 		}
-		
+		System.out.println(url);
 		return urls;
 	}
 }

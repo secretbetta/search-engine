@@ -45,13 +45,8 @@ public class IndexBuilder {
 //		//TODO gotta make this recursive, fawk
 //		for (URL url : urls) {
 //			getWords(url, index);
-//			limit--;
-//			if (limit == 0) {
-//				break;
-//			}
 //		}
 		ArrayList<URL> urls = Traverser.traverse(new URL(urlString), limit);
-//		System.out.println(urls);
 		for (URL url : urls) {
 			getWords(url, index);
 		}

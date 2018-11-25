@@ -294,27 +294,7 @@ public class NestedJSON {
 	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements) {
 		try {
 			StringWriter writer = new StringWriter();
-			tripleNested(elements, writer, 0, Integer.MAX_VALUE);
-			return writer.toString();
-		}
-		catch (IOException e) {
-			return null;
-		}
-	}
-	
-	/**
-	 * Creates an inverted index version of elements in JSON format
-	 *
-	 * @param elements the elements to convert to JSON
-	 * @param limit Limit of how much to print
-	 * @return {@link String} containing the elements in pretty JSON format
-	 *
-	 * @see #tripleNested(TreeMap, Writer, int)
-	 */
-	public static String tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements, int limit) {
-		try {
-			StringWriter writer = new StringWriter();
-			tripleNested(elements, writer, 0, limit);
+			tripleNested(elements, writer, 0);
 			return writer.toString();
 		}
 		catch (IOException e) {
@@ -332,10 +312,10 @@ public class NestedJSON {
 	 * @see #tripleNested(TreeMap, Writer, int)
 	 */
 	public static void tripledNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements,
-			Path path, int limit) throws IOException {
+			Path path) throws IOException {
 		try (BufferedWriter writer = Files.newBufferedWriter(path,
 				StandardCharsets.UTF_8)) {
-			tripleNested(elements, writer, 0, limit);
+			tripleNested(elements, writer, 0);
 		}
 	}
 	
@@ -351,7 +331,7 @@ public class NestedJSON {
 	 */
 	public static void tripleNested(TreeMap<String, TreeMap<String, TreeSet<Integer>>> elements,
 			Writer writer,
-			int level, int limit) throws IOException {
+			int level) throws IOException {
 		if (!elements.isEmpty()) {
 			indent(level, writer);
 			writer.write('{');
