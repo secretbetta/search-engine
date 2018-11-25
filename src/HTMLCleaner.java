@@ -1,5 +1,7 @@
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 
 /**
  * Cleans simple, validating HTML 4/5 into plain-text words using regular
@@ -91,11 +93,9 @@ public class HTMLCleaner {
 		return html;
 	}
 	
-	public static void main(String[] args) {
-		String html = "antelöpé";
-		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-		String[] list = TextParser.parse(html);
-		System.out.println(list[0]);
-//		System.out.println(HTMLCleaner.stripHTML(html));
+	public static void main(String[] args) throws MalformedURLException, IOException {
+		ArrayList<URL> links = Traverser.traverse(new URL("https://www.cs.usfca.edu/~cs212/recurse/link01.html"), 100);
+		System.out.println(links);
+		System.out.println(links.size());
 	}
 }

@@ -64,24 +64,26 @@ public class Traverser {
 	 * Traverses through all links up to a limit
 	 * @param url URL of web
 	 * @param limit Limit of how many links
-	 * @return
+	 * @return urls ArrayList of urls
 	 * @throws IOException
 	 */
 	public static ArrayList<URL> traverse(URL url, int limit) throws IOException {
 		String html = HTMLFetcher.fetchHTML(url);
 		ArrayList<URL> urls = new ArrayList<URL>();
+		limit--;
 		urls.add(clean(url));
 		
 		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
 		Pattern pattern = Pattern.compile(regex);
 		Matcher matcher = pattern.matcher(html);
 		
-		if (limit != 0) {
+		//TODO Make this faster
+		
+		if (limit > 0) {
 			while (matcher.find()) {
 				if (!urls.contains(clean(new URL(url, matcher.group(1))))) {
-					urls.add(clean(new URL(url, matcher.group(1))));
+					urls.addAll(traverse((clean(new URL(url, matcher.group(1)))), limit));
 				}
-				urls.addAll(traverse((clean(new URL(url, matcher.group(1)))), --limit));
 			}
 		}
 		
