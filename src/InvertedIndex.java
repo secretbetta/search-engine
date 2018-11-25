@@ -106,9 +106,20 @@ public class InvertedIndex {
 	 * Creates a file index in JSON format
 	 * @param path
 	 * @throws IOException
+	 * 
+	 * @see {@link #toJSON(Path, int)}
 	 */
 	public void toJSON(Path path) throws IOException {
-		NestedJSON.tripledNested(index, path);
+		toJSON(path, Integer.MAX_VALUE);
+	}
+	
+	/**
+	 * Creates a file index in JSON format
+	 * @param path
+	 * @throws IOException
+	 */
+	public void toJSON(Path path, int limit) throws IOException {
+		NestedJSON.tripledNested(index, path, limit);
 	}
 	
 	/**

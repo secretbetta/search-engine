@@ -184,7 +184,7 @@ public class ArgumentMap {
 	 * @param flag         the flag whose associated value is to be returned
 	 * @return the value to which the specified flag is mapped, -1 if there is no mapping for the flag
 	 */
-	public int getInt(String flag) {
+	public int getInt(String flag) throws NumberFormatException {
 		return this.getInt(flag, -1);
 	}
 	
@@ -198,8 +198,7 @@ public class ArgumentMap {
 	 * @return the value to which the specified flag is mapped, or the default
 	 *         value if there is no mapping for the flag
 	 */
-	public int getInt(String flag, int defaultValue) {
-		System.out.println();
+	public int getInt(String flag, int defaultValue) throws NumberFormatException {
 		return (map.get(flag) != null) ? Integer.parseInt(map.get(flag).toString()) : defaultValue;
 	}
 

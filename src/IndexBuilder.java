@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -24,8 +26,47 @@ public class IndexBuilder {
 	 * @see {@link #getWords(Path, InvertedIndex)}
 	 */
 	public static void traverse(Path path, InvertedIndex index) throws IOException {
-		for (Path file : TextFileFinder.traverse(path)) {
+		for (Path file : Traverser.traverse(path)) {
 			getWords(file, index);
+		}
+	}
+	
+	/**
+	 * Traverses through URLs and builds index from each URL
+	 * @param url URL to traverse
+	 * @param index InvertedIndex to build
+	 * @throws IOException
+	 */
+	public static void traverse(String urlString, InvertedIndex index, int limit) throws IOException {
+//		String html = HTMLFetcher.fetchHTML(new URL(urlString));
+//		ArrayList<URL> urls = HTMLFetcher.listLinks(new URL(urlString), html);
+//		
+//		getWords(new URL(urlString), index);
+//		//TODO gotta make this recursive, fawk
+//		for (URL url : urls) {
+//			getWords(url, index);
+//			limit--;
+//			if (limit == 0) {
+//				break;
+//			}
+//		}
+		ArrayList<URL> urls = Traverser.traverse(new URL(urlString), limit);
+//		System.out.println(urls);
+		for (URL url : urls) {
+			getWords(url, index);
+		}
+	}
+	
+	public static void getWords(URL url, InvertedIndex index) throws IOException {
+		String html = HTMLFetcher.fetchHTML(url, 3);
+		
+		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+		int pos = 0;
+		
+		if (html != null) {
+			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
+				index.add(stem.stem(word).toString(), url.toString(), ++pos);
+			}
 		}
 	}
 	
@@ -62,7 +103,7 @@ public class IndexBuilder {
 	public static void traverse(Path path, InvertedIndex index, int threads) throws IOException {
 		WorkQueue queue = new WorkQueue(threads);
 		
-		for (Path file : TextFileFinder.traverse(path)) {
+		for (Path file : Traverser.traverse(path)) {
 			queue.execute(new Builder(file, index));
 		}
 		

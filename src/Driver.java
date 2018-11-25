@@ -25,6 +25,25 @@ public class Driver {
 			threads = argmap.getInt("-threads", 5);
 		}
 		
+		int limit = 50;
+		if (argmap.hasFlag("-limit")) {
+			try {
+				limit = argmap.getInt("-limit", 50);
+			} catch (NumberFormatException e) {
+				System.err.println(argmap.getString("-limit") + " is not a number");
+			}
+		}
+		
+		if (argmap.hasFlag("-url")) {
+			String url = argmap.getString("-url");
+			
+			try {
+				IndexBuilder.traverse(url, invertedIndex, limit);
+			} catch (IOException e) {
+				System.err.println("Cannot access URL " + url);
+			}
+		}
+		
 		if (argmap.hasFlag("-path")) {
 			Path path = argmap.getPath("-path");
 			
@@ -41,7 +60,7 @@ public class Driver {
 			Path index = argmap.getPath("-index", Paths.get("index.json"));
 			
 			try {
-				invertedIndex.toJSON(index);
+				invertedIndex.toJSON(index, limit);
 			} catch (IOException e) {
 				System.err.println("Cannot write to index " + index);
 			}
