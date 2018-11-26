@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import opennlp.tools.stemmer.Stemmer;
+import opennlp.tools.stemmer.snowball.SnowballStemmer;
+
 /**
  * Finds all textfiles
  */
@@ -67,28 +70,34 @@ public class Traverser {
 	 * @return urls ArrayList of urls
 	 * @throws IOException
 	 */
-	public static ArrayList<URL> traverse(URL url, int limit) throws IOException {
+	public static ArrayList<URL> traverse(URL url, int limit, InvertedIndex index) throws IOException {
 		String html = HTMLFetcher.fetchHTML(url);
 		ArrayList<URL> urls = new ArrayList<URL>();
 		limit--;
 		urls.add(clean(url));
 		
+		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+		int pos = 0;
+		
+		if (html != null) {
+			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
+				index.add(stem.stem(word).toString(), url.toString(), ++pos);
+			}
+		}
+		
 		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
 		Pattern pattern = Pattern.compile(regex);
 		
 		//TODO Make this faster
-		System.out.println(limit);
 		if (limit > 0 && html != null) {
 			Matcher matcher = pattern.matcher(html);
 			while (matcher.find()) {
-				System.out.println(url);
-				System.out.println(urls);
 				if (!urls.contains(clean(new URL(url, matcher.group(1))))) {
-					urls.addAll(traverse((clean(new URL(url, matcher.group(1)))), limit));
+					urls.addAll(traverse((clean(new URL(url, matcher.group(1)))), limit, index));
 				}
 			}
 		}
-		System.out.println(url);
+		
 		return urls;
 	}
 }

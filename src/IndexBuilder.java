@@ -4,7 +4,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -16,6 +15,24 @@ import opennlp.tools.stemmer.snowball.SnowballStemmer;
  *
  */
 public class IndexBuilder {
+
+	/**
+	 * Creates index from URL
+	 * @param url URL to get
+	 * @param index InvertedIndex to build to
+	 * @param html HTML of URL
+	 * @throws IOException
+	 */
+	public static void getWords(URL url, InvertedIndex index, String html) throws IOException {
+		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+		int pos = 0;
+		
+		if (html != null) {
+			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
+				index.add(stem.stem(word).toString(), url.toString(), ++pos);
+			}
+		}
+	}
 	
 	/**
 	 * Traverses through path and builds index from each file
@@ -28,40 +45,6 @@ public class IndexBuilder {
 	public static void traverse(Path path, InvertedIndex index) throws IOException {
 		for (Path file : Traverser.traverse(path)) {
 			getWords(file, index);
-		}
-	}
-	
-	/**
-	 * Traverses through URLs and builds index from each URL
-	 * @param url URL to traverse
-	 * @param index InvertedIndex to build
-	 * @throws IOException
-	 */
-	public static void traverse(String urlString, InvertedIndex index, int limit) throws IOException {
-//		String html = HTMLFetcher.fetchHTML(new URL(urlString));
-//		ArrayList<URL> urls = HTMLFetcher.listLinks(new URL(urlString), html);
-//		
-//		getWords(new URL(urlString), index);
-//		//TODO gotta make this recursive, fawk
-//		for (URL url : urls) {
-//			getWords(url, index);
-//		}
-		ArrayList<URL> urls = Traverser.traverse(new URL(urlString), limit);
-		for (URL url : urls) {
-			getWords(url, index);
-		}
-	}
-	
-	public static void getWords(URL url, InvertedIndex index) throws IOException {
-		String html = HTMLFetcher.fetchHTML(url, 3);
-		
-		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-		int pos = 0;
-		
-		if (html != null) {
-			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
-				index.add(stem.stem(word).toString(), url.toString(), ++pos);
-			}
 		}
 	}
 	

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -40,7 +41,7 @@ public class Driver {
 			String url = argmap.getString("-url");
 			
 			try {
-				IndexBuilder.traverse(url, invertedIndex, limit);
+				Traverser.traverse(new URL(url), limit, invertedIndex);
 			} catch (IOException e) {
 				System.err.println("Cannot access URL " + url);
 			}
