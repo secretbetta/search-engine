@@ -100,4 +100,18 @@ public class Traverser {
 		
 		return urls;
 	}
+	
+	public static void traverse2(URL url, int limit, InvertedIndex index) throws IOException {
+		String html = WebCrawler.fetchURL(url, index);
+		
+		if (limit > 0 && html != null) {
+			String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(html);
+			
+			while (matcher.find()) {
+				traverse2(clean(new URL(url, matcher.group(1))), --limit, index);
+			}
+		}
+	}
 }

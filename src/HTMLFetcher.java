@@ -66,7 +66,7 @@ public class HTMLFetcher {
 					results.putIfAbsent(split[0], new ArrayList<>());
 					results.get(split[0]).add(split[1]);
 				}
-				
+				 
 				List<String> lines = new ArrayList<>();
 				while ((line = response.readLine()) != null) {
 					lines.add(line);

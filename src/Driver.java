@@ -41,9 +41,12 @@ public class Driver {
 			String url = argmap.getString("-url");
 			
 			try {
-				Traverser.traverse(new URL(url), limit, invertedIndex);
+//				Traverser.traverse(new URL(url), limit, invertedIndex);
+				WebCrawler.fetchURL(new URL(url), invertedIndex);
 			} catch (IOException e) {
 				System.err.println("Cannot access URL " + url);
+			} catch (IllegalArgumentException e) {
+				System.err.println("URI Can't be " + url);
 			}
 		}
 		

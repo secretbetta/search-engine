@@ -25,7 +25,7 @@ public class WorkQueue {
 	/** The default number of threads to use when not specified. */
 	public static final int DEFAULT = 5;
 
-	public int wait = 0;
+	public int pending = 0;
 
 	/**
 	 * Starts a work queue with the default number of threads.
@@ -61,7 +61,7 @@ public class WorkQueue {
 	 */
 	public void execute(Runnable r) {
 		synchronized (queue) {
-			wait++;
+			pending++;
 			queue.addLast(r);
 			queue.notifyAll();
 		}
@@ -73,7 +73,7 @@ public class WorkQueue {
 	public void finish() {
 		try {
 			synchronized(queue) {
-				while (wait > 0) {
+				while (pending > 0) {
 					queue.wait();
 				}
 			}
@@ -148,8 +148,8 @@ public class WorkQueue {
 				}
 				
 				synchronized(queue) {
-					wait--;
-					if (wait == 0) {
+					pending--;
+					if (pending == 0) {
 						queue.notifyAll();
 					}
 				}
