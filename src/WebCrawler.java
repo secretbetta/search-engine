@@ -64,12 +64,7 @@ public class WebCrawler {
 		) {
 			String html = stream.collect(Collectors.joining("\n"));
 			
-			//TODO Build index using html here
-//			Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-//			int pos = 0;
-//			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
-//				index.add(stem.stem(word).toString(), url.toString(), ++pos);
-//			}
+			
 			
 			return html;
 		} catch (IOException e) {
@@ -88,26 +83,9 @@ public class WebCrawler {
 	 * @return cleaned list of all http(s) links in the order they were found
 	 * @throws IOException 
 	 */
-	public int listLinks(URL base, String html, int limit) throws IOException {
-		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
-		Pattern pattern = Pattern.compile(regex);
-		
-		if (html != null) {
-			Matcher matcher = pattern.matcher(html);
-			
-			while (matcher.find() && limit > 0) {
-				if (!links.contains(clean(new URL(base, matcher.group(1)))) 
-						&& (clean(new URL(base, matcher.group(1))).toString().toLowerCase().endsWith(".html")
-						|| clean(new URL(base, matcher.group(1))).toString().toLowerCase().endsWith(".htm"))
-						) {
-					this.links.add(clean(new URL(base, matcher.group(1))));
-				}
-				
-				limit--;
-				limit = listLinks(clean(new URL(base, matcher.group(1))), WebCrawler.fetchURL(clean(new URL(base, matcher.group(1)))), limit);
-			}
-		}
-		return limit;
+	public void listLinks(URL base, int limit) throws IOException {
+		String html = HTMLFetcher.fetchHTML(base);
+		listLinks(base, html, this.links);
 	}
 	
 	/**
@@ -117,7 +95,7 @@ public class WebCrawler {
 	 * @param url url to clean
 	 * @return cleaned url (or original url if any issues occurred)
 	 */
-	private static URL clean(URL url) {
+	public static URL clean(URL url) {
 		try {
 			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(),
 					url.getQuery(), null).toURL();
@@ -126,19 +104,82 @@ public class WebCrawler {
 			return url;
 		}
 	}
+
+	/**
+	 * Fetches the HTML (without any HTTP headers) for the provided URL. Will
+	 * return null if the link does not point to a HTML page.
+	 *
+	 * @param url url to fetch HTML from
+	 * @return HTML as a String or null if the link was not HTML
+	 *
+	 * @see <a href="https://docs.oracle.com/javase/tutorial/networking/urls/readingURL.html">Reading Directly from a URL</a>
+	 */
+	public static String fetchHTML(URL url) {
+		// THIS METHOD IS PROVIDED FOR YOU. DO NOT MODIFY!
+
+		String result = null;
+
+		try {
+			URLConnection connection = url.openConnection();
+			String type = connection.getContentType();
+
+			if (type != null && type.matches(".*\\bhtml\\b.*")) {
+				try (
+						InputStreamReader input = new InputStreamReader(connection.getInputStream());
+						BufferedReader reader = new BufferedReader(input);
+						Stream<String> stream = reader.lines();
+				) {
+					result = stream.collect(Collectors.joining("\n"));
+				}
+			}
+		}
+		catch (IOException e) {
+			result = null;
+		}
+
+		return result;
+	}
+
+	/**
+	 * Returns a list of all the HTTP(S) links found in the href attribute of the
+	 * anchor tags in the provided HTML. The links will be converted to absolute
+	 * using the base URL and cleaned (removing fragments and encoding special
+	 * characters as necessary).
+	 *
+	 * @param base base url used to convert relative links to absolute3
+	 * @param html raw html associated with the base url
+	 * @return cleaned list of all http(s) links in the order they were found
+	 * @throws MalformedURLException 
+	 */
+	public ArrayList<URL> listLinks(URL base, String html, ArrayList<URL> links) throws MalformedURLException {
+		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
+		Pattern pattern = Pattern.compile(regex);
+		
+		if (html!=null) {
+			Matcher matcher = pattern.matcher(html);
+			
+			while (matcher.find() && this.limit > 0) {
+				if (!links.contains(clean(new URL(base, matcher.group(1))))) {
+					links.add(clean(new URL(base, matcher.group(1))));
+				}
+				this.limit--;
+				links = listLinks(clean(new URL(base, matcher.group(1))), fetchHTML(clean(new URL(base, matcher.group(1)))), links);
+			}
+		}
+
+		return links;
+	}
 	
 	
 	public void crawler(URL url, InvertedIndex index) throws IOException {
 		String html = WebCrawler.fetchURL(url);
 		IndexBuilder.getWords(url, index, html);
-		System.out.println(url);
 		
 		if (html != null) {
-			listLinks(url, html, limit);
+			listLinks(url, --limit);
 			
 			for (URL site : this.links) {
 				html = WebCrawler.fetchURL(site);
-				System.out.println(site);
 				IndexBuilder.getWords(site, index, html);
 			}
 		}
