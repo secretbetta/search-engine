@@ -20,19 +20,23 @@ public class Driver {
 		var argmap = new ArgumentMap(args);
 		var invertedIndex = new ThreadSafeInvertedIndex();
 		var query = new QueryMap(invertedIndex);
+		WebCrawler crawler = null;
 		
 		int threads = 1;
 		if (argmap.hasFlag("-threads")) {
 			threads = argmap.getInt("-threads", 5);
 		}
 		
-		int limit = 50;
 		if (argmap.hasFlag("-limit")) {
 			try {
 				if (argmap.getInt("-limit") >= 0) {
-					limit = argmap.getInt("-limit", 50);
+					crawler = new WebCrawler(argmap.getInt("-limit", 50));
+				} else  {
+					crawler = new WebCrawler(0);
 				}
+				
 			} catch (NumberFormatException e) {
+				crawler = new WebCrawler(0);
 				System.err.println(argmap.getString("-limit") + " is not a number");
 			}
 		}
@@ -41,12 +45,11 @@ public class Driver {
 			String url = argmap.getString("-url");
 			
 			try {
-//				Traverser.traverse(new URL(url), limit, invertedIndex);
-				WebCrawler.fetchURL(new URL(url), invertedIndex);
-			} catch (IOException e) {
-				System.err.println("Cannot access URL " + url);
+				crawler.crawler(new URL(url), invertedIndex);
 			} catch (IllegalArgumentException e) {
 				System.err.println("URI Can't be " + url);
+			} catch (IOException e) {
+				System.err.println("Cannot get URL " + url);
 			}
 		}
 		

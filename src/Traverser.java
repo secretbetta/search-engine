@@ -1,17 +1,8 @@
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import opennlp.tools.stemmer.Stemmer;
-import opennlp.tools.stemmer.snowball.SnowballStemmer;
 
 /**
  * Finds all textfiles
@@ -44,74 +35,5 @@ public class Traverser {
 		}
 	
 		return files;
-	}
-	
-	/**
-	 * Removes the fragment component of a URL (if present), and properly encodes
-	 * the query string (if necessary).
-	 *
-	 * @param url url to clean
-	 * @return cleaned url (or original url if any issues occurred)
-	 */
-	public static URL clean(URL url) {
-		try {
-			return new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(),
-					url.getQuery(), null).toURL();
-		}
-		catch (MalformedURLException | URISyntaxException e) {
-			return url;
-		}
-	}
-	
-	/**
-	 * Traverses through all links up to a limit
-	 * @param url URL of web
-	 * @param limit Limit of how many links
-	 * @return urls ArrayList of urls
-	 * @throws IOException
-	 */
-	public static ArrayList<URL> traverse(URL url, int limit, InvertedIndex index) throws IOException {
-		String html = HTMLFetcher.fetchHTML(url);
-		ArrayList<URL> urls = new ArrayList<URL>();
-		limit--;
-		urls.add(clean(url));
-		
-		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-		int pos = 0;
-		
-		if (html != null) {
-			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
-				index.add(stem.stem(word).toString(), url.toString(), ++pos);
-			}
-		}
-		
-		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
-		Pattern pattern = Pattern.compile(regex);
-		
-		//TODO Make this faster
-		if (limit > 0 && html != null) {
-			Matcher matcher = pattern.matcher(html);
-			while (matcher.find()) {
-				if (!urls.contains(clean(new URL(url, matcher.group(1))))) {
-					urls.addAll(traverse((clean(new URL(url, matcher.group(1)))), limit, index));
-				}
-			}
-		}
-		
-		return urls;
-	}
-	
-	public static void traverse2(URL url, int limit, InvertedIndex index) throws IOException {
-		String html = WebCrawler.fetchURL(url, index);
-		
-		if (limit > 0 && html != null) {
-			String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
-			Pattern pattern = Pattern.compile(regex);
-			Matcher matcher = pattern.matcher(html);
-			
-			while (matcher.find()) {
-				traverse2(clean(new URL(url, matcher.group(1))), --limit, index);
-			}
-		}
 	}
 }

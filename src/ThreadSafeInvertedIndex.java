@@ -1,7 +1,5 @@
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
 
 /**
  * Thread safe version of inverted index
