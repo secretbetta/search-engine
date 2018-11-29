@@ -18,14 +18,9 @@ public class Driver {
 	 */
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
-		var invertedIndex = new ThreadSafeInvertedIndex();
-		var query = new QueryMap(invertedIndex);
+		InvertedIndex invertedIndex;
+		QueryMap query;
 		WebCrawler crawler = null;
-		
-		int threads = 1;
-		if (argmap.hasFlag("-threads")) {
-			threads = argmap.getInt("-threads", 5);
-		}
 		
 		if (argmap.hasFlag("-limit")) {
 			try {
@@ -41,27 +36,80 @@ public class Driver {
 			}
 		}
 		
-		if (argmap.hasFlag("-url")) {
-			String url = argmap.getString("-url");
+		if (argmap.hasFlag("-threads")) {
+			invertedIndex = new ThreadSafeInvertedIndex();
+			query = new QueryMap(invertedIndex);
+			int threads = argmap.getInt("-threads", 5);
 			
-			try {
-				crawler.crawler(new URL(url), invertedIndex);
-			} catch (IllegalArgumentException e) {
-				System.err.println("URI Can't be " + url);
-			} catch (IOException e) {
-				System.err.println("Cannot get URL " + url);
+			if (argmap.hasFlag("-path")) {
+				Path path = argmap.getPath("-path");
+				
+				try {
+					IndexBuilder.traverse(path, invertedIndex, threads);
+				} catch (NullPointerException e) {
+					System.err.println("Unable to create inverted index. Has no elements");
+				} catch (IOException e) {
+					System.err.println("Unable to get path from " + path);
+				}
 			}
-		}
-		
-		if (argmap.hasFlag("-path")) {
-			Path path = argmap.getPath("-path");
 			
-			try {
-				IndexBuilder.traverse(path, invertedIndex, threads);
-			} catch (NullPointerException e) {
-				System.err.println("Unable to create inverted index. Has no elements");
-			} catch (IOException e) {
-				System.err.println("Unable to get path from " + path);
+			if (argmap.hasFlag("-url")) {
+				String url = argmap.getString("-url");
+				
+				try {
+					crawler.crawler(new URL(url), invertedIndex, threads);
+				} catch (IllegalArgumentException e) {
+					System.err.println("URI Can't be " + url);
+				} catch (IOException e) {
+					System.err.println("Cannot get URL " + url);
+				}
+			}
+			
+			if (argmap.hasFlag("-search")) {
+				Path search = argmap.getPath("-search");
+				
+				try {
+					query.builder(search, argmap.hasFlag("-exact"), threads);
+				} catch (IOException e) {
+					System.err.println("Cannot build query map");
+				}
+			}
+		} else {
+			invertedIndex = new InvertedIndex();
+			query = new QueryMap(invertedIndex);
+			
+			if (argmap.hasFlag("-path")) {
+				Path path = argmap.getPath("-path");
+				
+				try {
+					IndexBuilder.traverse(path, invertedIndex);
+				} catch (NullPointerException e) {
+					System.err.println("Unable to create inverted index. Has no elements");
+				} catch (IOException e) {
+					System.err.println("Unable to get path from " + path);
+				}
+			}
+			
+			if (argmap.hasFlag("-url")) {
+				String url = argmap.getString("-url");
+				
+				try {
+					crawler.crawler(new URL(url), invertedIndex);
+				} catch (IllegalArgumentException e) {
+					System.err.println("URI Can't be " + url);
+				} catch (IOException e) {
+					System.err.println("Cannot get URL " + url);
+				}
+			}
+			
+			if (argmap.hasFlag("-search")) {
+				Path search = argmap.getPath("-search");
+				
+				try {
+					query.builder(search, argmap.hasFlag("-exact"));
+				} catch (IOException e) {
+					System.err.println("Cannot build query map");
+				}
 			}
 		}
 		
@@ -82,16 +130,6 @@ public class Driver {
 				invertedIndex.locationtoJSON(locIndex);
 			} catch (IOException e) {
 				System.err.println("Cannot write to file " + locIndex);
-			}
-		}
-		
-		if (argmap.hasFlag("-search")) {
-			Path search = argmap.getPath("-search");
-			
-			try {
-				query.builder(search, argmap.hasFlag("-exact"), threads);
-			} catch (IOException e) {
-				System.err.println("Cannot build query map");
 			}
 		}
 		

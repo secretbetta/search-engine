@@ -27,11 +27,9 @@ public class IndexBuilder {
 		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 		int pos = 0;
 		
-//		if (html != null) {
-			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
-				index.add(stem.stem(word).toString(), url.toString(), ++pos);
-			}
-//		}
+		for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
+			index.add(stem.stem(word).toString(), url.toString(), ++pos);
+		}
 	}
 	
 	/**
@@ -54,6 +52,19 @@ public class IndexBuilder {
 					index.add(stem.stem(word).toString(), filename, ++pos);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Traverses through files and builds index from each file
+	 * 
+	 * @param path Path to traverse
+	 * @param index Inverted Index to build to
+	 * @throws IOException
+	 */
+	public static void traverse(Path path, InvertedIndex index) throws IOException {
+		for (Path file : Traverser.traverse(path)) {
+			getWords(file, index);
 		}
 	}
 	
@@ -90,11 +101,14 @@ public class IndexBuilder {
 			this.file = file;
 		}
 		
+		/**
+		 * Builds index using IndexBuilder's getwords method
+		 */
 		@Override
 		public void run() {
 			try {
 				synchronized(index) {
-					IndexBuilder.getWords(file, index);
+					getWords(file, index);
 				}
 			} catch (IOException e) {
 				System.err.println("Cannot make index from file " + file);

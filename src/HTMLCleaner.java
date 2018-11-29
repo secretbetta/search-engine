@@ -1,7 +1,3 @@
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-
 /**
  * Cleans simple, validating HTML 4/5 into plain-text words using regular
  * expressions.
@@ -15,9 +11,6 @@ import java.net.URL;
  * @see java.lang.String#replaceAll(String, String)
  */
 public class HTMLCleaner {
-
-	// THE FOLLOWING REPLACE WITH THE EMPTY STRING
-
 	/**
 	 * Replaces all HTML entities with an empty string. For example,
 	 * "2010&ndash;2012" will become "20102012".
@@ -90,17 +83,5 @@ public class HTMLCleaner {
 		html = stripEntities(html);
 
 		return html;
-	}
-	
-	public static void main(String[] args) throws MalformedURLException, IOException {
-		InvertedIndex index = new InvertedIndex();
-		URL url = new URL("https://www.cs.usfca.edu/~cs212/simple/index.html");
-		WebCrawler crawler = new WebCrawler(10);
-		
-		crawler.crawler(url, index);
-		System.out.println(index);
-//		ArrayList<URL> links = Traverser.traverse(new URL("https://www.cs.usfca.edu/~cs212/recurse/link01.html"), 100);
-//		System.out.println(links);
-//		System.out.println(links.size());
 	}
 }

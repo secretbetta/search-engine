@@ -17,12 +17,12 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 	
 	@Override
 	public void add(String word, String file, int pos) {
-		lock.lockReadOnly();
+		lock.lockReadWrite();
 		
 		try {
 			super.add(word, file, pos);
 		} finally {
-			lock.unlockReadOnly();
+			lock.unlockReadWrite();
 		}
 	}
 	

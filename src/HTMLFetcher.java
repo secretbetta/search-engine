@@ -148,15 +148,11 @@ public class HTMLFetcher {
 	public static String fetchHTML(URL url, int redirects) throws IOException {
 		Map<String, List<String>> headers = fetchURL(url);
 		
-//		System.out.println(url);
 		if (isRedirect(headers) && redirects > 0) {
 			return fetchHTML(headers.get("Location").get(0), --redirects);
 		}
 		
-//		System.out.println(url);
-//		System.out.println(headers);
 		if (isHTML(headers) && getStatusCode(headers) == 200) {
-//			System.out.println(url);
 			return String.join(System.lineSeparator(), headers.get("Content"));
 		} else {
 			return null;
