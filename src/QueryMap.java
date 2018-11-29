@@ -7,6 +7,10 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+/*
+ * TODO Make a separate multithreaded querymap class.
+ */
+
 /**
  * Query Map data structure class with builder method
  * @author Andrew
@@ -62,6 +66,13 @@ public class QueryMap {
 		}
 	}
 	
+	/**
+	 * TODO
+	 * @param search
+	 * @param exact
+	 * @param threads
+	 * @throws IOException
+	 */
 	public void builder(Path search, boolean exact, int threads) throws IOException {
 		WorkQueue queue = new WorkQueue(threads);
 		
@@ -69,11 +80,12 @@ public class QueryMap {
 			String line;
 			
 			while ((line = reader.readLine()) != null) {
+				// TODO Only pass 2 parameters: line, exact
 				queue.execute(new Builder(line, this.query, index, exact));
 			}
 			
 			queue.finish();
-			queue.shutdown();
+			queue.shutdown(); // TODO In a finally block
 		}
 	}
 
@@ -87,13 +99,14 @@ public class QueryMap {
 		NestedJSON.queryObject(this.query, index);
 	}
 	
+	// TODO private non-static inner class
 	/**
 	 * Runnable builder class for QueryMap
 	 * @author Andrew
 	 *
 	 */
 	public static class Builder implements Runnable {
-
+		// TODO Clean up, Javadoc, keywords, etc.
 		String queryLine;
 		TreeMap<String, ArrayList<Result>> query;
 		InvertedIndex index;
@@ -106,6 +119,8 @@ public class QueryMap {
 			this.index = index;
 			this.que = new TreeSet<String>();
 			this.exact = exact;
+			
+			// TODO Make what you can local variables inside of the run() method
 		}
 		
 		@Override
@@ -114,6 +129,7 @@ public class QueryMap {
 			queryLine = String.join(" ", que);
 			
 			synchronized(query) {
+				// TODO Only 1 thread can do this at a time.
 				if (!(this.queryLine.isEmpty() && !this.query.containsKey(queryLine))) {
 					if (this.exact) {
 						this.query.put(queryLine, this.index.exactSearch(que));
@@ -122,6 +138,20 @@ public class QueryMap {
 					}
 				}
 			}
+			
+			/* TODO
+			synchronized(query) {
+				if (this.queryLine.isEmpty() || this.query.containsKey(queryLine)) {
+					return;
+				}
+			}
+			
+			List<Result> results = this.index.exactSearch(que);
+			
+			synchronized(query) {
+				this.query.put(queryLine, results);
+			}
+			*/
 		}	
 	}
 }

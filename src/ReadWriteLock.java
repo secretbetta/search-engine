@@ -42,6 +42,8 @@ public class ReadWriteLock {
 	public synchronized void unlockReadOnly() {
 		readers--;
 		this.notifyAll();
+		
+		// TODO Overnotification, only call notifyAll when readers is 0
 	}
 
 	/**

@@ -3,6 +3,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
+// TODO Remove unused imports
+
 /**
  * Thread safe version of inverted index
  * @author Andrew
@@ -10,7 +12,7 @@ import java.util.Collection;
  */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
 	
-	private ReadWriteLock lock;
+	private ReadWriteLock lock; // TODO final
 	
 	public ThreadSafeInvertedIndex() {
 		super();
@@ -19,7 +21,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 	
 	@Override
 	public void add(String word, String file, int pos) {
-		lock.lockReadOnly();
+		lock.lockReadOnly(); // TODO lockReadWrite
 		
 		try {
 			super.add(word, file, pos);
@@ -30,7 +32,7 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 	
 	@Override
 	public boolean contains(String word) {
-		lock.lockReadWrite();
+		lock.lockReadWrite(); // TODO lockReadOnly
 		
 		try {
 			return super.contains(word);
@@ -38,6 +40,8 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 			lock.unlockReadWrite();
 		}
 	}
+	
+	// TODO Everything else should be read only
 	
 	@Override
 	public boolean contains(String word, String location) {
@@ -115,4 +119,9 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 			lock.unlockReadWrite();
 		}
 	}
+	
+	/*
+	 * TODO Need to override and lock toJSON, locationtoJSON,
+	 * exactSearch, partialSearch, and toString()
+	 */
 }
