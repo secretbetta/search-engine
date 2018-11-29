@@ -27,11 +27,11 @@ public class IndexBuilder {
 		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
 		int pos = 0;
 		
-		if (html != null) {
+//		if (html != null) {
 			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
 				index.add(stem.stem(word).toString(), url.toString(), ++pos);
 			}
-		}
+//		}
 	}
 	
 	/**

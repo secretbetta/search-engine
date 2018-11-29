@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URL;
 
 /**
  * Cleans simple, validating HTML 4/5 into plain-text words using regular
@@ -92,6 +93,12 @@ public class HTMLCleaner {
 	}
 	
 	public static void main(String[] args) throws MalformedURLException, IOException {
+		InvertedIndex index = new InvertedIndex();
+		URL url = new URL("https://www.cs.usfca.edu/~cs212/simple/index.html");
+		WebCrawler crawler = new WebCrawler(10);
+		
+		crawler.crawler(url, index);
+		System.out.println(index);
 //		ArrayList<URL> links = Traverser.traverse(new URL("https://www.cs.usfca.edu/~cs212/recurse/link01.html"), 100);
 //		System.out.println(links);
 //		System.out.println(links.size());

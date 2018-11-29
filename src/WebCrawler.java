@@ -1,16 +1,12 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -31,63 +27,6 @@ public class WebCrawler {
 		this.links = new ArrayList<URL>();
 	}
 
-	/**
-	 * Fetches the headers and content for the specified URL. The content is placed
-	 * as a list of all the lines fetched under the "Content" key.
-	 *
-	 * @param url the url to fetch
-	 * @return a map with the headers and content
-	 * @throws IOException if unable to fetch headers and content
-	 */
-	private static String fetchURL(URL url) throws IOException {
-		// used to store all headers and content
-		Map<String, List<String>> results = new HashMap<>();
-
-		// connection to url
-		URLConnection urlConnection = url.openConnection();
-
-		// by default HttpURLConnection will follow redirects (within same protocol) automatically
-		// this is the connection usually underlying URLConnection
-		HttpURLConnection.setFollowRedirects(false);
-
-		// close connection instead of keep-alive
-		urlConnection.setRequestProperty("Connection", "close");
-
-		// get all of the headers
-		// note the status code might be placed with a "null" key
-		results.putAll(urlConnection.getHeaderFields());
-
-		try (
-				InputStreamReader input = new InputStreamReader(urlConnection.getInputStream());
-				BufferedReader reader = new BufferedReader(input);
-				Stream<String> stream = reader.lines();
-		) {
-			String html = stream.collect(Collectors.joining("\n"));
-			
-			
-			
-			return html;
-		} catch (IOException e) {
-			return null;
-		}
-	}
-	
-	/**
-	 * Returns a list of all the HTTP(S) links found in the href attribute of the
-	 * anchor tags in the provided HTML. The links will be converted to absolute
-	 * using the base URL and cleaned (removing fragments and encoding special
-	 * characters as necessary).
-	 *
-	 * @param base base url used to convert relative links to absolute3
-	 * @param html raw html associated with the base url
-	 * @return cleaned list of all http(s) links in the order they were found
-	 * @throws IOException 
-	 */
-	public void listLinks(URL base, int limit) throws IOException {
-		String html = HTMLFetcher.fetchHTML(base);
-		listLinks(base, html, this.links);
-	}
-	
 	/**
 	 * Removes the fragment component of a URL (if present), and properly encodes
 	 * the query string (if necessary).
@@ -151,36 +90,46 @@ public class WebCrawler {
 	 * @return cleaned list of all http(s) links in the order they were found
 	 * @throws MalformedURLException 
 	 */
-	public ArrayList<URL> listLinks(URL base, String html, ArrayList<URL> links) throws MalformedURLException {
+	public ArrayList<URL> listLinks(URL base, String html, int limit) throws MalformedURLException {
 		String regex = "(?is)<a.*?href.*?=.*?\"([^@&]*?)\"[^<]*?>";
 		Pattern pattern = Pattern.compile(regex);
 		
-		if (html!=null) {
+		if (html != null) {
 			Matcher matcher = pattern.matcher(html);
+			URL url;
 			
 			while (matcher.find() && this.limit > 0) {
-				if (!links.contains(clean(new URL(base, matcher.group(1))))) {
-					links.add(clean(new URL(base, matcher.group(1))));
+				System.out.println(base + "||" + matcher.group(1));
+				System.out.println(new URL(base, matcher.group(1)));
+				url = clean(new URL(base, matcher.group(1)));
+				
+				if (!this.links.contains(url)) {
+					this.links.add(url);
+					this.limit--;
+					this.links = listLinks(url, fetchHTML(url), limit);
 				}
-				this.limit--;
-				links = listLinks(clean(new URL(base, matcher.group(1))), fetchHTML(clean(new URL(base, matcher.group(1)))), links);
 			}
 		}
 
-		return links;
+		return this.links;
 	}
 	
 	
 	public void crawler(URL url, InvertedIndex index) throws IOException {
-		String html = WebCrawler.fetchURL(url);
-		IndexBuilder.getWords(url, index, html);
+//		String html = WebCrawler.fetchURL(url);
+//		var headers = HTMLFetcher.fetchURL(url);
+		
+		String html = HTMLFetcher.fetchHTML(url, 3);
 		
 		if (html != null) {
-			listLinks(url, --limit);
+			this.links.add(url);
+			listLinks(url, html, --limit);
 			
 			for (URL site : this.links) {
-				html = WebCrawler.fetchURL(site);
-				IndexBuilder.getWords(site, index, html);
+				html = HTMLFetcher.fetchHTML(site, 3);
+				if (html != null) {
+					IndexBuilder.getWords(site, index, html);
+				}
 			}
 		}
 	}

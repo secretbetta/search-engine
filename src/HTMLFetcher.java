@@ -55,7 +55,7 @@ public class HTMLFetcher {
 			
 			results.put(null, Arrays.asList(line));
 			
-			if (Integer.parseInt(results.get(null).get(0).substring(9, 12)) == 200) {
+//			if (Integer.parseInt(results.get(null).get(0).substring(9, 12)) == 200) {
 				while ((line = response.readLine()) != null) {
 					if (line.trim().isEmpty()) {
 						break;
@@ -73,7 +73,7 @@ public class HTMLFetcher {
 				}
 
 				results.put("Content", lines);
-			}
+//			}
 		}
 		return results;
 	}
@@ -148,14 +148,18 @@ public class HTMLFetcher {
 	public static String fetchHTML(URL url, int redirects) throws IOException {
 		Map<String, List<String>> headers = fetchURL(url);
 		
+//		System.out.println(url);
 		if (isRedirect(headers) && redirects > 0) {
 			return fetchHTML(headers.get("Location").get(0), --redirects);
 		}
 		
-		if (!isHTML(headers) || getStatusCode(headers) != 200) {
-			return null;
-		} else {
+//		System.out.println(url);
+//		System.out.println(headers);
+		if (isHTML(headers) && getStatusCode(headers) == 200) {
+//			System.out.println(url);
 			return String.join(System.lineSeparator(), headers.get("Content"));
+		} else {
+			return null;
 		}
 	}
 
