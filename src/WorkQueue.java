@@ -25,8 +25,13 @@ public class WorkQueue {
 	/** The default number of threads to use when not specified. */
 	public static final int DEFAULT = 5;
 
+	// TODO private, intialize instance members in the constructor
 	public int wait = 0;
 
+	// TODO Use the "this" object to lock all access to the "wait" member
+	// TODO "this" means something different inside a worker, so incrementWait and decrementWait methods make it easier
+	// TODO Call incrementWait before you synchronize on queue in the execute method
+	
 	/**
 	 * Starts a work queue with the default number of threads.
 	 *

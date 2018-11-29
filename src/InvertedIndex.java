@@ -177,6 +177,7 @@ public class InvertedIndex {
 		return resultList;
 	}
 	
+	// TODO private non-static, only pass in String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup
 	/**
 	 * The extension of searching for both partial and exact searches
 	 * @param query Query word 

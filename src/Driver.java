@@ -20,6 +20,8 @@ public class Driver {
 		var invertedIndex = new ThreadSafeInvertedIndex();
 		var query = new QueryMap(invertedIndex);
 		
+		// TODO You still need single-threaded functionality
+		
 		int threads = 1;
 		if (argmap.hasFlag("-threads")) {
 			threads = argmap.getInt("-threads", 5);

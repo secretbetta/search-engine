@@ -93,6 +93,7 @@ public class IndexBuilder {
 		}
 	}
 	
+	// TODO ThreadSafeInvertedIndex instead of InvertedIndex
 	/**
 	 * Thread version of traverse
 	 * 
@@ -111,16 +112,23 @@ public class IndexBuilder {
 		queue.shutdown();
 	}
 	
+	// TODO private static class
 	/**
 	 * Runnable builder class
 	 * @author Andrew
 	 *
 	 */
 	public static class Builder implements Runnable {
-
+		// TODO ThreadSafeInvertedIndex instead of InvertedIndex
+		// TODO keywords
 		InvertedIndex index;
 		Path file;
 		
+		/**
+		 * TODO
+		 * @param file
+		 * @param index
+		 */
 		public Builder(Path file, InvertedIndex index) {
 			this.index = index;
 			this.file = file;
@@ -129,9 +137,21 @@ public class IndexBuilder {
 		@Override
 		public void run() {
 			try {
+				// TODO Remove the synchronized block
 				synchronized(index) {
 					IndexBuilder.getWords(file, index);
 				}
+				
+				// TODO Small blocking adds in a loop is always slower than one large blocking add
+				// https://github.com/usf-cs212-fall2018/lectures/blob/master/Multithreading%20Work%20Queues/src/WorkQueueDirectoryListing.java#L52-L66
+				
+				/*
+				 * TODO
+				 * InvertedIndex local = new InvertedIndex();
+				 * IndexBuilder.getWords(file, local);
+				 * index.addAll(local); // make this method
+				 */
+				
 			} catch (IOException e) {
 				System.err.println("Cannot make index from file " + file);
 			}
