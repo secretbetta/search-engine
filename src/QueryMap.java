@@ -82,10 +82,14 @@ public class QueryMap {
 			while ((line = reader.readLine()) != null) {
 				queue.execute(new Builder(line, exact));
 			}
-		} finally {
+			
 			queue.finish();
 			queue.shutdown();
-		}
+		} 
+//		finally {
+//			queue.finish();
+//			queue.shutdown();
+//		}
 	}
 
 	/**

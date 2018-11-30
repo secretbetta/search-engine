@@ -45,7 +45,7 @@ public class InvertedIndex {
 	 * @param other The other Inverted Index
 	 */
 	public void addAll(InvertedIndex other) {
-//		index.putAll(other.index);
+		
 		//TODO lmao, I don't think this works so redo
 		for (String word : other.index.keySet()) {
 			if (!this.index.containsKey(word)) {
@@ -57,17 +57,6 @@ public class InvertedIndex {
 					}
 				}
 			}
-			
-//			if (!this.index.containsKey(word)) {
-//				for (String file : other.index.get(word).keySet()) {
-//					
-//					if (!this.index.get(word).containsKey(file)) {
-//						if (this.index.get(word).get(file).addAll(other.index.get(word).get(file))) {
-//							this.locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
-//						}
-//					}
-//				}
-//			}
 		}
 	}
 	
@@ -223,6 +212,7 @@ public class InvertedIndex {
 			if (lookup.containsKey(path)) {
 				lookup.get(path).add(wordcount);
 			} else {
+//				System.out.println(this.locationIndex.containsKey(path));
 				Result current = new Result(path, wordcount, this.locationIndex.get(path));
 				resultList.add(current);
 				lookup.put(path, current);

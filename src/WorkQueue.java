@@ -138,7 +138,7 @@ public class WorkQueue {
 						r = queue.removeFirst();
 					}
 				}
-
+				
 				try {
 					r.run();
 				}
