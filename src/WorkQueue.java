@@ -25,8 +25,7 @@ public class WorkQueue {
 	/** The default number of threads to use when not specified. */
 	public static final int DEFAULT = 5;
 
-	// TODO private, intialize instance members in the constructor
-	public int wait = 0;
+	public int pending;
 
 	// TODO Use the "this" object to lock all access to the "wait" member
 	// TODO "this" means something different inside a worker, so incrementWait and decrementWait methods make it easier
@@ -39,6 +38,7 @@ public class WorkQueue {
 	 */
 	public WorkQueue() {
 		this(DEFAULT);
+		this.pending = 0;
 	}
 
 	/**
@@ -51,7 +51,6 @@ public class WorkQueue {
 		this.workers = new PoolWorker[threads];
 		this.shutdown = false;
 
-		// start the threads so they are waiting in the background
 		for (int i = 0; i < threads; i++) {
 			this.workers[i] = new PoolWorker();
 			this.workers[i].start();
@@ -66,7 +65,7 @@ public class WorkQueue {
 	 */
 	public void execute(Runnable r) {
 		synchronized (queue) {
-			wait++;
+			pending++;
 			queue.addLast(r);
 			queue.notifyAll();
 		}
@@ -78,7 +77,7 @@ public class WorkQueue {
 	public void finish() {
 		try {
 			synchronized(queue) {
-				while (wait > 0) {
+				while (pending > 0) {
 					queue.wait();
 				}
 			}
@@ -133,13 +132,9 @@ public class WorkQueue {
 						}
 					}
 
-					// exit while for one of two reasons:
-					// (a) queue has work, or (b) shutdown has been called
-
 					if (shutdown) {
 						break;
-					}
-					else {
+					} else {
 						r = queue.removeFirst();
 					}
 				}
@@ -148,13 +143,12 @@ public class WorkQueue {
 					r.run();
 				}
 				catch (RuntimeException ex) {
-					// catch runtime exceptions to avoid leaking threads
 					System.err.println("Warning: Work queue encountered an exception while running.");
 				}
 				
 				synchronized(queue) {
-					wait--;
-					if (wait == 0) {
+					pending--;
+					if (pending == 0) {
 						queue.notifyAll();
 					}
 				}

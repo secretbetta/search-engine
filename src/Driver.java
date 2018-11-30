@@ -20,41 +20,51 @@ public class Driver {
 		var invertedIndex = new ThreadSafeInvertedIndex();
 		var query = new QueryMap(invertedIndex);
 		
-		// TODO You still need single-threaded functionality
-		
-		int threads = 1;
 		if (argmap.hasFlag("-threads")) {
-			threads = argmap.getInt("-threads", 5);
-		}
-		
-		int limit = 50;
-		if (argmap.hasFlag("-limit")) {
-			try {
-				limit = argmap.getInt("-limit", 50);
-			} catch (NumberFormatException e) {
-				System.err.println(argmap.getString("-limit") + " is not a number");
-			}
-		}
-		
-		if (argmap.hasFlag("-url")) {
-			String url = argmap.getString("-url");
+			int threads = argmap.getInt("-threads", 5);
 			
-			try {
-				IndexBuilder.traverse(url, invertedIndex, limit);
-			} catch (IOException e) {
-				System.err.println("Cannot access URL " + url);
+			if (argmap.hasFlag("-path")) {
+				Path path = argmap.getPath("-path");
+				
+				try {
+					IndexBuilder.traverse(path, invertedIndex, threads);
+				} catch (NullPointerException e) {
+					System.err.println("Unable to create inverted index. Has no elements");
+				} catch (IOException e) {
+					System.err.println("Unable to get path from " + path);
+				}
 			}
-		}
-		
-		if (argmap.hasFlag("-path")) {
-			Path path = argmap.getPath("-path");
 			
-			try {
-				IndexBuilder.traverse(path, invertedIndex, threads);
-			} catch (NullPointerException e) {
-				System.err.println("Unable to create inverted index. Has no elements");
-			} catch (IOException e) {
-				System.err.println("Unable to get path from " + path);
+			if (argmap.hasFlag("-search")) {
+				Path search = argmap.getPath("-search");
+				
+				try {
+					query.builder(search, argmap.hasFlag("-exact"), threads);
+				} catch (IOException e) {
+					System.err.println("Cannot build query map");
+				}
+			}
+		} else {
+			if (argmap.hasFlag("-path")) {
+				Path path = argmap.getPath("-path");
+				
+				try {
+					IndexBuilder.traverse(path, invertedIndex);
+				} catch (NullPointerException e) {
+					System.err.println("Unable to create inverted index. Has no elements");
+				} catch (IOException e) {
+					System.err.println("Unable to get path from " + path);
+				}
+			}
+			
+			if (argmap.hasFlag("-search")) {
+				Path search = argmap.getPath("-search");
+				
+				try {
+					query.builder(search, argmap.hasFlag("-exact"));
+				} catch (IOException e) {
+					System.err.println("Cannot build query map");
+				}
 			}
 		}
 		
@@ -62,7 +72,7 @@ public class Driver {
 			Path index = argmap.getPath("-index", Paths.get("index.json"));
 			
 			try {
-				invertedIndex.toJSON(index, limit);
+				invertedIndex.toJSON(index);
 			} catch (IOException e) {
 				System.err.println("Cannot write to index " + index);
 			}
@@ -75,16 +85,6 @@ public class Driver {
 				invertedIndex.locationtoJSON(locIndex);
 			} catch (IOException e) {
 				System.err.println("Cannot write to file " + locIndex);
-			}
-		}
-		
-		if (argmap.hasFlag("-search")) {
-			Path search = argmap.getPath("-search");
-			
-			try {
-				query.builder(search, argmap.hasFlag("-exact"), threads);
-			} catch (IOException e) {
-				System.err.println("Cannot build query map");
 			}
 		}
 		

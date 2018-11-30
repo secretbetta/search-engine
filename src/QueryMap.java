@@ -67,10 +67,11 @@ public class QueryMap {
 	}
 	
 	/**
-	 * TODO
-	 * @param search
-	 * @param exact
-	 * @param threads
+	 * Thread version of builder
+	 * 
+	 * @param search File to use as query
+	 * @param exact Exact or Partial search
+	 * @param threads Number of threads to use
 	 * @throws IOException
 	 */
 	public void builder(Path search, boolean exact, int threads) throws IOException {
@@ -78,14 +79,12 @@ public class QueryMap {
 		
 		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 			String line;
-			
 			while ((line = reader.readLine()) != null) {
-				// TODO Only pass 2 parameters: line, exact
-				queue.execute(new Builder(line, this.query, index, exact));
+				queue.execute(new Builder(line, exact));
 			}
-			
+		} finally {
 			queue.finish();
-			queue.shutdown(); // TODO In a finally block
+			queue.shutdown();
 		}
 	}
 
@@ -99,59 +98,44 @@ public class QueryMap {
 		NestedJSON.queryObject(this.query, index);
 	}
 	
-	// TODO private non-static inner class
 	/**
 	 * Runnable builder class for QueryMap
 	 * @author Andrew
 	 *
 	 */
-	public static class Builder implements Runnable {
-		// TODO Clean up, Javadoc, keywords, etc.
+	private class Builder implements Runnable {
 		String queryLine;
-		TreeMap<String, ArrayList<Result>> query;
-		InvertedIndex index;
-		TreeSet<String> que;
 		boolean exact;
 		
-		public Builder(String line, TreeMap<String, ArrayList<Result>> query, InvertedIndex index, boolean exact) {
+		public Builder(String line, boolean exact) {
 			this.queryLine = line;
-			this.query = query;
-			this.index = index;
-			this.que = new TreeSet<String>();
 			this.exact = exact;
-			
-			// TODO Make what you can local variables inside of the run() method
 		}
 		
 		@Override
 		public void run() {
-			que.addAll(TextFileStemmer.stemLine(this.queryLine));
-			queryLine = String.join(" ", que);
+			TreeSet<String> queries = new TreeSet<String>();
+			
+			queries.addAll(TextFileStemmer.stemLine(this.queryLine));
+			queryLine = String.join(" ", queries);
 			
 			synchronized(query) {
-				// TODO Only 1 thread can do this at a time.
-				if (!(this.queryLine.isEmpty() && !this.query.containsKey(queryLine))) {
-					if (this.exact) {
-						this.query.put(queryLine, this.index.exactSearch(que));
-					} else {
-						this.query.put(queryLine, this.index.partialSearch(que));
-					}
-				}
-			}
-			
-			/* TODO
-			synchronized(query) {
-				if (this.queryLine.isEmpty() || this.query.containsKey(queryLine)) {
+				if (this.queryLine.isEmpty() || query.containsKey(queryLine)) {
 					return;
 				}
 			}
 			
-			List<Result> results = this.index.exactSearch(que);
+			ArrayList<Result> results = new ArrayList<Result>();
+			
+			if (exact) {
+				results = index.exactSearch(queries);
+			} else {
+				results = index.partialSearch(queries);
+			}
 			
 			synchronized(query) {
-				this.query.put(queryLine, results);
+				query.put(queryLine, results);
 			}
-			*/
 		}	
 	}
 }

@@ -1,10 +1,8 @@
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 import opennlp.tools.stemmer.Stemmer;
 import opennlp.tools.stemmer.snowball.SnowballStemmer;
@@ -32,45 +30,6 @@ public class IndexBuilder {
 	}
 	
 	/**
-	 * Traverses through URLs and builds index from each URL
-	 * @param url URL to traverse
-	 * @param index InvertedIndex to build
-	 * @throws IOException
-	 */
-	public static void traverse(String urlString, InvertedIndex index, int limit) throws IOException {
-//		String html = HTMLFetcher.fetchHTML(new URL(urlString));
-//		ArrayList<URL> urls = HTMLFetcher.listLinks(new URL(urlString), html);
-//		
-//		getWords(new URL(urlString), index);
-//		//TODO gotta make this recursive, fawk
-//		for (URL url : urls) {
-//			getWords(url, index);
-//			limit--;
-//			if (limit == 0) {
-//				break;
-//			}
-//		}
-		ArrayList<URL> urls = Traverser.traverse(new URL(urlString), limit);
-//		System.out.println(urls);
-		for (URL url : urls) {
-			getWords(url, index);
-		}
-	}
-	
-	public static void getWords(URL url, InvertedIndex index) throws IOException {
-		String html = HTMLFetcher.fetchHTML(url, 3);
-		
-		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
-		int pos = 0;
-		
-		if (html != null) {
-			for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
-				index.add(stem.stem(word).toString(), url.toString(), ++pos);
-			}
-		}
-	}
-	
-	/**
 	 * Parses a text file into stemmed words, and adds those words to an inverted index
 	 * 
 	 * @param file path to the input file
@@ -93,7 +52,6 @@ public class IndexBuilder {
 		}
 	}
 	
-	// TODO ThreadSafeInvertedIndex instead of InvertedIndex
 	/**
 	 * Thread version of traverse
 	 * 
@@ -101,7 +59,7 @@ public class IndexBuilder {
 	 * 
 	 * @throws IOException
 	 */
-	public static void traverse(Path path, InvertedIndex index, int threads) throws IOException {
+	public static void traverse(Path path, ThreadSafeInvertedIndex index, int threads) throws IOException {
 		WorkQueue queue = new WorkQueue(threads);
 		
 		for (Path file : Traverser.traverse(path)) {
@@ -112,45 +70,44 @@ public class IndexBuilder {
 		queue.shutdown();
 	}
 	
-	// TODO private static class
 	/**
-	 * Runnable builder class
+	 * Runnable builder class to build Inverted Index
 	 * @author Andrew
 	 *
 	 */
-	public static class Builder implements Runnable {
-		// TODO ThreadSafeInvertedIndex instead of InvertedIndex
-		// TODO keywords
-		InvertedIndex index;
+	private static class Builder implements Runnable {
+		ThreadSafeInvertedIndex index;
 		Path file;
 		
 		/**
-		 * TODO
-		 * @param file
-		 * @param index
+		 * Initializes Thread Safe Inverted Index and the path to build
+		 * @param file file to add into {@link #index}
+		 * @param index Inverted Index to build to
 		 */
-		public Builder(Path file, InvertedIndex index) {
+		public Builder(Path file, ThreadSafeInvertedIndex index) {
 			this.index = index;
 			this.file = file;
 		}
 		
 		@Override
 		public void run() {
+			
+			InvertedIndex local = new InvertedIndex();
 			try {
-				// TODO Remove the synchronized block
-				synchronized(index) {
-					IndexBuilder.getWords(file, index);
-				}
+				IndexBuilder.getWords(file, local);
+//				IndexBuilder.getWords(file, index);
+				index.addAll(local);
 				
-				// TODO Small blocking adds in a loop is always slower than one large blocking add
+				// Small blocking adds in a loop is always slower than one large blocking add
 				// https://github.com/usf-cs212-fall2018/lectures/blob/master/Multithreading%20Work%20Queues/src/WorkQueueDirectoryListing.java#L52-L66
 				
 				/*
-				 * TODO
 				 * InvertedIndex local = new InvertedIndex();
 				 * IndexBuilder.getWords(file, local);
 				 * index.addAll(local); // make this method
 				 */
+				
+				
 				
 			} catch (IOException e) {
 				System.err.println("Cannot make index from file " + file);

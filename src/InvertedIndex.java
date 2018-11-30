@@ -40,6 +40,38 @@ public class InvertedIndex {
 	}
 	
 	/**
+	 * Adds everything from other Inverted Index to this {@link #index}.
+	 * Also updates {@link #locationIndex}
+	 * @param other The other Inverted Index
+	 */
+	public void addAll(InvertedIndex other) {
+//		index.putAll(other.index);
+		//TODO lmao, I don't think this works so redo
+		for (String word : other.index.keySet()) {
+			if (!this.index.containsKey(word)) {
+				this.index.put(word, other.index.get(word));
+			} else {
+				for (String file : other.index.get(word).keySet()) {
+					if (!this.index.get(word).containsKey(file)) {
+						this.index.get(word).put(file, other.index.get(word).get(file));
+					}
+				}
+			}
+			
+//			if (!this.index.containsKey(word)) {
+//				for (String file : other.index.get(word).keySet()) {
+//					
+//					if (!this.index.get(word).containsKey(file)) {
+//						if (this.index.get(word).get(file).addAll(other.index.get(word).get(file))) {
+//							this.locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
+//						}
+//					}
+//				}
+//			}
+		}
+	}
+	
+	/**
 	 * Does index contain word?
 	 * @param word Word input
 	 * @return true if index contains word
@@ -144,7 +176,7 @@ public class InvertedIndex {
 		TreeMap<String, Result> lookup = new TreeMap<String, Result>();
 		for (String query : queries) {
 			if (this.index.containsKey(query)) {
-				InvertedIndex.searchHelper(query, resultList, lookup, this.index, this.locationIndex);
+				searchHelper(query, resultList, lookup);
 			}
 		}
 		Collections.sort(resultList);
@@ -166,7 +198,7 @@ public class InvertedIndex {
 		for (String query : queries) {
 			for (String word : this.index.tailMap(query).keySet()) {
 				if (word.startsWith(query)) {
-					InvertedIndex.searchHelper(word, resultList, lookup, this.index, this.locationIndex);
+					searchHelper(word, resultList, lookup);
 				} else {
 					break;
 				}
@@ -177,21 +209,21 @@ public class InvertedIndex {
 		return resultList;
 	}
 	
-	// TODO private non-static, only pass in String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup
 	/**
 	 * The extension of searching for both partial and exact searches
 	 * @param query Query word 
 	 * @param resultList List of results to add
 	 * @param lookup To keep track of location in Results
 	 */
-	public static void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup, TreeMap<String, TreeMap<String, TreeSet<Integer>>> index, TreeMap<String, Integer> locationIndex) {
+	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
 		int wordcount;
-		for (String path : index.get(query).keySet()) {
-			wordcount = index.get(query).get(path).size();
+		
+		for (String path : this.index.get(query).keySet()) {
+			wordcount = this.index.get(query).get(path).size();
 			if (lookup.containsKey(path)) {
 				lookup.get(path).add(wordcount);
 			} else {
-				Result current = new Result(path, wordcount, locationIndex.get(path));
+				Result current = new Result(path, wordcount, this.locationIndex.get(path));
 				resultList.add(current);
 				lookup.put(path, current);
 			}
@@ -200,6 +232,6 @@ public class InvertedIndex {
 
 	@Override
 	public String toString() {
-		return index.toString();
+		return this.index.toString();
 	}
 }

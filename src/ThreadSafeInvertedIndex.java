@@ -3,8 +3,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 
-// TODO Remove unused imports
-
 /**
  * Thread safe version of inverted index
  * @author Andrew
@@ -12,7 +10,7 @@ import java.util.Collection;
  */
 public class ThreadSafeInvertedIndex extends InvertedIndex {
 	
-	private ReadWriteLock lock; // TODO final
+	private final ReadWriteLock lock;
 	
 	public ThreadSafeInvertedIndex() {
 		super();
@@ -21,18 +19,29 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 	
 	@Override
 	public void add(String word, String file, int pos) {
-		lock.lockReadOnly(); // TODO lockReadWrite
+		lock.lockReadWrite();
 		
 		try {
 			super.add(word, file, pos);
 		} finally {
-			lock.unlockReadOnly();
+			lock.unlockReadWrite();
+		}
+	}
+	
+	@Override
+	public void addAll(InvertedIndex other) {
+		lock.lockReadWrite();
+		
+		try {
+			super.addAll(other);
+		} finally {
+			lock.unlockReadWrite();
 		}
 	}
 	
 	@Override
 	public boolean contains(String word) {
-		lock.lockReadWrite(); // TODO lockReadOnly
+		lock.lockReadOnly();
 		
 		try {
 			return super.contains(word);
@@ -41,87 +50,113 @@ public class ThreadSafeInvertedIndex extends InvertedIndex {
 		}
 	}
 	
-	// TODO Everything else should be read only
-	
 	@Override
 	public boolean contains(String word, String location) {
-		lock.lockReadWrite();
+		lock.lockReadOnly();
 		
 		try {
 			return super.contains(word, location);
 		} finally {
-			lock.unlockReadWrite();
+			lock.unlockReadOnly();
 		}
 	}
 	
 	@Override
 	public boolean contains(String word, String location, int position) {
-		lock.lockReadWrite();
+		lock.lockReadOnly();
 		
 		try {
 			return super.contains(word, location, position);
 		} finally {
-			lock.unlockReadWrite();
+			lock.unlockReadOnly();
 		}
 	}
 	
 	@Override
 	public int words() {
-		lock.lockReadWrite();
+		lock.lockReadOnly();
 		
 		try {
 			return super.words();
 		} finally {
-			lock.unlockReadWrite();
+			lock.unlockReadOnly();
 		}
 	}
 	
 	@Override
 	public int locations(String word) {
-		lock.lockReadWrite();
+		lock.lockReadOnly();
 		
 		try {
 			return super.locations(word);
 		} finally {
-			lock.unlockReadWrite();
+			lock.unlockReadOnly();
 		}
 	}
 	
 	@Override
 	public int positions(String word, String file) {
-		lock.lockReadWrite();
+		lock.lockReadOnly();
 		
 		try {
 			return super.positions(word, file);
 		} finally {
-			lock.unlockReadWrite();
+			lock.unlockReadOnly();
 		}
 	}
 	
 	@Override
 	public void toJSON(Path path) throws IOException {
-		lock.lockReadWrite();
+		lock.lockReadOnly();
 		
 		try {
 			super.toJSON(path);
+		} finally {
+			lock.unlockReadOnly();
+		}
+	}
+	
+	@Override
+	public void locationtoJSON(Path locIndex) throws IOException {
+		lock.lockReadOnly();
+		
+		try {
+			super.locationtoJSON(locIndex);
+		} finally {
+			lock.unlockReadOnly();
+		}
+	}
+	
+	@Override
+	public ArrayList<Result> exactSearch(Collection<String> queries) {
+		lock.lockReadWrite();
+		
+		try {
+			return super.exactSearch(queries);
 		} finally {
 			lock.unlockReadWrite();
 		}
 	}
 	
 	@Override
-	public void locationtoJSON(Path locIndex) throws IOException {
+	public ArrayList<Result> partialSearch(Collection<String> queries) {
 		lock.lockReadWrite();
 		
 		try {
-			super.locationtoJSON(locIndex);
+			return super.partialSearch(queries);
 		} finally {
 			lock.unlockReadWrite();
 		}
 	}
 	
-	/*
-	 * TODO Need to override and lock toJSON, locationtoJSON,
-	 * exactSearch, partialSearch, and toString()
-	 */
+	@Override
+	public String toString() {
+		lock.lockReadOnly();
+		
+		try {
+			return super.toString();
+		} finally {
+			lock.unlockReadOnly();
+		}
+	}
 }
