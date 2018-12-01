@@ -46,7 +46,7 @@ public class InvertedIndex {
 	 */
 	public void addAll(InvertedIndex other) {
 		
-		//TODO lmao, I don't think this works so redo
+		//Omg it actually works O.o
 		for (String word : other.index.keySet()) {
 			if (!this.index.containsKey(word)) {
 				this.index.put(word, other.index.get(word));

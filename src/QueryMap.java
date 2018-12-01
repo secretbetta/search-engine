@@ -85,11 +85,7 @@ public class QueryMap {
 			
 			queue.finish();
 			queue.shutdown();
-		} 
-//		finally {
-//			queue.finish();
-//			queue.shutdown();
-//		}
+		}
 	}
 
 	/**

@@ -27,10 +27,6 @@ public class WorkQueue {
 
 	public int pending;
 
-	// TODO Use the "this" object to lock all access to the "wait" member
-	// TODO "this" means something different inside a worker, so incrementWait and decrementWait methods make it easier
-	// TODO Call incrementWait before you synchronize on queue in the execute method
-	
 	/**
 	 * Starts a work queue with the default number of threads.
 	 *
@@ -38,7 +34,7 @@ public class WorkQueue {
 	 */
 	public WorkQueue() {
 		this(DEFAULT);
-		this.pending = 0;
+		pending = 0;
 	}
 
 	/**
@@ -56,6 +52,23 @@ public class WorkQueue {
 			this.workers[i].start();
 		}
 	}
+	
+	/**
+	 * Increases pending
+	 */
+	public synchronized void incrementPending() {
+		this.pending++;
+	}
+	
+	/**
+	 * Decrease pending
+	 */
+	public synchronized void decrementPending() {
+		pending--;
+		if (pending <= 0) {
+			this.notifyAll();
+		}
+	}
 
 	/**
 	 * Adds a work request to the queue. A thread will process this request when
@@ -64,8 +77,8 @@ public class WorkQueue {
 	 * @param r work request (in the form of a {@link Runnable} object)
 	 */
 	public void execute(Runnable r) {
+		incrementPending();
 		synchronized (queue) {
-			pending++;
 			queue.addLast(r);
 			queue.notifyAll();
 		}
@@ -76,9 +89,9 @@ public class WorkQueue {
 	 */
 	public void finish() {
 		try {
-			synchronized(queue) {
+			synchronized(this) {
 				while (pending > 0) {
-					queue.wait();
+					this.wait();
 				}
 			}
 		} catch (InterruptedException e) {
@@ -91,8 +104,6 @@ public class WorkQueue {
 	 * but threads in-progress will not be interrupted.
 	 */
 	public void shutdown() {
-		// safe to do unsynchronized due to volatile keyword
-		
 		shutdown = true;
 
 		synchronized (this.queue) {
@@ -125,8 +136,7 @@ public class WorkQueue {
 					while (queue.isEmpty() && !shutdown) {
 						try {
 							queue.wait();
-						}
-						catch (InterruptedException ex) {
+						} catch (InterruptedException ex) {
 							System.err.println("Warning: Work queue interrupted.");
 							Thread.currentThread().interrupt();
 						}
@@ -141,16 +151,10 @@ public class WorkQueue {
 				
 				try {
 					r.run();
-				}
-				catch (RuntimeException ex) {
+				} catch (RuntimeException ex) {
 					System.err.println("Warning: Work queue encountered an exception while running.");
-				}
-				
-				synchronized(queue) {
-					pending--;
-					if (pending == 0) {
-						queue.notifyAll();
-					}
+				} finally {
+					decrementPending();
 				}
 			}
 		}

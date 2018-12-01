@@ -95,20 +95,13 @@ public class IndexBuilder {
 			InvertedIndex local = new InvertedIndex();
 			try {
 				IndexBuilder.getWords(file, local);
-//				IndexBuilder.getWords(file, index);
 				index.addAll(local);
-				
-				// Small blocking adds in a loop is always slower than one large blocking add
-				// https://github.com/usf-cs212-fall2018/lectures/blob/master/Multithreading%20Work%20Queues/src/WorkQueueDirectoryListing.java#L52-L66
 				
 				/*
 				 * InvertedIndex local = new InvertedIndex();
 				 * IndexBuilder.getWords(file, local);
 				 * index.addAll(local); // make this method
 				 */
-				
-				
-				
 			} catch (IOException e) {
 				System.err.println("Cannot make index from file " + file);
 			}
