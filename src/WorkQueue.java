@@ -150,13 +150,13 @@ public class WorkQueue {
 					}
 				}
 				
-				try {
+//				try {
 					r.run();
-				} catch (RuntimeException ex) {
-					System.err.println("Warning: Work queue encountered an exception while running.");
-				} finally {
+//				} catch (RuntimeException ex) {
+//					System.err.println("Warning: Work queue encountered an exception while running.");
+//				} finally {
 					decrementPending();
-				}
+//				}
 			}
 		}
 	}

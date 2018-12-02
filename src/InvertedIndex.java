@@ -35,7 +35,7 @@ public class InvertedIndex {
 		index.get(word).putIfAbsent(file, new TreeSet<Integer>());
 
 		if (index.get(word).get(file).add(pos)) {
-			locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
+			this.locationIndex.put(file, locationIndex.getOrDefault(file, 0) + 1);
 		}
 	}
 	
@@ -48,10 +48,21 @@ public class InvertedIndex {
 		for (String word : other.index.keySet()) {
 			if (!this.index.containsKey(word)) {
 				this.index.put(word, other.index.get(word));
+				for (String file : other.index.get(word).keySet()) {
+					locationIndex.put(file, locationIndex.getOrDefault(file, 0) + other.index.get(word).get(file).size());
+				}
 			} else {
 				for (String file : other.index.get(word).keySet()) {
 					if (!this.index.get(word).containsKey(file)) {
 						this.index.get(word).put(file, other.index.get(word).get(file));
+						this.locationIndex.put(file, locationIndex.getOrDefault(file, 0) + other.index.get(word).get(file).size());
+					} 
+					else {
+						for (int pos : other.index.get(word).get(file)) {
+							if (!this.contains(word, file, pos)) {
+								this.add(word, file, pos);
+							}
+						}
 					}
 				}
 			}
@@ -153,8 +164,22 @@ public class InvertedIndex {
 		
 		for (String query : queries) {
 			if (this.index.containsKey(query)) {
-				//Runs up until here
-				searchHelper(query, resultList, lookup);
+				
+				// Took what was inside of searchHelper
+				int wordcount;
+				
+				for (String path : this.index.get(query).keySet()) {
+					wordcount = this.index.get(query).get(path).size();
+					if (lookup.containsKey(path)) {
+						lookup.get(path).add(wordcount);
+					} else {
+						Result current = new Result(path, wordcount, this.locationIndex.get(path));
+						resultList.add(current);
+						lookup.put(path, current);
+					}
+				}
+				
+//				searchHelper(query, resultList, lookup);
 			}
 		}
 		
@@ -177,7 +202,22 @@ public class InvertedIndex {
 		for (String query : queries) {
 			for (String word : this.index.tailMap(query).keySet()) {
 				if (word.startsWith(query)) {
-					searchHelper(word, resultList, lookup);
+					// Took what was inside of searchhelper
+					
+					int wordcount;
+					
+					for (String path : this.index.get(word).keySet()) {
+						wordcount = this.index.get(word).get(path).size();
+						if (lookup.containsKey(path)) {
+							lookup.get(path).add(wordcount);
+						} else {
+							Result current = new Result(path, wordcount, this.locationIndex.get(path));
+							resultList.add(current);
+							lookup.put(path, current);
+						}
+					}
+					
+//					searchHelper(word, resultList, lookup);
 				} else {
 					break;
 				}
