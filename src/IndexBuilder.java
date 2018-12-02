@@ -91,7 +91,6 @@ public class IndexBuilder {
 		
 		@Override
 		public void run() {
-			
 			InvertedIndex local = new InvertedIndex();
 			try {
 				IndexBuilder.getWords(file, local);

@@ -18,12 +18,12 @@ public class Driver {
 	public static void main(String[] args) {
 		var argmap = new ArgumentMap(args);
 		InvertedIndex invertedIndex = null;
-		QueryMap query = null;
+		QueryMapInterface query = null;
 		
 		if (argmap.hasFlag("-threads")) {
 			int threads = argmap.getInt("-threads", 5);
 			invertedIndex = new ThreadSafeInvertedIndex();
-			query = new QueryMap((ThreadSafeInvertedIndex)invertedIndex);
+			query = new MultithreadQueryMap((ThreadSafeInvertedIndex)invertedIndex);
 			
 			if (argmap.hasFlag("-path")) {
 				Path path = argmap.getPath("-path");
@@ -66,8 +66,7 @@ public class Driver {
 				Path search = argmap.getPath("-search");
 				
 				try {
-					System.out.println("Normal index");
-					query.builder(search, argmap.hasFlag("-exact"));
+					query.builder(search, argmap.hasFlag("-exact"), 0);
 				} catch (IOException e) {
 					System.err.println("Cannot build query map");
 				}

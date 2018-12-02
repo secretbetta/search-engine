@@ -7,24 +7,14 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
-/*
- * TODO Make a separate multithreaded querymap class.
- * 
- * Wondering if making a second Constructor for ThreadSafeInvertedIndex is okay
- * This avoids me making another variable in Driver and lets me declare
- * both variables for QueryMap and InvertedIndex at the top of Driver.
- * I also use the threadIndex variable in the Threaded version of builder
- */
-
 /**
  * Query Map data structure class with builder method
  * @author Andrew
  *
  */
-public class QueryMap {
+public class QueryMap implements QueryMapInterface {
 	private final TreeMap<String, ArrayList<Result>> query;
 	private InvertedIndex index;
-	private ThreadSafeInvertedIndex threadIndex;
 	
 	/**
 	 * Initializes querymap and invertindex
@@ -33,15 +23,6 @@ public class QueryMap {
 	public QueryMap(InvertedIndex index) {
 		this.query = new TreeMap<>();
 		this.index = index;
-	}
-	
-	/**
-	 * Initializes querymap and threadsafeinvertedindex
-	 * @param index ThreadSafeInvertedIndex to search
-	 */
-	public QueryMap(ThreadSafeInvertedIndex index) {
-		this.query = new TreeMap<>();
-		this.threadIndex = index;
 	}
 	
 	/**
@@ -54,7 +35,8 @@ public class QueryMap {
 	 * 
 	 * @throws IOException
 	 */
-	public void builder(Path search, boolean exact) throws IOException {
+	@Override
+	public void builder(Path search, boolean exact, int threads) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 		
 			TreeSet<String> query; 
@@ -80,27 +62,6 @@ public class QueryMap {
 			}
 		}
 	}
-	
-	/**
-	 * Thread version of builder
-	 * 
-	 * @param search File to use as query
-	 * @param exact Exact or Partial search
-	 * @param threads Number of threads to use
-	 * @throws IOException
-	 */
-	public void builder(Path search, boolean exact, int threads) throws IOException {
-		WorkQueue queue = new WorkQueue(threads);
-		
-		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				queue.execute(new Builder(line, exact));
-			}
-		}
-		queue.finish();
-		queue.shutdown();
-	}
 
 	/**
 	 * Writes to index file the query map in JSON format
@@ -110,46 +71,5 @@ public class QueryMap {
 	 */
 	public void toJSON(Path index) throws IOException {
 		NestedJSON.queryObject(this.query, index);
-	}
-	
-	/**
-	 * Runnable builder class for QueryMap
-	 * @author Andrew
-	 *
-	 */
-	private class Builder implements Runnable {
-		String queryLine;
-		boolean exact;
-		
-		public Builder(String line, boolean exact) {
-			this.queryLine = line;
-			this.exact = exact;
-		}
-		
-		@Override
-		public void run() {
-			TreeSet<String> queries = new TreeSet<String>();
-			
-			queries.addAll(TextFileStemmer.stemLine(this.queryLine));
-			queryLine = String.join(" ", queries);
-			
-			synchronized(query) {
-				if (this.queryLine.isEmpty() || query.containsKey(queryLine)) {
-					return;
-				}
-			}
-			
-			ArrayList<Result> results = new ArrayList<Result>();
-			
-			if (exact) {
-				results = threadIndex.exactSearch(queries);
-			} else {
-				results = threadIndex.partialSearch(queries);
-			}
-			
-			synchronized(query) {
-				query.put(queryLine, results);
-			}
-		}	
 	}
 }
