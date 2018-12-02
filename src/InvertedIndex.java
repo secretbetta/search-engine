@@ -10,7 +10,7 @@ import java.util.TreeSet;
  * Data structure to store word to file(s) to position(s) in an inverted index format
  */
 public class InvertedIndex {
-	protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
+	private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 	private final TreeMap<String, Integer> locationIndex;
 	
 	/**
@@ -45,27 +45,22 @@ public class InvertedIndex {
 	 * @param other The other Inverted Index
 	 */
 	public void addAll(InvertedIndex other) {
-		for (String word : other.index.keySet()) {
-			if (!this.index.containsKey(word)) {
+		for (String word: other.index.keySet()) {
+			if (!index.containsKey(word)) {
 				this.index.put(word, other.index.get(word));
-				for (String file : other.index.get(word).keySet()) {
-					locationIndex.put(file, locationIndex.getOrDefault(file, 0) + other.index.get(word).get(file).size());
-				}
 			} else {
 				for (String file : other.index.get(word).keySet()) {
 					if (!this.index.get(word).containsKey(file)) {
-						this.index.get(word).put(file, other.index.get(word).get(file));
-						this.locationIndex.put(file, locationIndex.getOrDefault(file, 0) + other.index.get(word).get(file).size());
-					} 
-					else {
-						for (int pos : other.index.get(word).get(file)) {
-							if (!this.contains(word, file, pos)) {
-								this.add(word, file, pos);
-							}
-						}
+						index.get(word).put(file, other.index.get(word).get(file));
+					} else {
+						index.get(word).get(file).addAll(other.index.get(word).get(file));
 					}
 				}
 			}
+		}
+		
+		for (String file : other.locationIndex.keySet()) {
+			this.locationIndex.put(file, this.locationIndex.getOrDefault(file, 0) + other.locationIndex.get(file));
 		}
 	}
 	
@@ -164,22 +159,7 @@ public class InvertedIndex {
 		
 		for (String query : queries) {
 			if (this.index.containsKey(query)) {
-				
-				// Took what was inside of searchHelper
-				int wordcount;
-				
-				for (String path : this.index.get(query).keySet()) {
-					wordcount = this.index.get(query).get(path).size();
-					if (lookup.containsKey(path)) {
-						lookup.get(path).add(wordcount);
-					} else {
-						Result current = new Result(path, wordcount, this.locationIndex.get(path));
-						resultList.add(current);
-						lookup.put(path, current);
-					}
-				}
-				
-//				searchHelper(query, resultList, lookup);
+				searchHelper(query, resultList, lookup);
 			}
 		}
 		
@@ -202,22 +182,7 @@ public class InvertedIndex {
 		for (String query : queries) {
 			for (String word : this.index.tailMap(query).keySet()) {
 				if (word.startsWith(query)) {
-					// Took what was inside of searchhelper
-					
-					int wordcount;
-					
-					for (String path : this.index.get(word).keySet()) {
-						wordcount = this.index.get(word).get(path).size();
-						if (lookup.containsKey(path)) {
-							lookup.get(path).add(wordcount);
-						} else {
-							Result current = new Result(path, wordcount, this.locationIndex.get(path));
-							resultList.add(current);
-							lookup.put(path, current);
-						}
-					}
-					
-//					searchHelper(word, resultList, lookup);
+					searchHelper(word, resultList, lookup);
 				} else {
 					break;
 				}
@@ -234,8 +199,7 @@ public class InvertedIndex {
 	 * @param resultList List of results to add
 	 * @param lookup To keep track of location in Results
 	 */
-	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
-		System.out.println("Start searchHelper"); //This never runs? :/
+	private void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
 		int wordcount;
 		
 		for (String path : this.index.get(query).keySet()) {

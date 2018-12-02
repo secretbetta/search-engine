@@ -26,7 +26,7 @@ public class WorkQueue {
 	public static final int DEFAULT = 5;
 
 	/** Keeping track of pending queues. */
-	public int pending;
+	private int pending;
 
 	/**
 	 * Starts a work queue with the default number of threads.
@@ -150,13 +150,13 @@ public class WorkQueue {
 					}
 				}
 				
-//				try {
+				try {
 					r.run();
-//				} catch (RuntimeException ex) {
-//					System.err.println("Warning: Work queue encountered an exception while running.");
-//				} finally {
+				} catch (RuntimeException ex) {
+					System.err.println("Warning: Work queue encountered an exception while running.");
+				} finally {
 					decrementPending();
-//				}
+				}
 			}
 		}
 	}
