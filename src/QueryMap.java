@@ -18,15 +18,25 @@ import java.util.TreeSet;
  */
 public class QueryMap {
 	private final TreeMap<String, ArrayList<Result>> query;
-	private final InvertedIndex index;
+	private InvertedIndex index;
+	private ThreadSafeInvertedIndex threadIndex;
 	
 	/**
 	 * Initializes querymap and invertindex
-	 * @param index
+	 * @param index InvertedIndex to search
 	 */
 	public QueryMap(InvertedIndex index) {
 		this.query = new TreeMap<>();
 		this.index = index;
+	}
+	
+	/**
+	 * Initializes querymap and threadsafeinvertedindex
+	 * @param index ThreadSafeInvertedIndex to search
+	 */
+	public QueryMap(ThreadSafeInvertedIndex index) {
+		this.query = new TreeMap<>();
+		this.threadIndex = index;
 	}
 	
 	/**
@@ -82,10 +92,9 @@ public class QueryMap {
 			while ((line = reader.readLine()) != null) {
 				queue.execute(new Builder(line, exact));
 			}
-			
-			queue.finish();
-			queue.shutdown();
 		}
+		queue.finish();
+		queue.shutdown();
 	}
 
 	/**
@@ -128,9 +137,9 @@ public class QueryMap {
 			ArrayList<Result> results = new ArrayList<Result>();
 			
 			if (exact) {
-				results = index.exactSearch(queries);
+				results = threadIndex.exactSearch(queries);
 			} else {
-				results = index.partialSearch(queries);
+				results = threadIndex.partialSearch(queries);
 			}
 			
 			synchronized(query) {

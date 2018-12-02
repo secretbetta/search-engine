@@ -96,12 +96,6 @@ public class IndexBuilder {
 			try {
 				IndexBuilder.getWords(file, local);
 				index.addAll(local);
-				
-				/*
-				 * InvertedIndex local = new InvertedIndex();
-				 * IndexBuilder.getWords(file, local);
-				 * index.addAll(local); // make this method
-				 */
 			} catch (IOException e) {
 				System.err.println("Cannot make index from file " + file);
 			}

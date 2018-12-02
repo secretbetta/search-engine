@@ -10,7 +10,7 @@ import java.util.TreeSet;
  * Data structure to store word to file(s) to position(s) in an inverted index format
  */
 public class InvertedIndex {
-	private final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
+	protected final TreeMap<String, TreeMap<String, TreeSet<Integer>>> index;
 	private final TreeMap<String, Integer> locationIndex;
 	
 	/**
@@ -45,8 +45,6 @@ public class InvertedIndex {
 	 * @param other The other Inverted Index
 	 */
 	public void addAll(InvertedIndex other) {
-		
-		//Omg it actually works O.o
 		for (String word : other.index.keySet()) {
 			if (!this.index.containsKey(word)) {
 				this.index.put(word, other.index.get(word));
@@ -127,20 +125,9 @@ public class InvertedIndex {
 	 * Creates a file index in JSON format
 	 * @param path
 	 * @throws IOException
-	 * 
-	 * @see {@link #toJSON(Path, int)}
 	 */
 	public void toJSON(Path path) throws IOException {
-		toJSON(path, Integer.MAX_VALUE);
-	}
-	
-	/**
-	 * Creates a file index in JSON format
-	 * @param path
-	 * @throws IOException
-	 */
-	public void toJSON(Path path, int limit) throws IOException {
-		NestedJSON.tripledNested(index, path, limit);
+		NestedJSON.tripledNested(index, path);
 	}
 	
 	/**
@@ -163,11 +150,14 @@ public class InvertedIndex {
 	public ArrayList<Result> exactSearch(Collection<String> queries) {
 		ArrayList<Result> resultList = new ArrayList<Result>();
 		TreeMap<String, Result> lookup = new TreeMap<String, Result>();
+		
 		for (String query : queries) {
 			if (this.index.containsKey(query)) {
+				//Runs up until here
 				searchHelper(query, resultList, lookup);
 			}
 		}
+		
 		Collections.sort(resultList);
 		return resultList;
 	}
@@ -205,6 +195,7 @@ public class InvertedIndex {
 	 * @param lookup To keep track of location in Results
 	 */
 	public void searchHelper(String query, ArrayList<Result> resultList, TreeMap<String, Result> lookup) {
+		System.out.println("Start searchHelper"); //This never runs? :/
 		int wordcount;
 		
 		for (String path : this.index.get(query).keySet()) {
@@ -212,7 +203,6 @@ public class InvertedIndex {
 			if (lookup.containsKey(path)) {
 				lookup.get(path).add(wordcount);
 			} else {
-//				System.out.println(this.locationIndex.containsKey(path));
 				Result current = new Result(path, wordcount, this.locationIndex.get(path));
 				resultList.add(current);
 				lookup.put(path, current);
