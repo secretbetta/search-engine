@@ -33,7 +33,6 @@ public class MultithreadQueryMap implements QueryMapInterface {
 	 * @param threads Number of threads to use
 	 * @throws IOException
 	 */
-	@Override
 	public void builder(Path search, boolean exact, int threads) throws IOException {
 		WorkQueue queue = new WorkQueue(threads);
 		

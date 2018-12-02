@@ -8,5 +8,4 @@ import java.nio.file.Path;
  */
 public interface QueryMapInterface {
 	public abstract void toJSON(Path index) throws IOException;
-	public void builder(Path search, boolean exact, int threads) throws IOException;
 }

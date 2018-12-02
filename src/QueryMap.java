@@ -35,8 +35,7 @@ public class QueryMap implements QueryMapInterface {
 	 * 
 	 * @throws IOException
 	 */
-	@Override
-	public void builder(Path search, boolean exact, int threads) throws IOException {
+	public void builder(Path search, boolean exact) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 		
 			TreeSet<String> query; 

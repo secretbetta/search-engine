@@ -41,7 +41,7 @@ public class Driver {
 				Path search = argmap.getPath("-search");
 				
 				try {
-					query.builder(search, argmap.hasFlag("-exact"), threads);
+					((MultithreadQueryMap)query).builder(search, argmap.hasFlag("-exact"), threads);
 				} catch (IOException e) {
 					System.err.println("Cannot build query map");
 				}
@@ -66,7 +66,7 @@ public class Driver {
 				Path search = argmap.getPath("-search");
 				
 				try {
-					query.builder(search, argmap.hasFlag("-exact"), 0);
+					((QueryMap)query).builder(search, argmap.hasFlag("-exact"));
 				} catch (IOException e) {
 					System.err.println("Cannot build query map");
 				}
