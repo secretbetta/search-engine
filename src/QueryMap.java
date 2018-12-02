@@ -9,6 +9,11 @@ import java.util.TreeSet;
 
 /*
  * TODO Make a separate multithreaded querymap class.
+ * 
+ * Wondering if making a second Constructor for ThreadSafeInvertedIndex is okay
+ * This avoids me making another variable in Driver and lets me declare
+ * both variables for QueryMap and InvertedIndex at the top of Driver.
+ * I also use the threadIndex variable in the Threaded version of builder
  */
 
 /**
