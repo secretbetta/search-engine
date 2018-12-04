@@ -35,7 +35,7 @@ public class WorkQueue {
 	 */
 	public WorkQueue() {
 		this(DEFAULT);
-		pending = 0;
+		pending = 0; // TODO REmove and move this to the other constructor
 	}
 
 	/**
