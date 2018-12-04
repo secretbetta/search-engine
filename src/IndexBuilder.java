@@ -62,14 +62,14 @@ public class IndexBuilder {
 	public static void traverse(Path path, ThreadSafeInvertedIndex index, int threads) throws IOException {
 		WorkQueue queue = new WorkQueue(threads);
 		
-		// TODO try
-		for (Path file : Traverser.traverse(path)) {
-			queue.execute(new Builder(file, index));
+		try {
+			for (Path file : Traverser.traverse(path)) {
+				queue.execute(new Builder(file, index));
+			}
+		} finally {
+			queue.finish();
+			queue.shutdown();
 		}
-		
-		// TODO finally
-		queue.finish();
-		queue.shutdown();
 	}
 	
 	/**

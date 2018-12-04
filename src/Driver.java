@@ -22,40 +22,19 @@ public class Driver {
 		
 		if (argmap.hasFlag("-threads")) {
 			int threads = argmap.getInt("-threads", 5);
-			
-			/*
-			 * TODO
-			 * 
-			 * ThreadSafeInvertedIndex blah = new ThreadSafeInvertedIndex();
-			 * index = blah;
-			 * 
-			 * IndexBuilder.traverse(path, blah, threads);
-			 */
-			
-			
-			invertedIndex = new ThreadSafeInvertedIndex();
-			query = new MultithreadQueryMap((ThreadSafeInvertedIndex)invertedIndex);
+			ThreadSafeInvertedIndex threadIndex = new ThreadSafeInvertedIndex();
+			query = new MultithreadQueryMap(threadIndex, threads);
 			
 			if (argmap.hasFlag("-path")) {
 				Path path = argmap.getPath("-path");
 				
 				try {
-					IndexBuilder.traverse(path, (ThreadSafeInvertedIndex)invertedIndex, threads);
+					IndexBuilder.traverse(path, threadIndex, threads);
+					invertedIndex = threadIndex;
 				} catch (NullPointerException e) {
 					System.err.println("Unable to create inverted index. Has no elements");
 				} catch (IOException e) {
 					System.err.println("Unable to get path from " + path);
-				}
-			}
-			
-			// TODO Move outside if/else after fixing the interface
-			if (argmap.hasFlag("-search")) {
-				Path search = argmap.getPath("-search");
-				
-				try {
-					((MultithreadQueryMap)query).builder(search, argmap.hasFlag("-exact"), threads);
-				} catch (IOException e) {
-					System.err.println("Cannot build query map");
 				}
 			}
 		} else {
@@ -73,16 +52,15 @@ public class Driver {
 					System.err.println("Unable to get path from " + path);
 				}
 			}
+		}
+		
+		if (argmap.hasFlag("-search")) {
+			Path search = argmap.getPath("-search");
 			
-			// TODO Move outside if/else after fixing the interface
-			if (argmap.hasFlag("-search")) {
-				Path search = argmap.getPath("-search");
-				
-				try {
-					((QueryMap)query).builder(search, argmap.hasFlag("-exact"));
-				} catch (IOException e) {
-					System.err.println("Cannot build query map");
-				}
+			try {
+				query.builder(search, argmap.hasFlag("-exact"));
+			} catch (IOException e) {
+				System.err.println("Cannot build query map");
 			}
 		}
 		

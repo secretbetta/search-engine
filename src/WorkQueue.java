@@ -35,7 +35,6 @@ public class WorkQueue {
 	 */
 	public WorkQueue() {
 		this(DEFAULT);
-		pending = 0; // TODO REmove and move this to the other constructor
 	}
 
 	/**
@@ -47,6 +46,7 @@ public class WorkQueue {
 		this.queue = new LinkedList<Runnable>();
 		this.workers = new PoolWorker[threads];
 		this.shutdown = false;
+		this.pending = 0;
 
 		for (int i = 0; i < threads; i++) {
 			this.workers[i] = new PoolWorker();

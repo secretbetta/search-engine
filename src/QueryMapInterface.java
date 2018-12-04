@@ -1,8 +1,6 @@
 import java.io.IOException;
 import java.nio.file.Path;
 
-// TODO Javadoc here and then don't have to when you @Override the methods
-
 /**
  * Interface of Query Map
  * @author Andrew
@@ -10,7 +8,19 @@ import java.nio.file.Path;
  */
 public interface QueryMapInterface {
 	
-	// TODO public void builder(Path search, boolean exact) throws IOException;
+	/**
+	 * Builds Query Map by using search queries from path Search. 
+	 * Can be switched from partial or exact search
+	 * @param search Path to use search queries
+	 * @param exact (false) Partial or (true) Exact search
+	 * @throws IOException
+	 */
+	public void builder(Path search, boolean exact) throws IOException;
 	
-	public abstract void toJSON(Path index) throws IOException;
+	/**
+	 * Turns Query Map into JSON File in index path
+	 * @param index Where to write to JSON
+	 * @throws IOException
+	 */
+	public void toJSON(Path index) throws IOException;
 }

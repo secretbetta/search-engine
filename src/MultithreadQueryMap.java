@@ -15,46 +15,33 @@ import java.util.TreeSet;
 public class MultithreadQueryMap implements QueryMapInterface {
 	private final TreeMap<String, ArrayList<Result>> query;
 	private final ThreadSafeInvertedIndex index;
-	// TODO private final int threads;
+	private final int threads;
 	
 	/**
 	 * Initializes query and ThreadSafeInvertedIndex
 	 * @param index
 	 */
-	public MultithreadQueryMap(ThreadSafeInvertedIndex index) { // TODO PAss # of threads to constructor
+	public MultithreadQueryMap(ThreadSafeInvertedIndex index, int threads) {
 		query = new TreeMap<>();
 		this.index = index;
+		this.threads = threads;
 	}
 	
-	/**
-	 * Thread version of builder
-	 * 
-	 * @param search File to use as query
-	 * @param exact Exact or Partial search
-	 * @param threads Number of threads to use
-	 * @throws IOException
-	 */
-	public void builder(Path search, boolean exact, int threads) throws IOException {
-		WorkQueue queue = new WorkQueue(threads);
+	@Override
+	public void builder(Path search, boolean exact) throws IOException {
+		WorkQueue queue = new WorkQueue(this.threads);
 		
 		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 			String line;
 			while ((line = reader.readLine()) != null) {
 				queue.execute(new Builder(line, exact));
 			}
+		} finally {
+			queue.finish();
+			queue.shutdown();
 		}
-		
-		// TODO finally
-		queue.finish();
-		queue.shutdown();
 	}
-
-	/**
-	 * Writes to index file the query map in JSON format
-	 * 
-	 * @param index File to write to
-	 * @throws IOException
-	 */
+	
 	@Override
 	public void toJSON(Path index) throws IOException {
 		NestedJSON.queryObject(this.query, index);
@@ -87,8 +74,7 @@ public class MultithreadQueryMap implements QueryMapInterface {
 				}
 			}
 			
-			// TODO ArrayList<Result> results;
-			ArrayList<Result> results = new ArrayList<Result>();
+			ArrayList<Result> results;
 			
 			if (exact) {
 				results = index.exactSearch(queries);

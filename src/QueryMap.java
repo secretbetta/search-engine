@@ -14,7 +14,7 @@ import java.util.TreeSet;
  */
 public class QueryMap implements QueryMapInterface {
 	private final TreeMap<String, ArrayList<Result>> query;
-	private InvertedIndex index; // TODO finally
+	private final InvertedIndex index;
 	
 	/**
 	 * Initializes querymap and invertindex
@@ -25,16 +25,7 @@ public class QueryMap implements QueryMapInterface {
 		this.index = index;
 	}
 	
-	/**
-	 * Builds query map from invertedindex. 
-	 * 
-	 * @param search Path to use as search terms
-	 * @param path Path of file(s) to search in
-	 * @param exact Exact or Partial search
-	 * @param index Inverted index to read from
-	 * 
-	 * @throws IOException
-	 */
+	@Override
 	public void builder(Path search, boolean exact) throws IOException {
 		try (BufferedReader reader = Files.newBufferedReader(search, StandardCharsets.UTF_8);) {
 		
@@ -62,12 +53,7 @@ public class QueryMap implements QueryMapInterface {
 		}
 	}
 
-	/**
-	 * Writes to index file the query map in JSON format
-	 * 
-	 * @param index File to write to
-	 * @throws IOException
-	 */
+	@Override
 	public void toJSON(Path index) throws IOException {
 		NestedJSON.queryObject(this.query, index);
 	}
