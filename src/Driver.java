@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -19,6 +20,21 @@ public class Driver {
 		var argmap = new ArgumentMap(args);
 		InvertedIndex invertedIndex = null;
 		QueryMapInterface query = null;
+		WebCrawler crawler = null;
+		
+		if (argmap.hasFlag("-limit")) {
+			try {
+				if (argmap.getInt("-limit") >= 0) {
+					crawler = new WebCrawler(argmap.getInt("-limit", 50));
+				} else  {
+					crawler = new WebCrawler(0);
+				}
+				
+			} catch (NumberFormatException e) {
+				crawler = new WebCrawler(0);
+				System.err.println(argmap.getString("-limit") + " is not a number");
+			}
+		}
 		
 		if (argmap.hasFlag("-threads")) {
 			int threads = argmap.getInt("-threads", 5);
@@ -30,11 +46,23 @@ public class Driver {
 				
 				try {
 					IndexBuilder.traverse(path, threadIndex, threads);
-					invertedIndex = threadIndex;
 				} catch (NullPointerException e) {
 					System.err.println("Unable to create inverted index. Has no elements");
 				} catch (IOException e) {
 					System.err.println("Unable to get path from " + path);
+				}
+			}
+			
+			if (argmap.hasFlag("-url")) {
+				String url = argmap.getString("-url");
+				
+				try {
+					crawler.crawler(new URL(url), threadIndex, threads);
+					invertedIndex = threadIndex;
+				} catch (IllegalArgumentException e) {
+					System.err.println("URI Can't be " + url);
+				} catch (IOException e) {
+					System.err.println("Cannot get URL " + url);
 				}
 			}
 		} else {
@@ -50,6 +78,18 @@ public class Driver {
 					System.err.println("Unable to create inverted index. Has no elements");
 				} catch (IOException e) {
 					System.err.println("Unable to get path from " + path);
+				}
+			}
+			
+			if (argmap.hasFlag("-url")) {
+				String url = argmap.getString("-url");
+				
+				try {
+					crawler.crawler(new URL(url), invertedIndex);
+				} catch (IllegalArgumentException e) {
+					System.err.println("URI Can't be " + url);
+				} catch (IOException e) {
+					System.err.println("Cannot get URL " + url);
 				}
 			}
 		}

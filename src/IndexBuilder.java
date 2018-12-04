@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -49,6 +50,22 @@ public class IndexBuilder {
 					index.add(stem.stem(word).toString(), filename, ++pos);
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Creates index from URL
+	 * @param url URL to get
+	 * @param index InvertedIndex to build to
+	 * @param html HTML of URL
+	 * @throws IOException
+	 */
+	public static void getWords(URL url, InvertedIndex index, String html) throws IOException {
+		Stemmer stem = new SnowballStemmer(SnowballStemmer.ALGORITHM.ENGLISH);
+		int pos = 0;
+		
+		for (String word : TextParser.parse(HTMLCleaner.stripHTML(html))) {
+			index.add(stem.stem(word).toString(), url.toString(), ++pos);
 		}
 	}
 	
