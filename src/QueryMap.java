@@ -14,7 +14,7 @@ import java.util.TreeSet;
  */
 public class QueryMap implements QueryMapInterface {
 	private final TreeMap<String, ArrayList<Result>> query;
-	private InvertedIndex index;
+	private InvertedIndex index; // TODO finally
 	
 	/**
 	 * Initializes querymap and invertindex

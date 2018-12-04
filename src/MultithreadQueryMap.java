@@ -15,12 +15,13 @@ import java.util.TreeSet;
 public class MultithreadQueryMap implements QueryMapInterface {
 	private final TreeMap<String, ArrayList<Result>> query;
 	private final ThreadSafeInvertedIndex index;
+	// TODO private final int threads;
 	
 	/**
 	 * Initializes query and ThreadSafeInvertedIndex
 	 * @param index
 	 */
-	public MultithreadQueryMap(ThreadSafeInvertedIndex index) {
+	public MultithreadQueryMap(ThreadSafeInvertedIndex index) { // TODO PAss # of threads to constructor
 		query = new TreeMap<>();
 		this.index = index;
 	}
@@ -42,6 +43,8 @@ public class MultithreadQueryMap implements QueryMapInterface {
 				queue.execute(new Builder(line, exact));
 			}
 		}
+		
+		// TODO finally
 		queue.finish();
 		queue.shutdown();
 	}
@@ -84,6 +87,7 @@ public class MultithreadQueryMap implements QueryMapInterface {
 				}
 			}
 			
+			// TODO ArrayList<Result> results;
 			ArrayList<Result> results = new ArrayList<Result>();
 			
 			if (exact) {

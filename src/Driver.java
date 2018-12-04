@@ -22,6 +22,17 @@ public class Driver {
 		
 		if (argmap.hasFlag("-threads")) {
 			int threads = argmap.getInt("-threads", 5);
+			
+			/*
+			 * TODO
+			 * 
+			 * ThreadSafeInvertedIndex blah = new ThreadSafeInvertedIndex();
+			 * index = blah;
+			 * 
+			 * IndexBuilder.traverse(path, blah, threads);
+			 */
+			
+			
 			invertedIndex = new ThreadSafeInvertedIndex();
 			query = new MultithreadQueryMap((ThreadSafeInvertedIndex)invertedIndex);
 			
@@ -37,6 +48,7 @@ public class Driver {
 				}
 			}
 			
+			// TODO Move outside if/else after fixing the interface
 			if (argmap.hasFlag("-search")) {
 				Path search = argmap.getPath("-search");
 				
@@ -62,6 +74,7 @@ public class Driver {
 				}
 			}
 			
+			// TODO Move outside if/else after fixing the interface
 			if (argmap.hasFlag("-search")) {
 				Path search = argmap.getPath("-search");
 				
