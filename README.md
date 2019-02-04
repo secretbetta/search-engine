@@ -1,7 +1,5 @@
-# Project 
+# Search Program 
 
-The project is broken into two separate GitHub repositories and Eclipse Java projects. This is the private individual repository for your project source code. Unlike the test repository which is shared, this repository will only be accessible by you, the instructor, and the teacher assistants.
+The program was a project in Software Development class where we were supposed to build a program that could search text files and write to another file the output of how many words were found in the file, how much it comes up, and more.
 
-For more details, see the project guides at:
-
-<https://usf-cs212-fall2018.github.io/guides/projects.html>
+For more details, send questions to my email at nguyenandrew1999@gmail.com with the Subject line as "Search Program" with an optional java file name and line number(s) of where you may have questions.
